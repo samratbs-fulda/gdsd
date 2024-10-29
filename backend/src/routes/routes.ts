@@ -19,14 +19,14 @@ router.get('/assets/:assetname', function (req, res) {
 // About Page
 router.get('/about', function (req, res) {
     res.sendFile('about.html', {
-        root: frontendPath
+        root: frontendPath + '/about'
     });
 });
 
 // Single about pages
 router.get('/about/:aboutmember', function (req, res) {
     res.sendFile(req.params.aboutmember, {
-        root: frontendPath
+        root: frontendPath + '/about'
     });
 });
 
