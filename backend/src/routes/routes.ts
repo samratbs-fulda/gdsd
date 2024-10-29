@@ -3,36 +3,39 @@ import { homeController } from "../controllers";
 
 const router = Router();
 
-const frontendPath = __dirname + '/../../../../frontend'
-const assetPath = __dirname + '/../../../../frontend/assets'
+const aboutFrontendPath = __dirname + '/../../../../frontend/about'
+const aboutAssetPath = __dirname + '/../../../../frontend/about/assets'
 
 
 router.get("/", homeController);
 
+
+// About page(s)
 // Assets
-router.get('/assets/:assetname', function (req, res) {
+router.get('/about/assets/:assetname', function (req, res) {
     res.sendFile(req.params.assetname, {
-        root: assetPath
+        root: aboutAssetPath
     });
 });
 
 // About Page
 router.get('/about', function (req, res) {
     res.sendFile('about.html', {
-        root: frontendPath + '/about'
+        root: aboutFrontendPath
     });
 });
 
 // Single about pages
 router.get('/about/:aboutmember', function (req, res) {
     res.sendFile(req.params.aboutmember, {
-        root: frontendPath + '/about'
+        root: aboutFrontendPath
     });
 });
 
-router.get('/style.css', function (req, res) {
+// About page stylesheet
+router.get('/about/style.css', function (req, res) {
     res.sendFile('style.css', {
-        root: frontendPath
+        root: aboutFrontendPath
     });
 });
 
