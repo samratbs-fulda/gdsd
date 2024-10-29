@@ -72,3 +72,23 @@ p {
   color: #666;
   margin-bottom: 20px;
 }
+
+
+.member-rows {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+}
+
+.member-row {
+  flex: 1;
+  margin-right: 40px;
+  background-color: #f9f9f9;
+  padding: 30px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+
+  display: flex;
+  justify-content: center;
+}
