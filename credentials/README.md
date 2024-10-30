@@ -1,0 +1,31 @@
+# Connecting to Webserver 
+
+This guide explains how to connect to  GSDS-webserver (VM) using SSH and a key located in the same folder.
+
+## Prerequisites
+
+- SSH client installed on your machine.
+- Access to the private key file (`Server_key.pem`).
+
+## Steps
+
+1. **Open Terminal or Command Prompt:**
+    - On Windows, you can use Command Prompt or PowerShell.
+    - On macOS or Linux, use the Terminal.
+
+2. **Navigate to the Folder Containing the Key:**
+    ```sh
+    cd /credentials/
+    ```
+
+3. **Connect to the Webserver:**
+    ```sh
+    ssh -i Server_key.pem GSDSAdmin@72.144.48.205 
+    ```
+
+## Troubleshooting
+- Verify the IP address and username are correct.
+- Check your network connection.
+
+## Additional Resources
+- [SSH Documentation](https://www.ssh.com/ssh/)
