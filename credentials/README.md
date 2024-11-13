@@ -18,7 +18,12 @@ This guide explains how to connect to  GSDS-webserver (VM) using SSH and a key l
     cd credentials/
     ```
 
-3. **Connect to the Webserver:**
+3. **Mac only: Add Read-Write permissions to key file**
+```sh
+chmod 600 ./WebServerKey.pem
+```
+
+4. **Connect to the Webserver:**
     ```sh
     ssh -i WebServerKey.pem ubuntu@18.221.235.12
     ```
