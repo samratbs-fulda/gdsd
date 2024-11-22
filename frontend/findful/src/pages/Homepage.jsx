@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { sendSearchRequest } from '../../services/searchService';
-import './HomePage.css';
+import { sendSearchRequest } from '../services/searchService';
+import './Homepage.css';
+import Header from '../components/header/Header';
 
-const Homepage: React.FC = () => {
+const Homepage = () => {
     const [searchText, setSearchText] = useState('');
     const [apartmentType, setApartmentType] = useState('1-room apartment');
 
@@ -16,7 +17,8 @@ const Homepage: React.FC = () => {
     };
 
     return (
-        <div className="container">
+        <div className="homepage">
+            <Header />
             <h1>Search for Apartments</h1>
             <div className="search-form">
                 <input
