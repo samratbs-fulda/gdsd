@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { sendSearchRequest } from '../services/searchService';
 import './Homepage.css';
 import Header from '../components/header/Header';
+import Map from '../components/map/Map';
 
 const Homepage = () => {
     const [searchText, setSearchText] = useState('');
@@ -19,6 +20,7 @@ const Homepage = () => {
     return (
         <div className="homepage">
             <Header />
+            
             <h1>Search for Apartments</h1>
             <div className="search-form">
                 <input
@@ -37,6 +39,8 @@ const Homepage = () => {
                 </select>
                 <button onClick={searchApartment}>Search</button>
             </div>
+
+            <Map />
         </div>
     );
 };
