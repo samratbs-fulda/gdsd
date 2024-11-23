@@ -12,3 +12,10 @@ How to build and run backend server on local.
 
 1. npm install to get all dependencies
 2. npm run serve
+
+
+How to build an run the frontend on a local machine:
+1. cd frontend/findful/
+2. npm install
+3. npm run build
+4. npm run dev
