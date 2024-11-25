@@ -21,6 +21,12 @@ async function main() {
         apartment_type: "Shared Apartment",
         rent: 320.0,
       },
+      {
+        name: "Not Center",
+        postcode: "12312",
+        apartment_type: "Shared Apartment",
+        rent: 360.0,
+      },
       { name: "New", postcode: "7457", apartment_type: "Sublet", rent: 550.0 },
     ],
   });
