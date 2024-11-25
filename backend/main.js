@@ -3,9 +3,9 @@ require("dotenv-flow").config();
 const express = require("express");
 const cors = require("cors");
 const prisma = require("./src/utils/db");
+const router = require("./src/routes");
 
 const app = express();
-const listingRouter = require("./src/routes/");
 const PORT = process.env.PORT || 8000;
 
 // Allow requests from the frontend
@@ -24,12 +24,6 @@ async function startServer() {
 }
 
 app.use(express.json());
-
-// app.use(router);
-
-app.use("/api/listings", listingRouter);
-app.use("/", (req, res) => {
-  res.send("Welcome to FindFul");
-});
+app.use("/api", router);
 
 startServer();

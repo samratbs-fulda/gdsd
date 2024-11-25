@@ -10,12 +10,13 @@ class SearchService {
     }
   }
 
-  async getListingsByApartmentType(apartment_type) {
+  async getListingsByApartmentType(apartment_type, postal_code) {
     try {
       const listings = await prisma.listing.findMany({
         where: {
           apartment_type: apartment_type,
-        },
+          postcode: postal_code
+        }
       });
       return listings;
     } catch (error) {
