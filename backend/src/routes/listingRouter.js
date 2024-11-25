@@ -1,8 +1,16 @@
+const express = require("express");
 const { SearchService } = require("../services");
+
+const router = express.Router();
 
 const searchService = new SearchService();
 
-const searchController = async (req, res) => {
+router.get("/", async (req, res) => {
+  const listings = await searchService.getAllListings();
+  res.json({ listings });
+});
+
+router.get("/search", async (req, res) => {
   const { apartment_type } = req.query;
 
   if (!apartment_type) {
@@ -12,12 +20,7 @@ const searchController = async (req, res) => {
   const listings = await searchService.getListingsByApartmentType(
     apartment_type
   );
-  res.status(200).json({ listings });
-};
+  res.json({ listings });
+});
 
-const getListingsController = async (req, res) => {
-  const listings = await searchService.getAllListings();
-  res.status(200).json({ listings });
-};
-
-module.exports = { searchController, getListingsController };
+module.exports = router;
