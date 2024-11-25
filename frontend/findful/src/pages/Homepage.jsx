@@ -60,6 +60,7 @@ const Homepage = () => {
       {/* SHOW ALL LISTINGS FROM db */}
       <div className="listings">
         <h2>Listings</h2>
+
         <ul>
           {listings.map((listing) => (
             <li key={listing.id}>
