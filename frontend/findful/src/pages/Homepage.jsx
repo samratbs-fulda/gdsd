@@ -4,6 +4,7 @@ import "./Homepage.css";
 import Header from "../components/header/Header";
 import Map from "../components/map/Map";
 import { Input, Select, Button } from "antd";
+import React from "react";
 
 const Homepage = () => {
     const [searchText, setSearchText] = useState("");
@@ -29,6 +30,7 @@ const Homepage = () => {
     const getFilteredLisitings = async () => {
         try {
             const response = await searchListing(searchText, listingType);
+            setListings(response);
             console.log("Search Response:", response);
         } catch (error) {
             console.error("Error during search:", error);
@@ -65,7 +67,7 @@ const Homepage = () => {
                     <h2>Listings</h2>
 
                     <ul>
-                        {listings.map((listing) => (
+                        {listings?.map((listing) => (
                             <li key={listing.id}>
                                 <h3>{listing.name}</h3>
                                 <p>{listing.apartment_type}</p>

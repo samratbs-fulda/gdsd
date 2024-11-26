@@ -8,5 +8,14 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env.VITE_ENV': JSON.stringify(mode),
     },
+    server: {
+      proxy: {
+        "/api": {
+          target: process.env.VITE_BACKEND,
+          changeOrigin: true,
+          secure: false,
+        }
+      }
+    }
   }
 })
