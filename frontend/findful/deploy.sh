@@ -1,10 +1,17 @@
+#!/bin/bash
+
+PROJECT_NAME="findful-frontend"       
+VM_USER="ubuntu"              
+VM_IP="18.221.235.12"              
+VM_PATH="/home/$VM_USER/$PROJECT_NAME" 
+
 echo 'Building frontend...'
 npm run build
 
 echo 'Copying frontend build to server...'
-scp -i ../../credentials/WebServerKey.pem -r dist/* ubuntu@18.221.235.12:/home/ubuntu/findful-frontend
+scp -i ../../credentials/WebServerKey.pem -r dist/* $VM_USER@$VM_IP:$VM_PATH
 
 echo 'Deploying frontend...'
-ssh -i ../../credentials/WebServerKey.pem ubuntu@18.221.235.12 'sudo cp -r /home/ubuntu/findful-frontend/* /var/www/html'
+ssh -i ../../credentials/WebServerKey.pem $VM_USER@$VM_IP 'sudo cp -r /home/ubuntu/findful-frontend/* /var/www/html'
 
 echo 'Frontend deployed successfully!'
