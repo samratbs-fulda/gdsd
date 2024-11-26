@@ -7,6 +7,6 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     define: {
       'process.env.VITE_ENV': JSON.stringify(mode),
-    }
+    },
   }
 })
