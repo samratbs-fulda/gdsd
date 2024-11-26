@@ -1,10 +1,40 @@
+require("dotenv-flow").config();
 const prisma = require("../utils/db");
 
+const AWS = require('aws-sdk');
+
+const s3 = new AWS.S3({
+  region: process.env.AWS_REGION, 
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
+
 class SearchService {
+  async fetImage(key, expiresIn = 3600){
+    const params = {
+      Bucket: process.env.BUCKET_NAME,
+      Key: key, // name of the image file
+      // Exprires: expiresIn,
+    };
+  
+    try {
+      const signedUrl = await s3.getSignedUrlPromise('getObject', params);
+      return signedUrl;
+    } catch (error) {
+      console.error('Error fetching file:', error);
+      throw error;
+    }
+  }
+
   async getAllListings() {
     try {
       const listings = await prisma.listing.findMany();
-      return listings;
+      const image = await this.fetImage('image.webp');
+      const img = {"img": image};
+      const newListing = listings.map((listing) => {
+        return {...listing, ...img};
+      });
+      return newListing;
     } catch (error) {
       console.error("Error fetching listings:", error);
     }
@@ -18,7 +48,12 @@ class SearchService {
           postcode: postal_code
         }
       });
-      return listings;
+      const image = await this.fetImage('image.webp');
+      const img = {"img": image};
+      const newListing = listings.map((listing) => {
+        return {...listing, ...img};
+      });
+      return newListing;
     } catch (error) {
       console.error("Error fetching listings:", error);
     }

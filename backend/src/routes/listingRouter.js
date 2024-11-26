@@ -13,9 +13,9 @@ router.get("/search", async (req, res) => {
   const { apartment_type } = req.query;
   const { postal_code } = req.query;
 
-  if (!apartment_type) {
-    return res.status(400).json({ message: "apartment_type is required" });
-  }
+  // if (!apartment_type) {
+  //   return res.status(400).json({ message: "apartment_type is required" });
+  // }
 
   const listings = await searchService.getListingsByApartmentType(
     apartment_type,

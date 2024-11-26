@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "aws-sdk": "^2.1692.0",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
