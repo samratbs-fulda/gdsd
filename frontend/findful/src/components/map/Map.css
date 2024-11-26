@@ -1,5 +1,7 @@
 .leaflet-container {
-    width: 50%;
+    width: 80%;
     height: 50vh;
     z-index: 1;
+    margin-left: auto;
+    margin-right: auto;
   }
