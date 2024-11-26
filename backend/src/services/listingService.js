@@ -10,11 +10,11 @@ const s3 = new AWS.S3({
 });
 
 class SearchService {
-  async fetImage(key, expiresIn = 3600){
+  async fetImage(key, expiresIn = 30){
     const params = {
       Bucket: process.env.BUCKET_NAME,
       Key: key, // name of the image file
-      // Exprires: expiresIn,
+      Expires: expiresIn,
     };
   
     try {
