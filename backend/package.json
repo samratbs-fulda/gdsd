@@ -5,7 +5,7 @@
   "scripts": {
     "start": "NODE_ENV=production node main.js",
     "dev": "cross-env NODE_ENV=development nodemon main.js",
-    "load": "cross-env NODE_ENV=development node prisma/localseed.js"
+    "load": "cross-env NODE_ENV=development node prisma/seed.js"
   },
   "author": "",
   "license": "ISC",
