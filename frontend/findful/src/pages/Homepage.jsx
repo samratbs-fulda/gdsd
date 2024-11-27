@@ -8,7 +8,7 @@ import React from "react";
 
 const Homepage = () => {
     const [searchText, setSearchText] = useState("");
-    const [listingType, setListingType] = useState("Single-room apartment");
+    const [listingType, setListingType] = useState("all");
     const [listings, setListings] = useState([]);
 
     // Fetch all listings on component mount
@@ -54,7 +54,8 @@ const Homepage = () => {
                         value={listingType}
                         onChange={(value) => setListingType(value)}
                         options={[
-                            { value: 'Single-room apartment', label: <span>Single-room apartment</span> },
+                            { value: 'all', label: <span>All</span> },
+                            { value: 'single apartment', label: <span>Single-room apartment</span> },
                             { value: 'shared apartment', label: <span>Shared apartment</span> },
                             { value: 'sublet', label: <span>Sublet</span> },
                         ]}
@@ -70,6 +71,7 @@ const Homepage = () => {
                         {listings?.map((listing) => (
                             <li key={listing.id}>
                                 <h3>{listing.name}</h3>
+                                <img src={listing.img} alt="image"/>
                                 <p>{listing.apartment_type}</p>
                                 <p>{listing.rent}</p>
                                 <p>{listing.postcode}</p>
