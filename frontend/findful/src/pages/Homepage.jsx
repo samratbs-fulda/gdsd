@@ -1,42 +1,29 @@
-import { useEffect, useState } from "react";
+import React from "react";
+import { useState } from "react";
 import { getAllListings, searchListing } from "../services/listingService";
 import "./Homepage.css";
 import Header from "../components/header/Header";
 import Map from "../components/map/Map";
-import { Input, Select, Button, Row, Col, Card } from "antd";
-import React from "react";
+import { Input, Select, Button, Row, Col, Card, Form } from "antd";
 import Meta from "antd/es/card/Meta";
+import { useQuery } from "@tanstack/react-query";
+import ColumnGroup from "antd/es/table/ColumnGroup";
 
 const Homepage = () => {
   const [searchText, setSearchText] = useState("");
   const [listingType, setListingType] = useState("all");
-  const [listings, setListings] = useState([]);
 
-  // Fetch all listings on component mount
-  useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        const data = await getAllListings();
-
-        // Call the getAllListings function
-        setListings(data); // Set fetched listings to state
-      } catch (error) {
-        console.error("Error fetching listings:", error);
+  const listingsQuery = useQuery({
+    queryKey: ["listings", { searchText, listingType }],
+    queryFn: () => {
+      if (!searchText && listingType === "all") {
+        return getAllListings();
       }
-    };
+      return searchListing(searchText, listingType);
+    },
+  });
 
-    fetchListings(); // Trigger the fetch
-  }, []);
-
-  const getFilteredLisitings = async () => {
-    try {
-      const response = await searchListing(searchText, listingType);
-      setListings(response);
-      console.log("Search Response:", response);
-    } catch (error) {
-      console.error("Error during search:", error);
-    }
-  };
+  const listings = listingsQuery.data || [];
 
   return (
     <div className="homepage">
@@ -44,31 +31,35 @@ const Homepage = () => {
 
       <div className="content">
         <h1>Search for Apartments</h1>
-        <div className="search-form">
-          <Input
-            type="text"
-            placeholder="Search your location"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-          <Select
-            value={listingType}
-            onChange={(value) => setListingType(value)}
-            options={[
-              { value: "all", label: <span>All</span> },
-              {
-                value: "single apartment",
-                label: <span>Single-room apartment</span>,
-              },
-              {
-                value: "shared apartment",
-                label: <span>Shared apartment</span>,
-              },
-              { value: "sublet", label: <span>Sublet</span> },
-            ]}
-          />
-          <Button onClick={getFilteredLisitings}>Search</Button>
-        </div>
+        <Form
+          className="search-form"
+          onFinish={(values) => {
+            setSearchText(values.searchText);
+            setListingType(values.listingType);
+          }}
+        >
+          <Form.Item name="searchText">
+            <Input type="text" placeholder="Search your location" />
+          </Form.Item>
+          <Form.Item name="listingType" initialValue="all">
+            <Select
+              options={[
+                { value: "all", label: <span>All</span> },
+                {
+                  value: "single apartment",
+                  label: <span>Single-room apartment</span>,
+                },
+                {
+                  value: "shared apartment",
+                  label: <span>Shared apartment</span>,
+                },
+                { value: "sublet", label: <span>Sublet</span> },
+              ]}
+            />
+          </Form.Item>
+
+          <Button htmlType="submit">Search</Button>
+        </Form>
 
         {/* SHOW ALL LISTINGS FROM db */}
         <div className="listings">
