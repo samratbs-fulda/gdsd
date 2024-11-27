@@ -15,11 +15,12 @@ export const getAllListings = async () => {
 };
 
 export const searchListing = async (searchText, apartmentType) => {
+  var params = {};
+  if (searchText) params.postal_code = searchText;
+  if (apartmentType && apartmentType !== 'all') params.apartment_type = apartmentType;
+
   const payload = {
-    params: {
-      apartment_type: apartmentType,
-      postal_code: searchText,
-    }
+    params: params,
   };
 
   try {
