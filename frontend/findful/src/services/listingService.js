@@ -2,7 +2,7 @@ import axios from "axios";
 import { getEnvironment } from "../utils/fetchEnvironment";
 
 const environment = getEnvironment();
-const apiUrl = environment.backend;
+const apiUrl = environment.VITE_BACKEND;
 
 export const getAllListings = async () => {
   try {
@@ -16,14 +16,15 @@ export const getAllListings = async () => {
 
 export const searchListing = async (searchText, apartmentType) => {
   const payload = {
-    query: searchText,
-    apartmentType: apartmentType,
+    params: {
+      apartment_type: apartmentType,
+      postal_code: searchText,
+    }
   };
 
-  // TODO: Edit to fetch data from our data base (via backend API)
   try {
-    const response = await axios.get(`${apiUrl}/api/search`, payload);
-    return response.data;
+    const response = await axios.get(`${apiUrl}/api/listings/search`, payload);
+    return response.data.listings;
   } catch (error) {
     console.error("API Request Failed:", error);
     throw error;
