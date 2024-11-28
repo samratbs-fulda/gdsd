@@ -1,4 +1,4 @@
 export const environment = {
-  backend: "http://localhost:8000",
-  VITE_BACKEND: "http://localhost:8000"
+  backend: "https://findful.us.to",
+  VITE_BACKEND: "https://findful.us.to"
 };
