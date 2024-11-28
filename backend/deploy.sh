@@ -4,6 +4,8 @@ PROJECT_NAME="findful-backend"
 VM_USER="ubuntu"              
 VM_IP="18.221.235.12"              
 VM_PATH="/home/$VM_USER/$PROJECT_NAME"   
+echo "Cleaning build files..."
+rm -rf ./node_modules
 
 echo "Transferring files to the VM..."
 scp -i ../credentials/WebServerKey.pem -r ./*  $VM_USER@$VM_IP:$VM_PATH
