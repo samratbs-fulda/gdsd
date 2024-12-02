@@ -1,87 +1,104 @@
-import { useEffect, useState } from "react";
+import React from "react";
+import { useState } from "react";
 import { getAllListings, searchListing } from "../services/listingService";
 import "./Homepage.css";
 import Header from "../components/header/Header";
 import Map from "../components/map/Map";
-import { Input, Select, Button } from "antd";
-import React from "react";
+import { Input, Select, Button, Row, Col, Card, Form } from "antd";
+import Meta from "antd/es/card/Meta";
+import { useQuery } from "@tanstack/react-query";
+import ColumnGroup from "antd/es/table/ColumnGroup";
 
 const Homepage = () => {
-    const [searchText, setSearchText] = useState("");
-    const [listingType, setListingType] = useState("Single-room apartment");
-    const [listings, setListings] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [listingType, setListingType] = useState("all");
 
-    // Fetch all listings on component mount
-    useEffect(() => {
-        const fetchListings = async () => {
-            try {
-                const data = await getAllListings();
+  const listingsQuery = useQuery({
+    queryKey: ["listings", { searchText, listingType }],
+    queryFn: () => {
+      if (!searchText && listingType === "all") {
+        return getAllListings();
+      }
+      return searchListing(searchText, listingType);
+    },
+  });
 
-                // Call the getAllListings function
-                setListings(data); // Set fetched listings to state
-            } catch (error) {
-                console.error("Error fetching listings:", error);
-            }
-        };
-
-        fetchListings(); // Trigger the fetch
-    }, []);
-
-    const getFilteredLisitings = async () => {
-        try {
-            const response = await searchListing(searchText, listingType);
-            setListings(response);
-            console.log("Search Response:", response);
-        } catch (error) {
-            console.error("Error during search:", error);
-        }
-    };
+  const listings = listingsQuery.data || [];
 
     return (
         <div className="homepage">
             <Header />
 
-            <div className='content'>
-                <h1>Search for Apartments</h1>
-                <div className="search-form">
-                    <Input
-                        type="text"
-                        placeholder="Search your location"
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
+      <div className="content">
+        <h1>Search for Apartments</h1>
+        <Form
+          className="search-form"
+          onFinish={(values) => {
+            setSearchText(values.searchText);
+            setListingType(values.listingType);
+          }}
+        >
+          <Form.Item name="searchText">
+            <Input type="text" placeholder="Search your location" />
+          </Form.Item>
+          <Form.Item name="listingType" initialValue="all">
+            <Select
+              options={[
+                { value: "all", label: <span>All</span> },
+                {
+                  value: "single apartment",
+                  label: <span>Single-room apartment</span>,
+                },
+                {
+                  value: "shared apartment",
+                  label: <span>Shared apartment</span>,
+                },
+                { value: "sublet", label: <span>Sublet</span> },
+              ]}
+            />
+          </Form.Item>
+
+          <Button htmlType="submit">Search</Button>
+        </Form>
+
+        {/* SHOW ALL LISTINGS FROM db */}
+        <div className="listings">
+          <h2>Listings</h2>
+
+          <Row gutter={16}>
+            {listings.map((listing) => (
+              <Col span={8} key={listing.id} style={{ marginBottom: 16 }}>
+                <Card
+                  hoverable
+                  cover={
+                    <img
+                      alt="listing"
+                      src={listing.img}
+                      className="listing-image"
                     />
-                    <Select
-                        value={listingType}
-                        onChange={(value) => setListingType(value)}
-                        options={[
-                            { value: 'Single-room apartment', label: <span>Single-room apartment</span> },
-                            { value: 'shared apartment', label: <span>Shared apartment</span> },
-                            { value: 'sublet', label: <span>Sublet</span> },
-                        ]}
-                    />
-                    <Button onClick={getFilteredLisitings}>Search</Button>
-                </div>
-
-                {/* SHOW ALL LISTINGS FROM db */}
-                <div className="listings">
-                    <h2>Listings</h2>
-
-                    <ul>
-                        {listings?.map((listing) => (
-                            <li key={listing.id}>
-                                <h3>{listing.name}</h3>
-                                <p>{listing.apartment_type}</p>
-                                <p>{listing.rent}</p>
-                                <p>{listing.postcode}</p>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                <Map />
-            </div>
+                  }
+                  actions={[
+                    <Button key="view-details" type="primary">
+                      View Details
+                    </Button>,
+                  ]}
+                >
+                  <Meta
+                    title={listing.name}
+                    description={listing.apartment_type}
+                  />
+                  <p>Rent: ${listing.rent}</p>
+                  <p>Postcode: {listing.postcode}</p>
+                </Card>
+              </Col>
+            ))}
+          </Row>
         </div>
-    );
+
+        <Map />
+      </div>
+    </div>
+  );
 };
 
 export default Homepage;
