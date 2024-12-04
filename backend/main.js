@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 // Allow requests from the frontend
-const allowedOrigins = ['https://findful.us.to'];
+const allowedOrigins = ['https://findful.us.to', 'http://localhost:5173'];
 
 const corsOptions = {
     origin: (origin, callback) => {
