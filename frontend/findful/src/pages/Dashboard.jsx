@@ -3,6 +3,8 @@ import { UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, theme } from 'antd';
 const { Content, Footer, Sider } = Layout;
 import FHeader from '../components/header/Header';
+import ReviewListings from '../components/reviewContent/reviewListings';
+import ReviewUsers from '../components/reviewContent/reviewUsers';
 const items = [UnorderedListOutlined, UserOutlined].map((icon, index) => {
   if (index === 0) {
     return {
@@ -35,13 +37,38 @@ const Dashboard = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const [selectedKey, setSelectedKey] = React.useState('1');
+  const handleMenuClick = (e) => {
+    setSelectedKey(e.key);
+  };
+
+  const renderContent = () => {
+
+    switch (selectedKey) {
+      case '1':
+        return <ReviewListings status={"pending"} />;
+      case '2':
+        return <ReviewListings status={"approved"} />;
+      case '3':
+        return <ReviewListings status={"rejected"} />;
+      case '4':
+        return <ReviewUsers status={"pending"} />;
+      case '5':
+        return <ReviewUsers status={"clear"} />;
+      case '6':
+        return <ReviewUsers status={"banned"} />;
+      default:
+        return <ReviewListings status={"To review"} />;
+    }
+  };
   return (
     <Layout style={
         {
             height: '100vh',
         }
     }>
-      <FHeader></FHeader>
+      <FHeader/>
       <Content
         style={{
           padding: '20px 48px',
@@ -71,6 +98,7 @@ const Dashboard = () => {
                 height: '100%',
               }}
               items={items}
+              onClick={handleMenuClick}
             />
           </Sider>
           <Content
@@ -80,7 +108,7 @@ const Dashboard = () => {
             }}
             /* Component to load listings/users */
           >
-            Content
+            {renderContent()}
           </Content>
         </Layout>
       </Content>
