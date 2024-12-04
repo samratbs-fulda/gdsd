@@ -1,12 +1,17 @@
-import './Header.css';
+import React from 'react';
+import { Layout} from 'antd';
+const { Header} = Layout;
 
-const Header = () => {
+const FHeader = () => {
     return (
-        <div className="header">
-            <p id='contentnotice'>Fulda University of Applied Sciences Software Engineering Project, Fall 2024 For Demonstration Only</p>
-            <h2>Findful</h2>
-        </div>
+        <Header style={{
+            display: 'flex',
+            alignItems: 'center',
+            height: '10%',
+          }}>
+            <p style={{color: 'white'}}>Header content</p>
+        </Header>
     );
 };
 
-export default Header;
+export default FHeader;
