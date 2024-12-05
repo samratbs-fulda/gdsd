@@ -2,7 +2,8 @@ import React from "react";
 import { useState } from "react";
 import { getAllListings, searchListing } from "../services/listingService";
 import "./Homepage.css";
-import Header from "../components/header/Header";
+import FHeader from "../components/header/Header";
+import Map from "../components/map/Map";
 import { Input, Select, Button, Row, Col, Card, Form } from "antd";
 import Meta from "antd/es/card/Meta";
 import { useQuery } from "@tanstack/react-query";
@@ -23,9 +24,9 @@ const Homepage = () => {
 
   const listings = listingsQuery.data || [];
 
-    return (
-        <div className="homepage">
-            <Header />
+  return (
+    <div className="homepage">
+      <FHeader />
 
       <div className="content">
         <h1>Search for Apartments</h1>

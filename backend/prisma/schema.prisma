@@ -13,4 +13,12 @@ model Listing {
   postcode     String
   apartment_type String
   rent         Float
+  status       String
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  lastname     String
+  status       String
 }

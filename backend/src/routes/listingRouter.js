@@ -9,6 +9,13 @@ router.get("/", async (req, res) => {
   res.json({ listings });
 });
 
+router.get("/review", async (req, res) => {
+  const { status } = req.query;
+
+  const listings = await searchService.getListingsByStatus(status);
+  res.json({ listings });
+});
+
 router.get("/search", async (req, res) => {
   const { apartment_type } = req.query;
   const { postal_code } = req.query;
