@@ -4,6 +4,8 @@ import { getEnvironment } from "../utils/fetchEnvironment";
 const environment = getEnvironment();
 const apiUrl = environment.VITE_BACKEND;
 
+console.log("first", apiUrl);
+
 export const getAllListings = async () => {
   try {
     const response = await axios.get(`${apiUrl}/api/listings`); // Assuming you have an endpoint like '/listings'
@@ -17,7 +19,8 @@ export const getAllListings = async () => {
 export const searchListing = async (searchText, apartmentType) => {
   var params = {};
   if (searchText) params.postal_code = searchText;
-  if (apartmentType && apartmentType !== 'all') params.apartment_type = apartmentType;
+  if (apartmentType && apartmentType !== "all")
+    params.apartment_type = apartmentType;
 
   const payload = {
     params: params,

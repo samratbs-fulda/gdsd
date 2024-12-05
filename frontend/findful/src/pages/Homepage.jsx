@@ -7,7 +7,6 @@ import Map from "../components/map/Map";
 import { Input, Select, Button, Row, Col, Card, Form } from "antd";
 import Meta from "antd/es/card/Meta";
 import { useQuery } from "@tanstack/react-query";
-import ColumnGroup from "antd/es/table/ColumnGroup";
 
 const Homepage = () => {
   const [searchText, setSearchText] = useState("");
