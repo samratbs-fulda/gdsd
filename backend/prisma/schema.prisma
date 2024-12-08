@@ -20,5 +20,8 @@ model User {
   id           Int      @id @default(autoincrement())
   name         String
   lastname     String
-  status       String
+  role         String
+  email        String   @unique
+  password     String
+  status       String   @default("pending")
 }

@@ -33,12 +33,17 @@ async function main() {
 
   // Seed Users
   const users = [
-    { name: 'Alice', lastname: 'Smith', status: 'pending' },
-    { name: 'Diana', lastname: 'Jones', status: 'pending' },
-    { name: 'Bob', lastname: 'Johnson', status: 'clear' },
-    { name: 'Edward', lastname: 'Williams', status: 'clear' },
-    { name: 'Charlie', lastname: 'Brown', status: 'banned' },
-  ];
+    { name: 'Alice', lastname: 'Smith', status: 'pending', email: 'alice.smith@example.com', password: 'pass123', role: 'student' },
+    { name: 'Diana', lastname: 'Jones', status: 'pending', email: 'diana.jones@example.com', password: 'diana12', role: 'landlord' },
+    { name: 'Bob', lastname: 'Johnson', status: 'clear', email: 'bob.johnson@example.com', password: 'bob1234', role: 'landlord' },
+    { name: 'Edward', lastname: 'Williams', status: 'clear', email: 'edward.williams@example.com', password: 'edward1', role: 'student' },
+    { name: 'Charlie', lastname: 'Brown', status: 'banned', email: 'charlie.brown@example.com', password: 'charlie6', role: 'student' },
+    { name: 'Fiona', lastname: 'Taylor', status: 'clear', email: 'fiona.taylor@example.com', password: 'fiona11', role: 'landlord' },
+    { name: 'George', lastname: 'Miller', status: 'pending', email: 'george.miller@example.com', password: 'george1', role: 'student' },
+    { name: 'Hannah', lastname: 'Clark', status: 'clear', email: 'hannah.clark@example.com', password: 'hannah2', role: 'landlord' },
+    { name: 'Ian', lastname: 'Walker', status: 'clear', email: 'ian.walker@example.com', password: 'ianpass', role: 'student' },
+    { name: 'Jane', lastname: 'Adams', status: 'banned', email: 'jane.adams@example.com', password: 'admin12', role: 'admin' }
+  ];  
 
   for (const user of users) {
     await prisma.user.create({ data: user });
