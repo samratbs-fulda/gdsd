@@ -1,3 +1,6 @@
 node_modules
 dist
 migrations
+.env.local
+.env
+.env.prod
