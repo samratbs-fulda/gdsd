@@ -1,9 +1,14 @@
 import React from "react";
-import Header from "../components/header/Header";
+import Header from "../components/header/FindFulHeader";
 import Map from "../components/map/Map";
-import { Button, Carousel, Image, Col, Row, Tooltip } from "antd";
+import { Button, Carousel, Image, Col, Row, Tooltip, Layout, theme } from "antd";
+
+const { Content } = Layout;
 
 const ListingDetailsPage = () => {
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
 
   // TODO: Get listing from backend
   const listing = {
@@ -35,10 +40,13 @@ const ListingDetailsPage = () => {
 
 
   return (
-    <div className="homepage">
-      <Header />
-
-      <div className="content">
+    <Layout className='page-content-layout' id='dashboard'
+      style={{
+        background: colorBgContainer,
+        borderRadius: borderRadiusLG,
+      }}
+    >
+      <Content className='page-inner-content'>
         <h1>{listing.title}</h1>
 
         <Carousel arrows infinite={false}>
@@ -103,51 +111,51 @@ const ListingDetailsPage = () => {
           {/* Icons from https://uxwing.com/ */}
 
           {listing.isSmokingAllowed ? (
-              <Tooltip title={"No smoking allowed"}>
-                <span><Image src="/listing-detail-smoking.svg" width={64}></Image></span>
-              </Tooltip>
-            ) : (
-              <Tooltip title={"No smoking allowed"}>
-                <span><Image src="/listing-detail-nosmoking.svg" width={64}></Image></span>
-              </Tooltip>
-            )
+            <Tooltip title={"No smoking allowed"}>
+              <span><Image src="/listing-detail-smoking.svg" width={64}></Image></span>
+            </Tooltip>
+          ) : (
+            <Tooltip title={"No smoking allowed"}>
+              <span><Image src="/listing-detail-nosmoking.svg" width={64}></Image></span>
+            </Tooltip>
+          )
           }
           {listing.isPetsAllowed ? (
-              <Tooltip title={"Pets allowed"}>
-                <span><Image src="/listing-detail-pets.svg" width={64}></Image></span>
-              </Tooltip>
-            ) : (
-              <Tooltip title={"No pets allowed"}>
-                <Image src="/listing-detail-nopets.svg" width={64}
-                ></Image>
-              </Tooltip>
-            )
+            <Tooltip title={"Pets allowed"}>
+              <span><Image src="/listing-detail-pets.svg" width={64}></Image></span>
+            </Tooltip>
+          ) : (
+            <Tooltip title={"No pets allowed"}>
+              <Image src="/listing-detail-nopets.svg" width={64}
+              ></Image>
+            </Tooltip>
+          )
           }
           {listing.isParkingAvailable && (
-              <Tooltip title={"Parking available"}>
-                <span><Image src="/listing-detail-parking.svg" width={64}></Image></span>
-              </Tooltip>
-            )
+            <Tooltip title={"Parking available"}>
+              <span><Image src="/listing-detail-parking.svg" width={64}></Image></span>
+            </Tooltip>
+          )
           }
           {listing.isGardenAvailable && (
-              <Tooltip title={"Garden available"}>
-                <span><Image src="/listing-detail-garden.svg" width={64}></Image></span>
-              </Tooltip>
-            )
+            <Tooltip title={"Garden available"}>
+              <span><Image src="/listing-detail-garden.svg" width={64}></Image></span>
+            </Tooltip>
+          )
           }
           {listing.isBalconyAvailable && (
-              <Tooltip title={"Balcony available"}>
-                <span><Image src="/listing-detail-balcony.svg" width={64}></Image></span>
-              </Tooltip>
-            )
+            <Tooltip title={"Balcony available"}>
+              <span><Image src="/listing-detail-balcony.svg" width={64}></Image></span>
+            </Tooltip>
+          )
           }
         </div>
 
         <Button>Apply</Button> {/* TODO: Add route */}
 
         <Map longitude={listing.longitude} latitude={listing.latitude} />
-      </div>
-    </div>
+      </Content>
+    </Layout>
   );
 };
 
