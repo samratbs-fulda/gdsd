@@ -6,12 +6,10 @@ const userService = new UserService();
 
 // user endpoints
 router.post('/register', async (req, res) => {
-  const {email, password, role} = req.body;
+  const {email, password, name, lastname, role} = req.body;
   if (!userService.validateEmail(email) && role === 'student') {
     return res.status(400).json({ message: 'Invalid email address for student!' });
   }
-  const name = req.body.name || 'User';
-  const lastname = req.body.last_name || 'User';
   const user = { email, password, role, name, lastname };
   const existingUser = await userService.getUserByEmail(user.email);
   if (existingUser) {
