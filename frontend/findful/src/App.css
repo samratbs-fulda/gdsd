@@ -3,3 +3,27 @@
   padding: 0; /* Remove default padding */
   box-sizing: border-box; /* Include padding and border in element's total width and height */
 }
+
+.main-layout {
+  height: 100%;
+  min-height: 100vh;
+}
+
+.route-content {
+  padding: 20px 48px;
+  min-height: 80%;
+}
+
+/* Content on pages */
+.page-content-layout {
+  padding: 24px 0;
+}
+
+.page-sider {
+  background: var(--ant-layout-body-background);
+}
+
+.page-inner-content {
+  padding: 0 24px;
+  background-color: var(--ant-layout-body-background);
+}

@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { getAllListings, searchListing } from "../services/listingService";
 import "./Homepage.css";
-import FHeader from "../components/header/Header";
+import FindFulHeader from "../components/header/FindFulHeader";
 import Map from "../components/map/Map";
 import { Input, Select, Button, Row, Col, Card, Form } from "antd";
 import Meta from "antd/es/card/Meta";
@@ -26,7 +26,7 @@ const Homepage = () => {
 
   return (
     <div className="homepage">
-      <FHeader />
+      <FindFulHeader />
 
       <div className="content">
         <h1>Search for Apartments</h1>
@@ -93,8 +93,6 @@ const Homepage = () => {
             ))}
           </Row>
         </div>
-
-        <Map />
       </div>
     </div>
   );
