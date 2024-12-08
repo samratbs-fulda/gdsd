@@ -78,6 +78,32 @@ const Register = () => {
       </Form.Item>
 
       <Form.Item
+        name="name"
+        rules={[
+          { required: true, message: 'Please enter your name!' },
+          { min: 1, message: 'Please enter a valid name!' },
+        ]}
+      >
+        <Input
+          placeholder="Name"
+          type="text"
+        />
+      </Form.Item>
+
+      <Form.Item
+        name="lastname"
+        rules={[
+          { required: true, message: 'Please enter your lastname!' },
+          { min: 1, message: 'Please enter a valid lastname!' },
+        ]}
+      >
+        <Input
+          placeholder="Lastname"
+          type="text"
+        />
+      </Form.Item>
+
+      <Form.Item
       name="role"
       rules={[
         {
