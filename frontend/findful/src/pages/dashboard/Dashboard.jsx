@@ -1,10 +1,10 @@
 import React from 'react';
+import "./Dashboard.css"
 import { UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, theme } from 'antd';
-const { Content, Footer, Sider } = Layout;
-import FHeader from '../components/header/Header';
-import ReviewListings from '../components/reviewContent/reviewListings';
-import ReviewUsers from '../components/reviewContent/reviewUsers';
+const { Content, Sider } = Layout;
+import ReviewListings from '../../components/reviewContent/ReviewListings';
+import ReviewUsers from '../../components/reviewContent/ReviewUsers';
 const items = [UnorderedListOutlined, UserOutlined].map((icon, index) => {
   if (index === 0) {
     return {
@@ -63,64 +63,25 @@ const Dashboard = () => {
     }
   };
   return (
-    <Layout style={
-        {
-            height: '100vh',
-        }
-    }>
-      <FHeader/>
-      <Content
-        style={{
-          padding: '20px 48px',
-          height: '80%',
-        }}
-      >
-        <Layout
-          style={{
-            padding: '24px 0',
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-            height: '100%',
-          }}
-        >
-          <Sider
-            style={{
-              background: colorBgContainer,
-              minHeight: '100%',
-            }}
-            width={200}
-          >
-            <Menu
-              mode="inline"
-              defaultSelectedKeys={['1']}
-              defaultOpenKeys={['sub1']}
-              style={{
-                height: '100%',
-              }}
-              items={items}
-              onClick={handleMenuClick}
-            />
-          </Sider>
-          <Content
-            style={{
-              padding: '0 24px',
-                minHeight: '100%',
-            }}
-            /* Component to load listings/users */
-          >
-            {renderContent()}
-          </Content>
-        </Layout>
+    <Layout className='page-content-layout' id='dashboard'
+      style={{
+        background: colorBgContainer,
+        borderRadius: borderRadiusLG,
+      }}
+    >
+      <Sider className='page-sider' width={200}>
+        <Menu className='dashboard-menu'
+          mode="inline"
+          defaultSelectedKeys={['1']}
+          defaultOpenKeys={['sub1']}
+          items={items}
+          onClick={handleMenuClick}
+        />
+      </Sider>
+      <Content className='page-inner-content'>
+        {renderContent()}
       </Content>
-      <Footer
-        style={{
-          textAlign: 'center',
-            height: '10%',
-        }}
-      >
-        Fulda University of Applied Sciences Software Engineering Project, Fall 2024 For Demonstration Only
-      </Footer>
-    </Layout>
+    </Layout> 
   );
 };
 export default Dashboard;

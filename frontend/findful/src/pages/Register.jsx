@@ -1,7 +1,6 @@
 import React from 'react';
 import { Form, Input, Button, message, Select, Layout } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import FHeader from '../components/header/Header';
 import { registerUser } from '../services/login/loginService';
 
 const { Option } = Select;
@@ -19,7 +18,6 @@ const Register = () => {
 
   return (
     <Layout style={{ height: '100hv', width: '100wv'}}>
-        <FHeader />
         <Layout.Content style={{ padding: '50px', height: '80%', width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'Center' }}>
         <Form
       name="register_form"

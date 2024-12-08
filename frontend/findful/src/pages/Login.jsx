@@ -1,6 +1,5 @@
 import React from 'react';
 import { Form, Input, Button, Checkbox, message, Layout } from 'antd';
-import FHeader from '../components/header/Header';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { loginUser, authUser } from '../services/login/loginService';
 
@@ -26,7 +25,6 @@ const Login = () => {
 
   return (
     <Layout style={{ height: '100hv', width: '100wv'}}>
-        <FHeader />
         <Layout.Content style={{ padding: '50px', height: '80%', width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'Center' }}>
         <Form
       name="login_form"
