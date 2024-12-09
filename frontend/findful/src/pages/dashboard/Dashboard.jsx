@@ -3,8 +3,8 @@ import "./Dashboard.css"
 import { UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, theme } from 'antd';
 const { Content, Sider } = Layout;
-import ReviewListings from '../../components/reviewContent/ReviewListings';
-import ReviewUsers from '../../components/reviewContent/ReviewUsers';
+import ReviewListings from '../../components/reviewContent/reviewListings';
+import ReviewUsers from '../../components/reviewContent/reviewUsers';
 const items = [UnorderedListOutlined, UserOutlined].map((icon, index) => {
   if (index === 0) {
     return {
@@ -33,7 +33,26 @@ const items = [UnorderedListOutlined, UserOutlined].map((icon, index) => {
   };
 });
 
+import { verifyAuth } from '../../services/verifyAuth';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+
 const Dashboard = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    verifyAuth('admin')
+      .then((response) => {
+        if (response.status === 200) {
+          console.log('Authorized');
+        }
+      })
+      .catch((error) => {
+        console.error('Authorization failed:', error);
+        // navigate('/');
+      });
+  }, [navigate]);
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();

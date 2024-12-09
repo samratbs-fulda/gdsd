@@ -9,13 +9,14 @@ const Login = () => {
         const response = await loginUser(values);
         const data = await response.json();
         try{
-            await authUser(response);
-            console.log('Login response:', data);
-            message.success('Login successful!');
-            window.location.href = '/';
+          if (response.status !== 200) throw Error('Authentication failed!');
+          console.log('Login response:', data);
+          await authUser(response);
+          message.success('Login successful!');
+          // window.location.href = '/';
         } catch(error){
-            console.error('Login error:', error);
-            message.error(error.message || 'Login failed!');
+          console.error('Login error:', error);
+          message.error(error.message || 'Login failed!');
         }
     } catch (error) {
       console.error('Login error:', error);

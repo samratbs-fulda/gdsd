@@ -9,7 +9,7 @@ const Register = () => {
     try {
       await registerUser(values);
       message.success('Registration successful! Please log in.');
-      window.location.href = '/';
+      // window.location.href = '/';
     } catch (error) {
       console.error('Registration error:', error);
       message.error(error.message || 'An unexpected error occurred.');
@@ -115,6 +115,7 @@ const Register = () => {
         allowClear>
             <Option value='student'>Student</Option>
             <Option value='landlord'>Landlord</Option>
+            <Option value='admin'>Admin</Option>
         </Select>
       </Form.Item>
 
