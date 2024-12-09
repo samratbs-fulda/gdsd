@@ -1,25 +1,19 @@
-import { getEnvironment } from "../utils/fetchEnvironment";
-
-const environment = getEnvironment();
-const apiUrl = environment.VITE_BACKEND;
+import { jwtDecode } from "jwt-decode";
 
 export const verifyAuth = async (role) => {
+    role = role.toUpperCase();
     try{
-        
-        const response = await fetch(`${apiUrl}/api/users/auth`, {
-            method: "GET",
-            credentials: "include", // Include cookies(token) in the request
-          });
-        const data = await response.json();
-        console.log(data);
-        const userRole = data.user.role;
-        if (response.ok && userRole === role) {
-            console.log("Authorization successful!");
-            return response;
-        } else {
-            throw Error("Authorization failed!");
+        const token = localStorage.getItem("token");
+        if (!token) {
+            throw Error("No token found!");
         }
+        const tokenData = jwtDecode(token);
+        if (tokenData['role'] !== role) {
+            throw Error("Unauthorized!");
+        }
+        return;
     } catch (error) {
-        console.error("Error verifying authorization:", error);
+        const message = "Error verifying authorization: " + error.message
+        throw Error(message);
     }
 };

@@ -41,15 +41,14 @@ import { useNavigate } from 'react-router-dom';
 const Dashboard = () => {
   const navigate = useNavigate();
   useEffect(() => {
-    verifyAuth('admin')
-      .then((response) => {
-        if (response.status === 200) {
-          console.log('Authorized');
-        }
+    verifyAuth('MODERATOR')
+      .then(() => {
+        console.log('Authorized');
       })
       .catch((error) => {
-        console.error('Authorization failed:', error);
-        // navigate('/');
+        console.error('Authorization failed:', error.message);
+        // redirect to forbidden page
+        navigate('/');
       });
   }, [navigate]);
 
@@ -72,13 +71,11 @@ const Dashboard = () => {
       case '3':
         return <ReviewListings status={"rejected"} />;
       case '4':
-        return <ReviewUsers status={"pending"} />;
+        return <ReviewUsers status={"active"} />;
       case '5':
-        return <ReviewUsers status={"clear"} />;
-      case '6':
         return <ReviewUsers status={"banned"} />;
-      default:
-        return <ReviewListings status={"To review"} />;
+      case '6':
+        return <ReviewUsers status={"deleted"} />;
     }
   };
   return (
