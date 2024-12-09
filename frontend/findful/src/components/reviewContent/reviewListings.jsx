@@ -7,7 +7,7 @@ const ReviewListings = ({ status }) => {
     const listingQuery = useQuery({
         queryKey: ["listings", { status }],
         queryFn: () => {
-            return getReviewListings(status);
+            return getReviewListings(status.toUpperCase());
         },
       });
     
@@ -17,7 +17,7 @@ const ReviewListings = ({ status }) => {
         <div>
         {listings.map((listing) => (
             <div key={listing.id}>
-            <p>{listing.name + ' - ' + listing.apartment_type}</p>
+            <p>{listing.title + ' - ' + listing.type}</p>
             </div>
         ))}
         </div>
