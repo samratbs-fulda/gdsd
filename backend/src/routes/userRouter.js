@@ -1,24 +1,19 @@
 require('dotenv-flow').config();
 const jwt = require('jsonwebtoken');
 const { UserService } = require('../services');
-const { authenticateJWT } = require('../middlewares/jwtAuth');
 
 const express = require('express');
 const router = express.Router();
 const userService = new UserService();
 
-// auth endpoints
-router.get('/auth', authenticateJWT, async (req, res) => {
-  res.status(200).json({ message: 'Authenticated', user: req.user });
-});
-
 // user endpoints
 router.post('/register', async (req, res) => {
-  const {email, password, name, lastname, role} = req.body;
-  if (!userService.validateEmail(email) && role === 'student') {
+  const {email, password, firstname, lastname, username} = req.body;
+  const role = req.body.role.toUpperCase(); // STUDENT, ADMIN, or -MODERATOR-
+  if (!userService.validateEmail(email) && role === 'STUDENT') {
     return res.status(400).json({ message: 'Invalid email address for student!' });
   }
-  const user = { email, password, role, name, lastname };
+  const user = { email, password, role, firstname, lastname, username };
   const existingUser = await userService.getUserByEmail(user.email);
   if (existingUser) {
     return res.status(400).json({ message: 'User already exists!' });
@@ -39,14 +34,7 @@ router.post('/login', async (req, res) => {
     { expiresIn: process.env.JWT_EXPIRES_IN }
   );
 
-  res.cookie("token", token, {
-    httpOnly: true, 
-    sameSite: "none",
-    secure: false,
-    maxAge: 3600000, 
-  });
-
-  res.status(200).json({ message: "Login successful" });
+  res.status(200).json({ message: "Login successful", token: token });
 });
 
 // admin endpoints 
