@@ -78,7 +78,7 @@ const Register = () => {
       </Form.Item>
 
       <Form.Item
-        name="name"
+        name="firstname"
         rules={[
           { required: true, message: 'Please enter your name!' },
           { min: 1, message: 'Please enter a valid name!' },
@@ -104,6 +104,19 @@ const Register = () => {
       </Form.Item>
 
       <Form.Item
+        name="username"
+        rules={[
+          { required: true, message: 'Please enter a username!' },
+          { min: 1, message: 'Please enter a valid username!' },
+        ]}
+      >
+        <Input
+          placeholder="Username"
+          type="text"
+        />
+      </Form.Item>
+
+      <Form.Item
       name="role"
       rules={[
         {
@@ -113,9 +126,9 @@ const Register = () => {
         <Select
         placeholder='What type of user are you?'
         allowClear>
-            <Option value='student'>Student</Option>
-            <Option value='landlord'>Landlord</Option>
-            <Option value='admin'>Admin</Option>
+            <Option value='STUDENT'>Student</Option>
+            <Option value='LANDLORD'>Landlord</Option>
+            <Option value='MODERATOR'>Admin</Option>
         </Select>
       </Form.Item>
 
