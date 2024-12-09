@@ -30,21 +30,14 @@ model Listing {
   freeRooms       Int
   energyRating    String
   furnished       Furnished
-  address         Address?           
-  amenities       Amenities?         
-  documents       Documents?         
-}
-
-model Address {
-  id               Int       @id @default(autoincrement())
-  listing          Listing   @relation(fields: [listingId], references: [id]) 
-  listingId        Int       @unique
   street           String
   postalCode       Int
   houseNumber      Int
   latitude         Float
   longitude        Float
-  distanceFromUni  Float
+  distanceFromUni  Float          
+  amenities       Amenities?         
+  documents       Documents?         
 }
 
 model Amenities {
