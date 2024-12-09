@@ -1,8 +1,16 @@
-const express = require('express');
+require('dotenv-flow').config();
+const jwt = require('jsonwebtoken');
 const { UserService } = require('../services');
+const { authenticateJWT } = require('../middlewares/jwtAuth');
 
+const express = require('express');
 const router = express.Router();
 const userService = new UserService();
+
+// auth endpoints
+router.get('/auth', authenticateJWT, async (req, res) => {
+  res.status(200).json({ message: 'Authenticated', user: req.user });
+});
 
 // user endpoints
 router.post('/register', async (req, res) => {
@@ -25,7 +33,20 @@ router.post('/login', async (req, res) => {
   if (!user) {
     return res.status(404).json({ message: 'User not found!' });
   }
-  res.status(200).json({ user: user });
+  const token = jwt.sign(
+    { id: user.id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN }
+  );
+
+  res.cookie("token", token, {
+    httpOnly: true, 
+    sameSite: "none",
+    secure: false,
+    maxAge: 3600000, 
+  });
+
+  res.status(200).json({ message: "Login successful" });
 });
 
 // admin endpoints 
