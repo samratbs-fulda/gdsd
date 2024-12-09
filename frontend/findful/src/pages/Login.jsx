@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Input, Button, Checkbox, message, Layout } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { loginUser, authUser } from '../services/login/loginService';
+import { loginUser } from '../services/login/loginService';
 
 const Login = () => {
   const onFinish = async (values) => {
@@ -9,9 +9,9 @@ const Login = () => {
         const response = await loginUser(values);
         const data = await response.json();
         try{
-          if (response.status !== 200) throw Error('Authentication failed!');
+          if (response.status !== 200) throw Error(data.message || 'Authentication failed!');
           console.log('Login response:', data);
-          await authUser(response);
+          localStorage.setItem('token', data.token);
           message.success('Login successful!');
           // window.location.href = '/';
         } catch(error){
