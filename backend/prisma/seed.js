@@ -1,52 +1,115 @@
 // to update schemas: npx prisma migrate dev --name <migration_name>
 require("dotenv").config({ path: ".env.local" });
 
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient, Role, Furnished, ListingStatus, ApartmentType } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
   // Reset the database
   console.log("Resetting database...");
-  await prisma.listing.deleteMany();
-  await prisma.user.deleteMany();
+  prisma.$executeRaw`TRUNCATE "Listing", "User", "Address", "Amenities", "Documents" RESTART IDENTITY CASCADE;`;
+  // await prisma.listing.deleteMany();
+  // await prisma.user.deleteMany();
+  // await prisma.address.deleteMany();
+  // await prisma.amenities.deleteMany();
+  // await prisma.documents.deleteMany();
 
-  // Populate the database
+  // // Populate the database
   console.log("Seeding database...");
 
+    // Seed users
+    const student = await prisma.user.create({
+      data: {
+        username: "student_user",
+        email: "student@example.com",
+        password: "password123",
+        firstname: "Student",
+        lastname: "User",
+        role: Role.STUDENT,
+      },
+    });
+  
+    const landlord = await prisma.user.create({
+      data: {
+        username: "landlord_user",
+        email: "landlord@example.com",
+        password: "password123",
+        firstname: "Landlord",
+        lastname: "User",
+        role: Role.LANDLORD,
+      },
+    });
+  
+    const moderator = await prisma.user.create({
+      data: {
+        username: "moderator_user",
+        email: "moderator@example.com",
+        password: "password123",
+        firstname: "Moderator",
+        lastname: "User",
+        role: Role.MODERATOR,
+      },
+    });
+
   // Seed Listings
-  const listings = [
-    { name: 'Apartment A', postcode: '10001', apartment_type: 'single apartment', rent: 1200.5, status: 'pending' },
-    { name: 'Apartment D', postcode: '10004', apartment_type: 'single apartment', rent: 1400.0, status: 'pending' },
-    { name: 'Apartment G', postcode: '10007', apartment_type: 'single apartment', rent: 1250.0, status: 'pending' },
-    { name: 'Apartment J', postcode: '10010', apartment_type: 'single apartment', rent: 1300.0, status: 'pending' },
-    { name: 'Apartment B', postcode: '10002', apartment_type: 'shared apartment', rent: 750.0, status: 'approved' },
-    { name: 'Apartment E', postcode: '10005', apartment_type: 'shared apartment', rent: 800.0, status: 'approved' },
-    { name: 'Apartment H', postcode: '10008', apartment_type: 'shared apartment', rent: 850.0, status: 'approved' },
-    { name: 'Apartment C', postcode: '10003', apartment_type: 'sublet', rent: 950.0, status: 'rejected' },
-    { name: 'Apartment F', postcode: '10006', apartment_type: 'sublet', rent: 1000.0, status: 'rejected' },
-    { name: 'Apartment I', postcode: '10009', apartment_type: 'sublet', rent: 1100.0, status: 'rejected' },
-  ];
+  for (let i = 1; i <= 10; i++) {
+    const listing = await prisma.listing.create({
+      data: {
+        landlordId: landlord.id,
+        title: `Listing Title ${i}`,
+        description: `This is the description for listing ${i}.`,
+        type: i % 2 === 0 ? ApartmentType.SUBLET : ApartmentType.SINGLE,
+        availableFrom: new Date(),
+        availableTill: new Date(new Date().setMonth(new Date().getMonth() + 6)),
+        status: i % 2 === 0 ? ListingStatus.APPROVED : ListingStatus.PENDING,
+        coldRent: 500 + i * 50,
+        deposit: 1000,
+        heatingCost: 50,
+        additionalCosts: 75,
+        warmRent: 675 + i * 50,
+        size: 50 + i * 10,
+        floor: i % 5,
+        totalRooms: 4 + i % 3,
+        freeRooms: 1,
+        energyRating: 'A',
+        furnished: i % 3 === 0 ? Furnished.FURNISHED : i % 3 === 1 ? Furnished.PARTIALLY : Furnished.NONFURNISHED,
+        address: {
+          create: {
+            street: `Street ${i}`,
+            postalCode: 10000 + i,
+            houseNumber: i,
+            latitude: 52.5 + i * 0.01,
+            longitude: 13.4 + i * 0.01,
+            distanceFromUni: i * 0.5,
+          },
+        },
+        amenities: {
+          create: {
+            kitchenFitted: true,
+            petsAllowed: i % 2 === 0,
+            parkingAvailable: i % 3 === 0,
+            balconyAvailable: i % 2 !== 0,
+            gardenAvailable: i % 4 === 0,
+            wifiAvailable: true,
+            storageAvailable: i % 3 !== 0,
+            smokingAllowed: i % 2 === 0,
+            dishWasherAvailalbe: i % 3 === 0,
+            washingMachineAvailable: true,
+            tvCableIncluded: i % 4 === 0,
+          },
+        },
+        documents: {
+          create: {
+            proofOfIncome: true,
+            proofOfIdentity: true,
+            shufaCreditReport: i % 2 === 0,
+            parentalGuarantee: i % 3 === 0,
+          },
+        },
+      },
+    });
 
-  for (const listing of listings) {
-    await prisma.listing.create({ data: listing });
-  }
-
-  // Seed Users
-  const users = [
-    { name: 'Alice', lastname: 'Smith', status: 'pending', email: 'alice.smith@example.com', password: 'pass123', role: 'student' },
-    { name: 'Diana', lastname: 'Jones', status: 'pending', email: 'diana.jones@example.com', password: 'diana12', role: 'landlord' },
-    { name: 'Bob', lastname: 'Johnson', status: 'clear', email: 'bob.johnson@example.com', password: 'bob1234', role: 'landlord' },
-    { name: 'Edward', lastname: 'Williams', status: 'clear', email: 'edward.williams@example.com', password: 'edward1', role: 'student' },
-    { name: 'Charlie', lastname: 'Brown', status: 'banned', email: 'charlie.brown@example.com', password: 'charlie6', role: 'student' },
-    { name: 'Fiona', lastname: 'Taylor', status: 'clear', email: 'fiona.taylor@example.com', password: 'fiona11', role: 'landlord' },
-    { name: 'George', lastname: 'Miller', status: 'pending', email: 'george.miller@example.com', password: 'george1', role: 'student' },
-    { name: 'Hannah', lastname: 'Clark', status: 'clear', email: 'hannah.clark@example.com', password: 'hannah2', role: 'landlord' },
-    { name: 'Ian', lastname: 'Walker', status: 'clear', email: 'ian.walker@example.com', password: 'ianpass', role: 'student' },
-    { name: 'Jane', lastname: 'Adams', status: 'banned', email: 'jane.adams@example.com', password: 'admin12', role: 'admin' }
-  ];  
-
-  for (const user of users) {
-    await prisma.user.create({ data: user });
+    console.log(`Created listing ${listing.title}`);
   }
 
   console.log("Database seeded successfully.");
