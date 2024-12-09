@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 async function main() {
   // Reset the database
   console.log("Resetting database...");
-  prisma.$executeRaw`TRUNCATE "Listing", "User", "Address", "Amenities", "Documents" RESTART IDENTITY CASCADE;`;
+  prisma.$executeRaw`TRUNCATE "Listing", "User", "Amenities", "Documents" RESTART IDENTITY CASCADE;`;
   // await prisma.listing.deleteMany();
   // await prisma.user.deleteMany();
   // await prisma.address.deleteMany();
@@ -73,16 +73,12 @@ async function main() {
         freeRooms: 1,
         energyRating: 'A',
         furnished: i % 3 === 0 ? Furnished.FURNISHED : i % 3 === 1 ? Furnished.PARTIALLY : Furnished.NONFURNISHED,
-        address: {
-          create: {
-            street: `Street ${i}`,
-            postalCode: 10000 + i,
-            houseNumber: i,
-            latitude: 52.5 + i * 0.01,
-            longitude: 13.4 + i * 0.01,
-            distanceFromUni: i * 0.5,
-          },
-        },
+        street: `Street ${i}`,
+        postalCode: 10000 + i,
+        houseNumber: i,
+        latitude: 52.5 + i * 0.01,
+        longitude: 13.4 + i * 0.01,
+        distanceFromUni: i * 0.5,
         amenities: {
           create: {
             kitchenFitted: true,
