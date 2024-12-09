@@ -34,12 +34,3 @@ export const loginUser = async (user) => {
       });
     return response;
 };
-
-export const authUser = async (response) => {
-    const status = response.status;
-    if (status === 200) {
-        //TODO: auth process
-    } else {
-        throw Error('Authentication failed!');
-    }
-};
