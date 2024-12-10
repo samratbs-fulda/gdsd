@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 8000;
 
 const allowedOrigins = [
   "https://findful.us.to",
-  "http://localhost:5174",
+  "http://localhost:5173",
   "http://localhost:5174",
 ];
 // const allowedOrigins = ["http://localhost:5174/"];
@@ -43,6 +43,13 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("SOCKET CONNECTED");
+
+  //listen for incoming messages
+  socket.on("message", (message) => {
+    console.log("MESSAGE RECEIVED", message);
+    //broadcast the message to all connected clients
+    io.emit("message", message);
+  });
 
   socket.on("disconnect", () => {
     console.log("SOCKET DISCONNECTED");
