@@ -34,3 +34,16 @@ export const searchListing = async (searchText, apartmentType) => {
     throw error;
   }
 };
+
+export const addListing = async (listingValues) => {
+  const payload = {
+    params: listingValues,
+  };
+  try {
+    const response = await axios.get(`${apiUrl}/api/listings/add`, payload);
+    return response.status;
+  } catch (error) {
+    console.error("API Request Failed:", error);
+    throw error;
+  }
+};
