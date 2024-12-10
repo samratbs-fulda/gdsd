@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import { ConfigProvider, Layout, theme } from 'antd';
 const { Header, Content, Footer } = Layout;
 import Homepage from "./pages/Homepage";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Dashboard from "./pages/dashboard/Dashboard";
 import React from "react";
 import Chat from "./pages/Chat/Chat";
@@ -26,6 +28,8 @@ const App = () => {
         <Content className='route-content'>
           <Routes>
             <Route path="/" element={<Homepage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/listing/:listingid" element={<ListingDetailsPage />} />

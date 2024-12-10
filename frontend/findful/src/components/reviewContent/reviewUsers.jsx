@@ -7,7 +7,7 @@ const ReviewUsers = ({ status }) => {
     const usersQuery = useQuery({
         queryKey: ["users", { status }],
         queryFn: () => {
-            return getReviewUsers(status);
+            return getReviewUsers(status.toUpperCase());
         },
       });
     
@@ -17,7 +17,7 @@ const ReviewUsers = ({ status }) => {
         <div>
         {users.map((user) => (
             <div key={user.id}>
-            <p>{user.name + ' ' + user.lastname}</p>
+            <p>{user.firstname + ' ' + user.lastname}</p>
             </div>
         ))}
         </div>

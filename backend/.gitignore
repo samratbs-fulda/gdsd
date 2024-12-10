@@ -1,3 +1,6 @@
 node_modules
 dist
 migrations
+backend/.env
+backend/.env.prod
+backend/.env.local

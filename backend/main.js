@@ -1,5 +1,5 @@
 require("dotenv-flow").config();
-
+const cookieParser = require("cookie-parser");
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
@@ -16,11 +16,12 @@ const PORT = process.env.PORT || 8000;
 const allowedOrigins = [
   "https://findful.us.to",
   "http://localhost:5174",
-  "http://localhost:5174",
+  "http://localhost:5173",
 ];
 // const allowedOrigins = ["http://localhost:5174/"];
 
 const corsOptions = {
+  credentials: true,
   origin: (origin, callback) => {
     if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);
@@ -32,6 +33,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(morgan("dev"));
+app.use(cookieParser());
 
 const server = http.createServer(app);
 const io = new Server(server, {
