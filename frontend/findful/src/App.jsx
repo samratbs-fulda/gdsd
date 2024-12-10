@@ -11,6 +11,7 @@ import "./App.css";
 import ListingDetailsPage from "./pages/ListingDetailsPage";
 import FindFulHeader from "./components/header/FindFulHeader";
 import FindFulFooter from "./components/footer/FindFulFooter";
+import AddListing from "./pages/AddListing/AddListing";
 
 const App = () => {
   const { token } = theme.useToken();
@@ -32,6 +33,7 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/listing/add" element={<AddListing />} />
             <Route path="/listing/:listingid" element={<ListingDetailsPage />} />
           </Routes>
         </Content>
