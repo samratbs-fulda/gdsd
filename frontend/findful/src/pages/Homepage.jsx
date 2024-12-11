@@ -3,22 +3,36 @@ import { useState } from "react";
 import { getAllListings, searchListing } from "../services/listingService";
 import "./Homepage.css";
 import FindFulHeader from "../components/header/FindFulHeader";
-import Map from "../components/map/Map";
-import { Input, Select, Button, Row, Col, Card, Form } from "antd";
+import { Input, Select, Button, Row, Col, Card, Form, Slider } from "antd";
 import Meta from "antd/es/card/Meta";
 import { useQuery } from "@tanstack/react-query";
 
 const Homepage = () => {
-  const [searchText, setSearchText] = useState("");
-  const [listingType, setListingType] = useState("all");
+  const [filters, setFilters] = useState({
+    searchText: "",
+    listingType: "all",
+    minPrice: 0,
+    maxPrice: 1500,
+    size: [0, 200],
+    rooms: [1, 10],
+    amenities: [],
+    maxDistance: 10.0,
+  });
 
   const listingsQuery = useQuery({
-    queryKey: ["listings", { searchText, listingType }],
+    queryKey: ["listings", filters],
     queryFn: () => {
-      if (!searchText && listingType === "all") {
-        return getAllListings();
-      }
-      return searchListing(searchText, listingType);
+      const { searchText, listingType, minPrice, maxPrice, size, rooms, amenities, maxDistance } = filters;
+      return searchListing({
+        searchText,
+        listingType,
+        minPrice,
+        maxPrice,
+        size,
+        rooms,
+        amenities,
+        maxDistance,
+      });
     },
   });
 
@@ -26,73 +40,143 @@ const Homepage = () => {
 
   return (
     <div className="homepage">
-      <FindFulHeader />
 
       <div className="content">
-        <h1>Search for Apartments</h1>
-        <Form
-          className="search-form"
-          onFinish={(values) => {
-            setSearchText(values.searchText);
-            setListingType(values.listingType);
-          }}
-        >
-          <Form.Item name="searchText">
-            <Input type="text" placeholder="Search your location" />
-          </Form.Item>
-          <Form.Item name="listingType" initialValue="all">
-            <Select
-              options={[
-                { value: "all", label: <span>All</span> },
-                {
-                  value: "single apartment",
-                  label: <span>Single-room apartment</span>,
-                },
-                {
-                  value: "shared apartment",
-                  label: <span>Shared apartment</span>,
-                },
-                { value: "sublet", label: <span>Sublet</span> },
-              ]}
-            />
-          </Form.Item>
-
-          <Button htmlType="submit">Search</Button>
-        </Form>
-
-        {/* SHOW ALL LISTINGS FROM db */}
-        <div className="listings">
-          <h2>Listings</h2>
-
-          <Row gutter={16}>
-            {listings.map((listing) => (
-              <Col span={8} key={listing.id} style={{ marginBottom: 16 }}>
-                <Card
-                  hoverable
-                  cover={
-                    <img
-                      alt="listing"
-                      src={listing.img}
-                      className="listing-image"
-                    />
-                  }
-                  actions={[
-                    <Button key="view-details" type="primary">
-                      View Details
-                    </Button>,
+        <Row gutter={16} style={{ marginBottom: 16 }}>
+          <Col xs={24} sm={8} md={6} lg={5} className="filters-box" style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "4px" }}>
+            <h3>Filters</h3>
+            <Form
+              layout="vertical"
+              onFinish={(values) => {
+                setFilters({
+                  ...filters,
+                  listingType: values.listingType || "all",
+                  minPrice: values.minPrice || 0,
+                  maxPrice: values.maxPrice || 1500,
+                  size: values.size || [0, 200],
+                  rooms: values.rooms || [1, 10],
+                  amenities: values.amenities || [],
+                  maxDistance: values.maxDistance || 10.0,
+                });
+              }}
+            >
+              <Form.Item name="listingType" label="Apartment Type" initialValue="all">
+                <Select
+                  mode="multiple"
+                  options={[
+                    { value: "single apartment", label: "Single-room apartment" },
+                    { value: "shared apartment", label: "Shared apartment" },
+                    { value: "private apartment", label: "Private apartment" },
+                    { value: "sublet", label: "Sublet" },
                   ]}
-                >
-                  <Meta
-                    title={listing.name}
-                    description={listing.apartment_type}
-                  />
-                  <p>Rent: ${listing.rent}</p>
-                  <p>Postcode: {listing.postcode}</p>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        </div>
+                />
+              </Form.Item>
+
+              <Row gutter={8}>
+                <Col span={12}>
+                  <Form.Item name="minPrice" label="Price Range">
+                    <Input type="number" min={0} placeholder="Min" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="maxPrice" label=" " colon={false}>
+                    <Input type="number" min={0} placeholder="Max" />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item name="size" label="Size (sq.ft)">
+                <Slider range defaultValue={[0, 200]} max={200} />
+              </Form.Item>
+
+              <Form.Item name="rooms" label="Rooms">
+                <Slider range defaultValue={[1, 10]} min={1} max={10} />
+              </Form.Item>
+
+              <Form.Item name="amenities" label="Amenities">
+                <Select
+                  mode="multiple"
+                  options={[
+                    { value: "fitted kitchen", label: "Fitted Kitchen" },
+                    { value: "furnished", label: "Furnished" },
+                    { value: "pets allowed", label: "Pets Allowed" },
+                    { value: "smoking allowed", label: "Smoking Allowed" },
+                    { value: "parking", label: "Parking" },
+                    { value: "balcony", label: "Balcony" },
+                    { value: "garden", label: "Garden" },
+                    { value: "wi-fi", label: "Wi-Fi" },
+                    { value: "cable", label: "Cable" },
+                    { value: "store room", label: "Store Room" },
+                    { value: "washing machine", label: "Washing Machine" },
+                    { value: "dish washer", label: "Dish Washer" },
+                  ]}
+                />
+              </Form.Item>
+
+              <Form.Item name="maxDistance" label="Max Distance from University (km)">
+                <Input type="number" step={0.1} min={0} placeholder="e.g 2.0" />
+              </Form.Item>
+
+              <Button type="primary" htmlType="submit" block>
+                Apply Filters
+              </Button>
+            </Form>
+          </Col>
+
+          <Col xs={24} sm={16} md={18} lg={19}>
+            <Form
+              className="search-bar"
+              onFinish={(values) => {
+                setFilters({
+                  ...filters,
+                  searchText: values.searchText || "",
+                });
+              }}
+              style={{ marginBottom: 32 }}
+            >
+              <Row gutter={8} align="middle">
+                <Col flex="auto">
+                  <Form.Item name="searchText" style={{ marginBottom: 0 }}>
+                    <Input type="text" placeholder="Enter address" />
+                  </Form.Item>
+                </Col>
+                <Col flex="none">
+                  <Button type="primary" htmlType="submit">Search</Button>
+                </Col>
+              </Row>
+            </Form>
+
+            <h2>Listings</h2>
+            <Row gutter={16}>
+              {listings.map((listing) => (
+                <Col span={24} sm={12} md={8} key={listing.id} style={{ marginBottom: 16 }}>
+                  <Card
+                    hoverable
+                    cover={
+                      <img
+                        alt="listing"
+                        src={listing.img}
+                        className="listing-image"
+                      />
+                    }
+                    actions={[
+                      <Button key="view-details" type="primary">
+                        View Details
+                      </Button>,
+                    ]}
+                  >
+                    <Meta
+                      title={listing.name}
+                      description={listing.apartment_type}
+                    />
+                    <p>Rent: ${listing.rent}</p>
+                    <p>Postcode: {listing.postcode}</p>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </Col>
+        </Row>
       </div>
     </div>
   );
