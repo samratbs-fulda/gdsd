@@ -1,11 +1,19 @@
 import React from "react";
 import "./FindFulFooter.css"
-import { Layout } from "antd";
+import { Layout, List } from "antd";
 const { Footer } = Layout;
 
 const FindFulFooter = () => {
   return (
-    <p>Footer content</p>
+    <>
+      <p>Footer under construction</p>
+      <a href="/login">Login</a><br></br>
+      <a href="/register">Register</a><br></br>
+      <a href="/dashboard">Dashboard</a><br></br>
+      <a href="/chat">Chat</a><br></br>
+      <a href="/listing/add">Add a listing</a><br></br>
+      <a href="/listing/1">View listing details</a>
+    </>
   );
 };
 
