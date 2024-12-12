@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Alert, Button, Checkbox, DatePicker, Form, Input, InputNumber, Layout, Select, Spin, Tooltip, Upload } from "antd";
+import { Alert, Button, Checkbox, DatePicker, Form, Input, InputNumber, Select, Spin, Tooltip, Upload } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+
 
 const AddListingForm = ({ onFinish, onFinishFailed, incompleteSubmission, initialValues, pendingSubmission }) => {
   const [form] = Form.useForm();
@@ -36,9 +37,9 @@ const AddListingForm = ({ onFinish, onFinishFailed, incompleteSubmission, initia
       </Form.Item>
       <Form.Item label="Apartment type" name="type"  rules={[{ required: true, message: 'Please select an apartment type.' }]}>
         <Select>
-          <Select.Option value="ApartmentType.SINGLE">Single</Select.Option>
-          <Select.Option value="ApartmentType.SHARED">Shared</Select.Option>
-          <Select.Option value="ApartmentType.SUBLET">Sublet</Select.Option>
+          <Select.Option value="SINGLE">Single</Select.Option>
+          <Select.Option value="SHARED">Shared</Select.Option>
+          <Select.Option value="SUBLET">Sublet</Select.Option>
         </Select>
       </Form.Item>
       <Tooltip title="The total amount of rooms that the apartment has.">
@@ -96,9 +97,9 @@ const AddListingForm = ({ onFinish, onFinishFailed, incompleteSubmission, initia
       </Form.Item>
       <Form.Item label="Furniture" name="furnished">
         <Select>
-          <Select.Option value="Furnished.NONFURNISHED">Nonfurnished</Select.Option>
-          <Select.Option value="Furnished.PARTIALLY">Partially furnished</Select.Option>
-          <Select.Option value="Furnished.FURNISHED">Furnished</Select.Option>
+          <Select.Option value="NONFURNISHED">Nonfurnished</Select.Option>
+          <Select.Option value="PARTIALLY">Partially furnished</Select.Option>
+          <Select.Option value="FURNISHED">Furnished</Select.Option>
         </Select>
       </Form.Item>
       <Form.Item label="Parking available" valuePropName="checked" name={["amenities", "parkingAvailable"]}>
@@ -148,15 +149,18 @@ const AddListingForm = ({ onFinish, onFinishFailed, incompleteSubmission, initia
 
       <h2>Images</h2>
       
-      <Upload
-        listType="picture-card"
-        fileList={fileList}
-        onChange={handleUploadChange}
-        onPreview={() => {}}
-        beforeUpload={() => false}
-      >
-        <PlusOutlined />
-      </Upload>
+      <Form.Item name="images">
+        <Upload
+          listType="picture-card"
+          fileList={fileList}
+          onChange={handleUploadChange}
+          onPreview={() => {}}
+          beforeUpload={() => false}
+        >
+          <PlusOutlined />
+        </Upload>
+      </Form.Item>
+
       {incompleteSubmission && (
         <Alert
         message="Form incomplete"

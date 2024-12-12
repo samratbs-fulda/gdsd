@@ -40,7 +40,8 @@ export const addListing = async (listingValues) => {
     params: listingValues,
   };
   try {
-    const response = await axios.get(`${apiUrl}/api/listings/add`, payload);
+    console.log(payload);
+    const response = await axios.post(`${apiUrl}/api/listings/add`, payload);
     return response.status;
   } catch (error) {
     console.error("API Request Failed:", error);
