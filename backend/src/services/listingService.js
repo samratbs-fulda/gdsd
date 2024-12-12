@@ -42,12 +42,11 @@ class ListingService {
     }
   }
 
-  async getListingsByApartmentType(apartment_type, postal_code) {
+  async getFilteredListings(filters) {
     try {
       const listings = await prisma.listing.findMany({
         where: {
-          type: apartment_type,
-          postalCode: postal_code,
+          ...filters,
         },
       });
       const image = await this.fetImage("image.webp");
@@ -57,7 +56,8 @@ class ListingService {
       });
       return newListing;
     } catch (error) {
-      console.error("Error fetching listings:", error);
+      console.log(error.message);
+      throw Error(error.message);
     }
   }
 
