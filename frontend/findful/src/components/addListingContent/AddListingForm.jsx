@@ -85,7 +85,7 @@ const AddListingForm = ({ onFinish, onFinishFailed, incompleteSubmission, initia
         <Input />
       </Form.Item>
       <Form.Item label="Housenumber" name="houseNumber">
-        <Input />
+        <InputNumber controls={false}/>
       </Form.Item>
       <Form.Item label="Postalcode" name="postalCode">
         <InputNumber />

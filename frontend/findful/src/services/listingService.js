@@ -49,11 +49,13 @@ export const searchListing = async (filters) => {
 };
 
 export const addListing = async (listingValues) => {
-  const payload = {
-    params: listingValues,
-  };
   try {
-    const response = await axios.post(`${apiUrl}/api/listings/add`, payload);
+    listingValues = {
+      ...listingValues,
+      distanceFromUni: 0.2, // TODO: Calculate distance
+      landlordId: 6, // TODO: Add that from the DB
+    }
+    const response = await axios.post(`${apiUrl}/api/listings/add`, listingValues);
     return response.status;
   } catch (error) {
     console.error("API Request Failed:", error);

@@ -8,7 +8,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import React from "react";
 import Chat from "./pages/Chat/Chat";
 import "./App.css";
-import ListingDetailsPage from "./pages/ListingDetailsPage";
+import ListingDetailsPage from "./pages/ListingDetailsPage/ListingDetailsPage";
 import FindFulHeader from "./components/header/FindFulHeader";
 import FindFulFooter from "./components/footer/FindFulFooter";
 import AddListing from "./pages/AddListing/AddListing";
