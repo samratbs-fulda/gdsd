@@ -1,8 +1,7 @@
 import React from "react";
 import { useState } from "react";
-import { getAllListings, searchListing } from "../services/listingService";
+import { searchListing } from "../services/listingService";
 import "./Homepage.css";
-import FindFulHeader from "../components/header/FindFulHeader";
 import { Input, Select, Button, Row, Col, Card, Form, Slider } from "antd";
 import Meta from "antd/es/card/Meta";
 import { useQuery } from "@tanstack/react-query";
@@ -22,8 +21,7 @@ const Homepage = () => {
   const listingsQuery = useQuery({
     queryKey: ["listings", filters],
     queryFn: () => {
-      const { searchText, listingType, minPrice, maxPrice, size, rooms, amenities, maxDistance } = filters;
-      return searchListing({
+      const {
         searchText,
         listingType,
         minPrice,
@@ -32,7 +30,8 @@ const Homepage = () => {
         rooms,
         amenities,
         maxDistance,
-      });
+      } = filters;
+      return searchListing(searchText, listingType);
     },
   });
 
@@ -40,10 +39,20 @@ const Homepage = () => {
 
   return (
     <div className="homepage">
-
       <div className="content">
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col xs={24} sm={8} md={6} lg={5} className="filters-box" style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "4px" }}>
+          <Col
+            xs={24}
+            sm={8}
+            md={6}
+            lg={5}
+            className="filters-box"
+            style={{
+              border: "1px solid #ccc",
+              padding: "16px",
+              borderRadius: "4px",
+            }}
+          >
             <h3>Filters</h3>
             <Form
               layout="vertical"
@@ -60,14 +69,19 @@ const Homepage = () => {
                 });
               }}
             >
-              <Form.Item name="listingType" label="Apartment Type" initialValue="all">
+              <Form.Item
+                name="listingType"
+                label="Apartment Type"
+                initialValue="all"
+              >
                 <Select
-                  mode="multiple"
                   options={[
-                    { value: "single apartment", label: "Single-room apartment" },
-                    { value: "shared apartment", label: "Shared apartment" },
-                    { value: "private apartment", label: "Private apartment" },
-                    { value: "sublet", label: "Sublet" },
+                    {
+                      value: "SINGLE",
+                      label: "Single-room apartment",
+                    },
+                    { value: "SHARED", label: "Shared apartment" },
+                    { value: "SUBLET", label: "Sublet" },
                   ]}
                 />
               </Form.Item>
@@ -113,7 +127,10 @@ const Homepage = () => {
                 />
               </Form.Item>
 
-              <Form.Item name="maxDistance" label="Max Distance from University (km)">
+              <Form.Item
+                name="maxDistance"
+                label="Max Distance from University (km)"
+              >
                 <Input type="number" step={0.1} min={0} placeholder="e.g 2.0" />
               </Form.Item>
 
@@ -141,7 +158,9 @@ const Homepage = () => {
                   </Form.Item>
                 </Col>
                 <Col flex="none">
-                  <Button type="primary" htmlType="submit">Search</Button>
+                  <Button type="primary" htmlType="submit">
+                    Search
+                  </Button>
                 </Col>
               </Row>
             </Form>
@@ -149,7 +168,13 @@ const Homepage = () => {
             <h2>Listings</h2>
             <Row gutter={16}>
               {listings.map((listing) => (
-                <Col span={24} sm={12} md={8} key={listing.id} style={{ marginBottom: 16 }}>
+                <Col
+                  span={24}
+                  sm={12}
+                  md={8}
+                  key={listing.id}
+                  style={{ marginBottom: 16 }}
+                >
                   <Card
                     hoverable
                     cover={
@@ -165,12 +190,9 @@ const Homepage = () => {
                       </Button>,
                     ]}
                   >
-                    <Meta
-                      title={listing.name}
-                      description={listing.apartment_type}
-                    />
+                    <Meta title={listing.title} description={listing.type} />
                     <p>Rent: ${listing.rent}</p>
-                    <p>Postcode: {listing.postcode}</p>
+                    <p>Postcode: {listing.postalCode}</p>
                   </Card>
                 </Col>
               ))}
