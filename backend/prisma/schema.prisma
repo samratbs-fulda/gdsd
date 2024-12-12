@@ -8,17 +8,17 @@ datasource db {
 }
 
 model Listing {
-  id              Int               @id @default(autoincrement())
-  landlord        User              @relation(fields: [landlordId], references: [id]) 
-  landlordId      Int               
-  title           String    
-  description     String  
-  type            ApartmentType  
-  availableFrom   DateTime  
-  availableTill   DateTime  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @default(now())
-  status          ListingStatus     @default(PENDING)
+  id              Int           @id @default(autoincrement())
+  landlord        User          @relation(fields: [landlordId], references: [id])
+  landlordId      Int
+  title           String
+  description     String
+  type            ApartmentType
+  availableFrom   DateTime
+  availableTill   DateTime
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @default(now())
+  status          ListingStatus @default(PENDING)
   coldRent        Float
   deposit         Float
   heatingCost     Float
@@ -30,55 +30,68 @@ model Listing {
   freeRooms       Int
   energyRating    String
   furnished       Furnished
-  street           String
-  postalCode       Int
-  houseNumber      Int
-  latitude         Float
-  longitude        Float
-  distanceFromUni  Float          
-  amenities       Amenities?         
-  documents       Documents?         
+  street          String
+  postalCode      String
+  houseNumber     Int
+  latitude        Float
+  longitude       Float
+  distanceFromUni Float
+  amenities       Amenities?
+  documents       Documents?
 }
 
 model Amenities {
-  id                          Int       @id @default(autoincrement())
-  listing                     Listing   @relation(fields: [listingId], references: [id]) 
-  listingId                   Int       @unique
-  kitchenFitted               Boolean
-  petsAllowed                 Boolean
-  parkingAvailable            Boolean
-  balconyAvailable            Boolean
-  gardenAvailable             Boolean
-  wifiAvailable               Boolean
-  storageAvailable            Boolean
-  smokingAllowed              Boolean
-  dishWasherAvailalbe         Boolean
-  washingMachineAvailable     Boolean
-  tvCableIncluded             Boolean
+  id                      Int     @id @default(autoincrement())
+  listing                 Listing @relation(fields: [listingId], references: [id])
+  listingId               Int     @unique
+  kitchenFitted           Boolean
+  petsAllowed             Boolean
+  parkingAvailable        Boolean
+  balconyAvailable        Boolean
+  gardenAvailable         Boolean
+  wifiAvailable           Boolean
+  storageAvailable        Boolean
+  smokingAllowed          Boolean
+  dishWasherAvailalbe     Boolean
+  washingMachineAvailable Boolean
+  tvCableIncluded         Boolean
 }
 
 model Documents {
-  id                          Int       @id @default(autoincrement())
-  listing                     Listing   @relation(fields: [listingId], references: [id]) 
-  listingId                   Int       @unique
-  proofOfIncome               Boolean
-  proofOfIdentity             Boolean
-  shufaCreditReport           Boolean
-  parentalGuarantee           Boolean
+  id                Int     @id @default(autoincrement())
+  listing           Listing @relation(fields: [listingId], references: [id])
+  listingId         Int     @unique
+  proofOfIncome     Boolean
+  proofOfIdentity   Boolean
+  shufaCreditReport Boolean
+  parentalGuarantee Boolean
 }
 
 model User {
-  id           Int          @id @default(autoincrement())
-  username     String       @unique
-  email        String       @unique
-  password     String
-  firstname    String
-  lastname     String
-  role         Role
-  listings     Listing[]
-  status       UserStatus   @default(ACTIVE)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @default(now())
+  id        Int        @id @default(autoincrement())
+  username  String     @unique
+  email     String     @unique
+  password  String
+  firstname String
+  lastname  String
+  role      Role
+  listings  Listing[]
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+
+  messagesSent     Messages[] @relation("senderMessages")
+  messagesReceived Messages[] @relation("receiverMessages")
+}
+
+model Messages {
+  id         Int      @id @default(autoincrement())
+  sender     User     @relation("senderMessages", fields: [senderId], references: [id])
+  senderId   Int
+  receiver   User     @relation("receiverMessages", fields: [receiverId], references: [id])
+  receiverId Int
+  content    String
+  createdAt  DateTime @default(now())
 }
 
 enum ApartmentType {

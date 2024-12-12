@@ -1,7 +1,13 @@
 // to update schemas: npx prisma migrate dev --name <migration_name>
 require("dotenv").config({ path: ".env.local" });
 
-const { PrismaClient, Role, Furnished, ListingStatus, ApartmentType } = require("@prisma/client");
+const {
+  PrismaClient,
+  Role,
+  Furnished,
+  ListingStatus,
+  ApartmentType,
+} = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
@@ -17,39 +23,39 @@ async function main() {
   // // Populate the database
   console.log("Seeding database...");
 
-    // Seed users
-    const student = await prisma.user.create({
-      data: {
-        username: "student_user",
-        email: "student@example.com",
-        password: "password123",
-        firstname: "Student",
-        lastname: "User",
-        role: Role.STUDENT,
-      },
-    });
-  
-    const landlord = await prisma.user.create({
-      data: {
-        username: "landlord_user",
-        email: "landlord@example.com",
-        password: "password123",
-        firstname: "Landlord",
-        lastname: "User",
-        role: Role.LANDLORD,
-      },
-    });
-  
-    const moderator = await prisma.user.create({
-      data: {
-        username: "moderator_user",
-        email: "moderator@example.com",
-        password: "password123",
-        firstname: "Moderator",
-        lastname: "User",
-        role: Role.MODERATOR,
-      },
-    });
+  // Seed users
+  const student = await prisma.user.create({
+    data: {
+      username: "student_user",
+      email: "student@example.com",
+      password: "password123",
+      firstname: "Student",
+      lastname: "User",
+      role: Role.STUDENT,
+    },
+  });
+
+  const landlord = await prisma.user.create({
+    data: {
+      username: "landlord_user",
+      email: "landlord@example.com",
+      password: "password123",
+      firstname: "Landlord",
+      lastname: "User",
+      role: Role.LANDLORD,
+    },
+  });
+
+  const moderator = await prisma.user.create({
+    data: {
+      username: "moderator_user",
+      email: "moderator@example.com",
+      password: "password123",
+      firstname: "Moderator",
+      lastname: "User",
+      role: Role.MODERATOR,
+    },
+  });
 
   // Seed Listings
   for (let i = 1; i <= 10; i++) {
@@ -69,12 +75,17 @@ async function main() {
         warmRent: 675 + i * 50,
         size: 50 + i * 10,
         floor: i % 5,
-        totalRooms: 4 + i % 3,
+        totalRooms: 4 + (i % 3),
         freeRooms: 1,
-        energyRating: 'A',
-        furnished: i % 3 === 0 ? Furnished.FURNISHED : i % 3 === 1 ? Furnished.PARTIALLY : Furnished.NONFURNISHED,
+        energyRating: "A",
+        furnished:
+          i % 3 === 0
+            ? Furnished.FURNISHED
+            : i % 3 === 1
+            ? Furnished.PARTIALLY
+            : Furnished.NONFURNISHED,
         street: `Street ${i}`,
-        postalCode: 10000 + i,
+        postalCode: "10000" + i,
         houseNumber: i,
         latitude: 52.5 + i * 0.01,
         longitude: 13.4 + i * 0.01,
