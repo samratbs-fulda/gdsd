@@ -1,12 +1,36 @@
-import React from "react";
-import Header from "../../components/header/FindFulHeader";
+import React, { useEffect, useState } from "react";
+
 import { Button, Input, Layout, Menu } from "antd";
 import Sider from "antd/es/layout/Sider";
 import { Content } from "antd/es/layout/layout";
 import "./Chat.css"; // Import the CSS file
 import { SendOutlined } from "@ant-design/icons";
+import io from "socket.io-client";
+import { useAuth } from "../../services/authContext";
+import { getUserById } from "../../services/login/loginService";
+import { useQuery } from "@tanstack/react-query";
+
+const socket = io("http://localhost:8000", {
+  autoConnect: false,
+});
 
 const Chat = () => {
+  const { user } = useAuth();
+
+  const [connected, setConnected] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [messageInput, setMessageInput] = useState("");
+
+  const userQuery = useQuery({
+    queryKey: ["user"],
+    enabled: !!user,
+    queryFn: () => getUserById(user.id),
+  });
+
+  console.log(userQuery.data);
+
+  const username = userQuery.data?.username;
+
   const dummyChats = [
     { id: 1, name: "John Doe" },
     { id: 2, name: "Jane Smith" },
@@ -15,20 +39,55 @@ const Chat = () => {
     { id: 5, name: "Charlie Green" },
   ];
 
-  const messages = [
-    {
-      id: 1,
-      text: "Hello, I like the apartment location and would like to rent it.",
-      sender: "left",
-    },
-    { id: 2, text: "Sounds good!", sender: "right" },
-    { id: 3, text: "What are you up to today?", sender: "left" },
-    { id: 4, text: "Just working on some projects.", sender: "right" },
-  ];
+  const connectSocket = () => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      socket.auth = { token };
+      socket.connect();
+    }
+  };
+
+  // Connect to Socket.IO server on component mount
+  useEffect(() => {
+    connectSocket();
+
+    socket.on("connect", () => {
+      console.log("Connected to Socket.IO server");
+      setConnected(true);
+    });
+
+    socket.on("disconnect", () => {
+      setConnected(false);
+    });
+
+    // Listen for incoming messages
+    socket.on("message", (message) => {
+      setMessages((messages) => [...messages, message]);
+    });
+
+    return () => {
+      // Cleanup on component unmount
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("message");
+    };
+  }, []);
+
+  const sendMessage = () => {
+    if (messageInput) {
+      const message = {
+        text: messageInput,
+        timestamp: new Date(),
+        sender: user.id,
+      };
+      socket.emit("message", message);
+      setMessageInput("");
+    }
+  };
 
   return (
     <div className="container">
-      <Header />
       <Layout style={{ height: "calc(100vh - 64px)" }}>
         <Sider className="chat-sider">
           <Menu
@@ -51,19 +110,41 @@ const Chat = () => {
           <Content className="chat-content">
             <div className="chat-title">
               <h3 style={{ margin: 0 }}>3-room shared bedroom apartment</h3>
+              <div>
+                <p>{connected ? "Connected" : "Disconnected"}</p>
+                <p>{user ? username : "Not logged in"}</p>
+              </div>
             </div>
             <div className="message-box">
-              {messages.map((message) => (
-                <div className={`message-${message.sender}`} key={message.id}>
-                  <div className={`message-bubble-${message.sender}`}>
+              {messages.map((message, idx) => (
+                <div
+                  className={`message-${
+                    message.sender === user.id ? "right" : "left"
+                  }`}
+                  key={idx}
+                >
+                  <div
+                    className={`message-bubble-${
+                      message.sender === user.id ? "right" : "left"
+                    }`}
+                  >
                     {message.text}
                   </div>
                 </div>
               ))}
             </div>
             <div className="input-area">
-              <Input placeholder="Type a message..." className="input-field" />
-              <Button type="primary" icon={<SendOutlined />} />
+              <Input
+                placeholder="Type a message..."
+                className="input-field"
+                value={messageInput}
+                onChange={(e) => setMessageInput(e.target.value)}
+              />
+              <Button
+                type="primary"
+                icon={<SendOutlined />}
+                onClick={sendMessage}
+              />
             </div>
           </Content>
         </Layout>

@@ -1,7 +1,7 @@
-const SearchService = require("./listingService");
+const ListingService = require("./listingService");
 const UserService = require("./userService");
 
 module.exports = {
-  SearchService,
+  ListingService,
   UserService,
 };

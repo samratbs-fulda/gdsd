@@ -4,8 +4,6 @@ import { getEnvironment } from "../utils/fetchEnvironment";
 const environment = getEnvironment();
 const apiUrl = environment.VITE_BACKEND;
 
-console.log("first", apiUrl);
-
 export const getAllListings = async () => {
   try {
     const response = await axios.get(`${apiUrl}/api/listings`); // Assuming you have an endpoint like '/listings'
@@ -29,6 +27,19 @@ export const searchListing = async (searchText, apartmentType) => {
   try {
     const response = await axios.get(`${apiUrl}/api/listings/search`, payload);
     return response.data.listings;
+  } catch (error) {
+    console.error("API Request Failed:", error);
+    throw error;
+  }
+};
+
+export const addListing = async (listingValues) => {
+  const payload = {
+    params: listingValues,
+  };
+  try {
+    const response = await axios.post(`${apiUrl}/api/listings/add`, payload);
+    return response.status;
   } catch (error) {
     console.error("API Request Failed:", error);
     throw error;
