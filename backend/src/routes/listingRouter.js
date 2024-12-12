@@ -17,18 +17,38 @@ router.get("/review", async (req, res) => {
 });
 
 router.get("/search", async (req, res) => {
-  const { apartment_type } = req.query;
-  const { postal_code } = req.query;
+  const {
+    postal_code,
+    type,
+    min_price,
+    max_price,
+    size,
+    rooms,
+    amenities,
+    max_distance,
+  } = req.query;
 
-  // if (!apartment_type) {
-  //   return res.status(400).json({ message: "apartment_type is required" });
-  // }
-
-  const listings = await listingService.getListingsByApartmentType(
-    apartment_type,
-    postal_code
-  );
-  res.json({ listings });
+  const filters = {};
+if (postal_code) filters.postalCode = postal_code;
+if (type) filters.type = type;
+if (min_price) filters.warmRent = { gt: parseFloat(min_price) };
+if (max_price) filters.warmRent = { ...filters.warmRent, lt: parseFloat(max_price) };
+if (size) filters.size = { gt: parseInt(size[0]), lt: parseInt(size[1]) };
+if (rooms) filters.totalRooms = { gt: parseInt(rooms[0]), lt: parseInt(rooms[1]) };
+// if (amenities) filters.amenities = amenities;
+if (max_distance) filters.distanceFromUni = { lt: parseFloat(max_distance) };
+  console.log(filters);
+  try{
+    const listings = await listingService.getFilteredListings(
+      filters
+    );
+    res.status(200).json({ listings });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
 });
 
 router.post("/add", async (req, res) => {

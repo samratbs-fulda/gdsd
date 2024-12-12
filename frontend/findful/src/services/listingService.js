@@ -14,11 +14,26 @@ export const getAllListings = async () => {
   }
 };
 
-export const searchListing = async (searchText, apartmentType) => {
+export const searchListing = async (filters) => {
+  const {
+    searchText,
+    listingType,
+    minPrice,
+    maxPrice,
+    size,
+    rooms,
+    amenities,
+    maxDistance,
+  } = filters;
   var params = {};
   if (searchText) params.postal_code = searchText;
-  if (apartmentType && apartmentType !== "all")
-    params.apartment_type = apartmentType;
+  if (listingType !== "all") params.type = listingType;
+  if (minPrice) params.min_price = minPrice;
+  if (maxPrice) params.max_price = maxPrice;
+  if (size) params.size = size;
+  if (rooms) params.rooms = rooms;
+  if (amenities) params.amenities = amenities;
+  if (maxDistance) params.max_distance = maxDistance;
 
   const payload = {
     params: params,
