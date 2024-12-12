@@ -1,3 +1,8 @@
 header p {
   color: white; /* TODO: change color */
+  max-height: 100%;
+}
+
+#demonstrationNotice {
+  font-size: xx-small;
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Layout, theme } from "antd";
-import { Content } from "antd/es/layout/layout";import AddListingForm from "../../components/addListingContent/addListingForm";
+import { Content } from "antd/es/layout/layout";
+import AddListingForm from "../../components/addListingContent/AddListingForm";
 import AddListingSuccessful from "../../components/addListingContent/AddListingSuccessful";
 import { addListing } from "../../services/listingService";
 
