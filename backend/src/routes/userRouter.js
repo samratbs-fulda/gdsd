@@ -18,10 +18,14 @@ router.post("/register", async (req, res) => {
   const user = { email, password, role, firstname, lastname, username };
   const existingUser = await userService.getUserByEmail(user.email);
   if (existingUser) {
-    return res.status(400).json({ message: "User already exists!" });
+    return res.status(400).json({ message: "Email already in use!" });
   }
-  const newUser = await userService.createUser(user);
-  res.status(201).json({ user: newUser });
+  try{
+    const newUser = await userService.createUser(user);
+    res.status(201).json({ user: newUser });
+  } catch (error) {
+    return res.status(403).json({ message: error.message});
+  }
 });
 
 router.post("/login", async (req, res) => {
@@ -56,7 +60,7 @@ router.get("/review", async (req, res) => {
   const { status } = req.query;
 
   const users = await userService.getUsersByStatus(status);
-  res.json({ users });
+  res.status(200).json({ message: "User loaded successfully", users: users });
 });
 
 module.exports = router;

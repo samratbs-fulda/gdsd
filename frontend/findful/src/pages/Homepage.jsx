@@ -21,17 +21,7 @@ const Homepage = () => {
   const listingsQuery = useQuery({
     queryKey: ["listings", filters],
     queryFn: () => {
-      const {
-        searchText,
-        listingType,
-        minPrice,
-        maxPrice,
-        size,
-        rooms,
-        amenities,
-        maxDistance,
-      } = filters;
-      return searchListing(searchText, listingType);
+      return searchListing(filters);
     },
   });
 
@@ -191,7 +181,7 @@ const Homepage = () => {
                     ]}
                   >
                     <Meta title={listing.title} description={listing.type} />
-                    <p>Rent: ${listing.rent}</p>
+                    <p>Rent: ${listing.warmRent}</p>
                     <p>Postcode: {listing.postalCode}</p>
                   </Card>
                 </Col>

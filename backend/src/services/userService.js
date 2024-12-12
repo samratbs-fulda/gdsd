@@ -29,7 +29,7 @@ class UserService {
       });
       return newUser;
     } catch (error) {
-      console.error("Error creating user:", error);
+      throw Error("Username already in use!");
     }
   }
 
