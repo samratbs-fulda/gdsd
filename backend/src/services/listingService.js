@@ -1,6 +1,7 @@
 require("dotenv-flow").config();
 const prisma = require("../utils/db");
 const ListingRepository = require("../repo/listingRepository");
+const Calculations = require("../utils/calculationUtils");
 
 const AWS = require('aws-sdk');
 
@@ -80,7 +81,7 @@ class ListingService {
 
    async addListing(listingData) {
     try { 
-      const warmRent = this.calculateWarmRent(listingData);
+      const warmRent = Calculations.calculateWarmRent(listingData);
       const newListing = await ListingRepository.createNewListing(listingData, warmRent);
 
       return {
@@ -95,12 +96,6 @@ class ListingService {
         message: "Failed to create listing",
       };
     }
-  }
-
-  calculateWarmRent(listingData) {
-    return (
-      listingData.coldRent + listingData.heatingCost + listingData.additionalCosts
-    );
   }
 }
 

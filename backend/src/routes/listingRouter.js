@@ -33,7 +33,6 @@ router.get("/search", async (req, res) => {
 
 router.post("/add", async (req, res) => {
   try {
-    console.log(req.body);
     const newListing = await listingService.addListing(req.body);
     res.status(201).json({
       status: "success",
