@@ -10,16 +10,16 @@ class UserService {
   }
 
   async hashPassword(password) {
-    try{
+    try {
       const salt = await bcrypt.genSalt(saltRounds);
       const hashedPassword = await bcrypt.hash(password, salt);
       return hashedPassword;
-    }catch(error){
-      console.error('Error hashing password:', error);
-      throw Error('Error hashing password!');
+    } catch (error) {
+      console.error("Error hashing password:", error);
+      throw Error("Error hashing password!");
     }
   }
-  
+
   async createUser(user) {
     user.password = await this.hashPassword(user.password);
     console.log(user);
@@ -68,6 +68,26 @@ class UserService {
       return users;
     } catch (error) {
       console.error("Error fetching users:", error);
+    }
+  }
+
+  async getUserById(id) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: parseInt(id),
+        },
+        select: {
+          id: true,
+          firstname: true,
+          lastname: true,
+          username: true,
+          status: true,
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error("Error fetching user:", error);
     }
   }
 

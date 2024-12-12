@@ -1,5 +1,7 @@
 require("dotenv-flow").config();
 const prisma = require("../utils/db");
+const ListingRepository = require("../repo/listingRepository");
+const Calculations = require("../utils/calculationUtils");
 
 const AWS = require('aws-sdk');
 
@@ -9,7 +11,7 @@ const s3 = new AWS.S3({
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
-class SearchService {
+class ListingService {
   async fetImage(key, expiresIn = 30){
     const params = {
       Bucket: process.env.BUCKET_NAME,
@@ -76,6 +78,25 @@ class SearchService {
       console.error("Error fetching listings:", error);
     }
   }
+
+   async addListing(listingData) {
+    try { 
+      const warmRent = Calculations.calculateWarmRent(listingData);
+      const newListing = await ListingRepository.createNewListing(listingData, warmRent);
+
+      return {
+        status: "success",
+        message: "Listing created successfully",
+        data: newListing,
+      };
+    } catch (error) {
+      console.error("Error adding listing:", error);
+      return {
+        status: "error",
+        message: "Failed to create listing",
+      };
+    }
+  }
 }
 
-module.exports = SearchService;
+module.exports = ListingService;
