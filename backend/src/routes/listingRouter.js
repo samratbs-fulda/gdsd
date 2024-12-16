@@ -53,16 +53,27 @@ if (max_distance) filters.distanceFromUni = { lt: parseFloat(max_distance) };
 
 router.post("/add", async (req, res) => {
   try {
-    const newListing = await listingService.addListing(req.body);
-    res.status(201).json({
+    const result = await listingService.addListing(req.body);
+
+    if (result.warnings) {
+      // Partial success: database succeeded but S3 failed.
+      return res.status(207).json({
+        status: "Partial Success",
+        message: "Listing created successfully, but some images failed to upload.",
+        data: result.data
+      });
+    }
+    // Full success: database and S3 both succeeded.
+    return res.status(201).json({
       status: "success",
-      message: "Listing created successfully",
-      data: newListing,
+      message: "Listing created successfully.",
+      data: result.data,
     });
   } catch (error) {
-    res.status(500).json({
+    //If both db and s3 failed.
+    return res.status(500).json({
       status: "error",
-      message: "Failed to create listing",
+      message: "Failed to create the listing.",
     });
   }
 });
