@@ -1,4 +1,4 @@
-const ApartmentTypeEnum = {
+  const ApartmentTypeEnum = {
     SINGLE: 'SINGLE',
     SHARED: 'SHARED',
     SUBLET: 'SUBLET'
@@ -16,7 +16,18 @@ const ApartmentTypeEnum = {
     REJECTED: 'REJECTED',
     DELETED: 'DELETED'
   };
+
+  const UserStatusEnum = {
+    ACTIVE: 'ACTIVE',
+    BANNED: 'BANNED',
+    DELETED: 'DELETED'
+  } 
   
+  const RoleEnum = {
+    STUDENT: 'STUDENT',
+    LANDLORD: 'LANDLORD',
+    MODERATOR: 'MODERATOR'
+  }
   
   const isValidEnumValue = (enumObject, value) => {
     return Object.values(enumObject).includes(value);
