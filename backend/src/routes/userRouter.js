@@ -8,23 +8,19 @@ const userService = new UserService();
 
 // user endpoints
 router.post("/register", async (req, res) => {
-  const { email, password, firstname, lastname, username } = req.body;
-  const role = req.body.role.toUpperCase(); // STUDENT, ADMIN, or -MODERATOR-
-  if (!userService.validateEmail(email) && role === "STUDENT") {
-    return res
-      .status(400)
-      .json({ message: "Invalid email address for student!" });
-  }
-  const user = { email, password, role, firstname, lastname, username };
-  const existingUser = await userService.getUserByEmail(user.email);
-  if (existingUser) {
-    return res.status(400).json({ message: "Email already in use!" });
-  }
   try{
-    const newUser = await userService.createUser(user);
-    res.status(201).json({ user: newUser });
-  } catch (error) {
-    return res.status(403).json({ message: error.message});
+    const newUser = await userService.registerUser(req.body);
+    res.status(201).json({
+      status: "success",
+      message: "User registered successfully",
+      data: newUser,
+    });
+  }catch(error){
+    const message = `Fail to register new user: ${error.message}`
+    res.status(500).json({
+      status: "error",
+      message: message,
+    });
   }
 });
 
@@ -40,7 +36,7 @@ router.post("/login", async (req, res) => {
     { expiresIn: process.env.JWT_EXPIRES_IN }
   );
 
-  res.status(200).json({ message: "Login successful", token: token });
+  res.status(200).json({ token });
 });
 
 // get user by id
@@ -60,7 +56,7 @@ router.get("/review", async (req, res) => {
   const { status } = req.query;
 
   const users = await userService.getUsersByStatus(status);
-  res.status(200).json({ message: "User loaded successfully", users: users });
+  res.status(200).json({ users });
 });
 
 module.exports = router;

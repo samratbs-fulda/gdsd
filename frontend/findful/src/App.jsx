@@ -2,9 +2,10 @@ import { Routes, Route } from "react-router-dom";
 import { ConfigProvider, Layout, theme } from 'antd';
 const { Header, Content, Footer } = Layout;
 import Homepage from "./pages/Homepage";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Login from "./pages/Login/Login";
+import Register from "./pages/Login/Register";
 import Dashboard from "./pages/dashboard/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 import React from "react";
 import Chat from "./pages/Chat/Chat";
 import "./App.css";
@@ -28,12 +29,26 @@ const App = () => {
 
         <Content className='route-content'>
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<Homepage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+
+            {/* Protected routes to moderator */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute requiredRole="MODERATOR">
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            
+            {/* Protected routes to landlord */}
+            <Route path="/listing/add" element={
+              <ProtectedRoute requiredRole="LANDLORD">
+                <AddListing />
+              </ProtectedRoute>
+            } />
+
             <Route path="/chat" element={<Chat />} />
-            <Route path="/listing/add" element={<AddListing />} />
             <Route path="/listing/:id" element={<ListingDetailsPage />} />
           </Routes>
         </Content>
