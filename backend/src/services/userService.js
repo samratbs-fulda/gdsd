@@ -1,5 +1,6 @@
 require("dotenv-flow").config();
 const prisma = require("../utils/db");
+const UserRepository = require("../repo/userRepository");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
@@ -20,29 +21,29 @@ class UserService {
     }
   }
 
-  async createUser(user) {
-    user.password = await this.hashPassword(user.password);
-    console.log(user);
+  async getUserByEmail(email) {
     try {
-      const newUser = await prisma.user.create({
-        data: user,
-      });
-      return newUser;
+      const user = await UserRepository.findUniqueBy('email', email);
+      return user;
     } catch (error) {
-      throw Error("Username already in use!");
+      throw Error("Error fetching user:", error);
     }
   }
 
-  async getUserByEmail(email) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: {
-          email: email,
-        },
-      });
-      return user;
-    } catch (error) {
-      console.error("Error fetching user:", error);
+  async registerUser(userData){
+    try{
+      const { role, email, password } = userData;
+
+      // Validate email existance and constrains
+      const existingUser = await this.getUserByEmail(email);
+      if (existingUser) throw Error("Email already in use.");
+      if (role === "STUDENT" && !this.validateEmail(email)) throw Error("Students must register with hs email.")
+      
+      userData.password = await this.hashPassword(password);
+      const newUser = await UserRepository.createNewUser(userData);
+      return newUser;
+    }catch(error){
+      return error;
     }
   }
 
@@ -59,6 +60,7 @@ class UserService {
       return user;
     } catch (error) {
       console.error("Error fetching user:", error);
+      return error;
     }
   }
 
@@ -68,39 +70,27 @@ class UserService {
       return users;
     } catch (error) {
       console.error("Error fetching users:", error);
+      return error;
     }
   }
 
   async getUserById(id) {
     try {
-      const user = await prisma.user.findUnique({
-        where: {
-          id: parseInt(id),
-        },
-        select: {
-          id: true,
-          firstname: true,
-          lastname: true,
-          username: true,
-          status: true,
-        },
-      });
+      const user = await UserRepository.findUniqueBy("id", id);
       return user;
     } catch (error) {
       console.error("Error fetching user:", error);
+      return error;
     }
   }
 
   async getUsersByStatus(status) {
     try {
-      const users = await prisma.user.findMany({
-        where: {
-          status: status,
-        },
-      });
+      const users = await UserRepository.findManyBy("status", status);
       return users;
     } catch (error) {
       console.error("Error fetching users:", error);
+      return error;
     }
   }
 }
