@@ -72,7 +72,6 @@ class ListingRepository {
           status: listingStatus,
         },
       });
-
       await this.createAmenities(amenities, newListing.id, prisma);
       await this.createDocuments(documents, newListing.id, prisma);
 
