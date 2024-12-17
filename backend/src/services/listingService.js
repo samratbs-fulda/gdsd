@@ -31,6 +31,7 @@ class ListingService {
   async getAllListings() {
     try {
       const listings = await prisma.listing.findMany();
+      console.log(listings)
       const image = await this.fetImage("image.webp");
       const img = { img: image };
       const newListing = listings.map((listing) => {
@@ -39,6 +40,31 @@ class ListingService {
       return newListing;
     } catch (error) {
       console.error("Error fetching listings:", error);
+    }
+  }
+
+  async getListingById(id) {
+    try {
+      const listing = await prisma.listing.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      const [amenities, documents] = await Promise.all([
+        this.getAmenitiesByListingId(id),
+        this.getDocumentsByListingId(id),
+      ]);
+      // const amenities = await this.getAmenitiesByListingId(id);
+      listing.amenities = amenities;
+
+      // const documents = await this.getDocumentsByListingId(id);
+      listing.documents = documents;
+
+      return listing;
+    } catch (error) {
+      console.log(error.message);
+      throw Error(error.message);
     }
   }
 
@@ -98,6 +124,36 @@ class ListingService {
         status: "error",
         message: "Failed to create listing",
       };
+    }
+  }
+
+  async getAmenitiesByListingId(listingId) {
+    try {
+      const amenities = await prisma.amenities.findUnique({
+        where: {
+          listingId,
+        },
+      });
+
+      return amenities;
+    } catch (error) {
+      console.log(error.message);
+      throw Error(error.message);
+    }
+  }
+
+  async getDocumentsByListingId(listingId) {
+    try {
+      const documents = await prisma.documents.findUnique({
+        where: {
+          listingId,
+        },
+      });
+
+      return documents;
+    } catch (error) {
+      console.log(error.message);
+      throw Error(error.message);
     }
   }
 }
