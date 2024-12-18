@@ -60,6 +60,7 @@ async function main() {
   // Seed profiles
   const studentProfile = await prisma.profile.create({
     data: {
+      userId: student.id,
       age: 22,
       gender: "Male",
       nationality: "German",
@@ -70,6 +71,7 @@ async function main() {
   
   const landlordProfile = await prisma.profile.create({
     data: {
+      userId: landlord.id,
       age: 45,
       gender: "Female",
       nationality: "German",

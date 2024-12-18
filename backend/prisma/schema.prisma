@@ -79,6 +79,7 @@ model User {
   status    UserStatus @default(ACTIVE)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @default(now())
+  profile   Profile?
 
   messagesSent     Messages[] @relation("senderMessages")
   messagesReceived Messages[] @relation("receiverMessages")
