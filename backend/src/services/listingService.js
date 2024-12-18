@@ -20,6 +20,28 @@ class ListingService {
     }
   }
 
+  async getListingById(id) {
+    try {
+      const listing = await prisma.listing.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      const [amenities, documents] = await Promise.all([
+        this.getAmenitiesByListingId(id),
+        this.getDocumentsByListingId(id),
+      ]);
+      listing.amenities = amenities;
+      listing.documents = documents;
+
+      return listing;
+    } catch (error) {
+      console.log(error.message);
+      throw Error(error.message);
+    }
+  }
+
   async getFilteredListings(filters) {
     try {
       const listings = await prisma.listing.findMany({
@@ -84,6 +106,36 @@ class ListingService {
     } catch (error) {
       console.error("Error creating listing:", error);
       throw error;
+    }
+  }
+
+  async getAmenitiesByListingId(listingId) {
+    try {
+      const amenities = await prisma.amenities.findUnique({
+        where: {
+          listingId,
+        },
+      });
+
+      return amenities;
+    } catch (error) {
+      console.log(error.message);
+      throw Error(error.message);
+    }
+  }
+
+  async getDocumentsByListingId(listingId) {
+    try {
+      const documents = await prisma.documents.findUnique({
+        where: {
+          listingId,
+        },
+      });
+
+      return documents;
+    } catch (error) {
+      console.log(error.message);
+      throw Error(error.message);
     }
   }
 }

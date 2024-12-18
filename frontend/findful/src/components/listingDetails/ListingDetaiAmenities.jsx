@@ -1,9 +1,10 @@
 import React from "react";
 import { Tooltip, Image } from "antd";
 
-const AddListingSuccessful =  (amenities) => {
+const ListingDetailAmenities =  (amenities) => {
   return (
     <div className="listingIcons">
+      <h3>Amenities:</h3>
           {/* Icons from https://uxwing.com/ */}
           {amenities.parkingAvailable && (
             <Tooltip title={"Parking available"}>
@@ -40,8 +41,8 @@ const AddListingSuccessful =  (amenities) => {
             </Tooltip>
           ) : (
             <Tooltip title={"No pets allowed"}>
-              <Image src="/listing-detail-nopets.svg" width={64}
-              ></Image>
+              <span><Image src="/listing-detail-nopets.svg" width={64}
+              ></Image></span>
             </Tooltip>
           )
           }
@@ -49,4 +50,4 @@ const AddListingSuccessful =  (amenities) => {
   );
 };
 
-export default AddListingSuccessful;
+export default ListingDetailAmenities;

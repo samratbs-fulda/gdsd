@@ -49,7 +49,7 @@ const App = () => {
             } />
 
             <Route path="/chat" element={<Chat />} />
-            <Route path="/listing/:listingid" element={<ListingDetailsPage />} />
+            <Route path="/listing/:id" element={<ListingDetailsPage />} />
           </Routes>
         </Content>
 
