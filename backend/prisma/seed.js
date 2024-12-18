@@ -57,6 +57,32 @@ async function main() {
     },
   });
 
+  // Seed profiles
+  const studentProfile = await prisma.profile.create({
+    data: {
+      userId: student.id,
+      age: 22,
+      gender: "Male",
+      nationality: "German",
+      phone: "+4915123456789",
+      bio: "Student at Hochschule Fulda, looking for a shared apartment.",
+    },
+  });
+  
+  const landlordProfile = await prisma.profile.create({
+    data: {
+      userId: landlord.id,
+      age: 45,
+      gender: "Female",
+      nationality: "German",
+      phone: "+4915123456790",
+      bio: "Experienced landlord offering affordable housing for students.",
+    },
+  });
+
+  console.log(`Created Profile for Student: ${studentProfile.phone}`);
+  console.log(`Created Profile for Landlord: ${landlordProfile.phone}`);
+
   // Seed Listings
   for (let i = 1; i <= 10; i++) {
     const listing = await prisma.listing.create({
