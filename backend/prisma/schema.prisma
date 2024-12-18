@@ -84,6 +84,17 @@ model User {
   messagesReceived Messages[] @relation("receiverMessages")
 }
 
+model Profile {
+  id            Int     @id @default(autoincrement())
+  age           Int
+  gender        String
+  nationality   String
+  phone         String  @unique
+  bio           String
+  user          User    @relation(fields: [userId], references: [id])
+  userId        Int     @unique
+}
+
 model Messages {
   id         Int      @id @default(autoincrement())
   sender     User     @relation("senderMessages", fields: [senderId], references: [id])
