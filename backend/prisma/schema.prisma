@@ -31,7 +31,7 @@ model Listing {
   energyRating    String
   furnished       Furnished
   street          String
-  postalCode      Int
+  postalCode      String
   houseNumber     Int
   latitude        Float
   longitude       Float
