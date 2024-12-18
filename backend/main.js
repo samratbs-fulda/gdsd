@@ -8,6 +8,7 @@ const morgan = require("morgan");
 const prisma = require("./src/utils/db");
 const router = require("./src/routes");
 const jwt = require("jsonwebtoken");
+const initializeSocket = require("./src/utils/socket");
 const app = express();
 
 const PORT = process.env.PORT || 8000;
@@ -37,50 +38,7 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
-  },
-});
-
-io.use((socket, next) => {
-  const token = socket.handshake.auth.token;
-  if (!token) {
-    return next(new Error("invalid token"));
-  }
-
-  // Decode the token to check its expiration
-  const decodedToken = jwt.decode(token);
-  const currentTime = Date.now() / 1000; // Current time in seconds
-
-  // Check if the token has expired
-  if (decodedToken && decodedToken.exp < currentTime) {
-    return next(new Error("token expired"));
-  }
-
-  const user = jwt.verify(token, process.env.JWT_SECRET);
-  if (!user) {
-    return next(new Error("invalid token"));
-  }
-  socket.user = user;
-  next();
-});
-
-io.on("connection", (socket) => {
-  console.log("SOCKET CONNECTED", socket.user.id);
-
-  //listen for incoming messages
-  socket.on("message", (message) => {
-    console.log("message received", message);
-
-    io.emit("message", message);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("SOCKET DISCONNECTED");
-  });
-});
+const io = initializeSocket(server, allowedOrigins);
 
 // helps in validating a successful database connection
 async function startServer() {
