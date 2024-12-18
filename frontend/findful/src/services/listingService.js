@@ -6,10 +6,21 @@ const apiUrl = environment.VITE_BACKEND;
 
 export const getAllListings = async () => {
   try {
-    const response = await axios.get(`${apiUrl}/api/listings`); // Assuming you have an endpoint like '/listings'
+    const response = await axios.get(`${apiUrl}/api/listings`);
     return response.data.listings;
   } catch (error) {
     console.error("Failed to fetch listings:", error);
+    throw error;
+  }
+};
+
+export const getListingById = async (id) => {
+  try {
+    const response = await axios.get(`${apiUrl}/api/listings/detail/${id}`);
+
+    return response.data.listing;
+  } catch (error) {
+    console.error("Failed to fetch listing:", error);
     throw error;
   }
 };

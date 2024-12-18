@@ -9,6 +9,13 @@ router.get("/", async (req, res) => {
   res.json({ listings });
 });
 
+router.get("/detail/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const listing = await listingService.getListingById(id);
+  res.json({ listing });
+});
+
 router.get("/review", async (req, res) => {
   const { status } = req.query;
 
