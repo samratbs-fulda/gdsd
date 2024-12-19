@@ -9,6 +9,7 @@ import io from "socket.io-client";
 import { useAuth } from "../../services/authContext";
 import { getUserById } from "../../services/login/loginService";
 import { useQuery } from "@tanstack/react-query";
+import { getUserChats } from "../../services/chatService";
 
 const socket = io("http://localhost:8000", {
   autoConnect: false,
@@ -27,17 +28,18 @@ const Chat = () => {
     queryFn: () => getUserById(user.id),
   });
 
-  console.log(userQuery.data);
+  const chatQuery = useQuery({
+    queryKey: ["chat"],
+    enabled: !!user,
+    queryFn: () => getUserChats(user.id),
+  });
+
+  console.log("user", userQuery.data);
 
   const username = userQuery.data?.username;
+  const chats = chatQuery.data;
 
-  const dummyChats = [
-    { id: 1, name: "John Doe" },
-    { id: 2, name: "Jane Smith" },
-    { id: 3, name: "Alice Johnson" },
-    { id: 4, name: "Bob Brown" },
-    { id: 5, name: "Charlie Green" },
-  ];
+  console.log("user chats", chats);
 
   const connectSocket = () => {
     const token = localStorage.getItem("token");
@@ -98,9 +100,9 @@ const Chat = () => {
               borderRight: 0,
             }}
           >
-            {dummyChats.map((chat) => (
+            {chats?.map((chat) => (
               <Menu.Item className="chat-menu-item" key={chat.id}>
-                {chat.name}
+                {chat.recipientUsername}
               </Menu.Item>
             ))}
           </Menu>
@@ -112,7 +114,7 @@ const Chat = () => {
               <h3 style={{ margin: 0 }}>3-room shared bedroom apartment</h3>
               <div>
                 <p>{connected ? "Connected" : "Disconnected"}</p>
-                <p>{user ? username : "Not logged in"}</p>
+                <p>{user ? `Logged in: ${username}` : "Not logged in"}</p>
               </div>
             </div>
             <div className="message-box">

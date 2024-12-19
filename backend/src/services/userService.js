@@ -23,26 +23,27 @@ class UserService {
 
   async getUserByEmail(email) {
     try {
-      const user = await UserRepository.findUniqueBy('email', email);
+      const user = await UserRepository.findUniqueBy("email", email);
       return user;
     } catch (error) {
       throw Error("Error fetching user:", error);
     }
   }
 
-  async registerUser(userData){
-    try{
+  async registerUser(userData) {
+    try {
       const { role, email, password } = userData;
 
       // Validate email existance and constrains
       const existingUser = await this.getUserByEmail(email);
       if (existingUser) throw Error("Email already in use.");
-      if (role === "STUDENT" && !this.validateEmail(email)) throw Error("Students must register with hs email.")
-      
+      if (role === "STUDENT" && !this.validateEmail(email))
+        throw Error("Students must register with hs email.");
+
       userData.password = await this.hashPassword(password);
       const newUser = await UserRepository.createNewUser(userData);
       return newUser;
-    }catch(error){
+    } catch (error) {
       return error;
     }
   }
@@ -76,7 +77,7 @@ class UserService {
 
   async getUserById(id) {
     try {
-      const user = await UserRepository.findUniqueBy("id", id);
+      const user = await UserRepository.findUniqueBy("id", parseInt(id));
       return user;
     } catch (error) {
       console.error("Error fetching user:", error);
