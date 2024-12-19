@@ -80,16 +80,33 @@ model User {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @default(now())
 
-  messagesSent     Messages[] @relation("senderMessages")
-  messagesReceived Messages[] @relation("receiverMessages")
+
+  ChatUser1 Chat[] @relation("user1Chats")
+
+  ChatUser2 Chat[] @relation("user2Chats")
+
+  Messages Messages[]
+}
+
+
+
+model Chat {
+  id         Int      @id @default(autoincrement())
+  user1      User     @relation("user1Chats", fields: [user1Id], references: [id])
+  user1Id    Int
+  user2      User     @relation("user2Chats", fields: [user2Id], references: [id])
+  user2Id    Int
+  createdAt  DateTime @default(now())
+
+  Messages Messages[]
 }
 
 model Messages {
   id         Int      @id @default(autoincrement())
-  sender     User     @relation("senderMessages", fields: [senderId], references: [id])
+  chat       Chat     @relation(fields: [chatId], references: [id])
+  chatId     Int
+  sender     User     @relation(fields: [senderId], references: [id])
   senderId   Int
-  receiver   User     @relation("receiverMessages", fields: [receiverId], references: [id])
-  receiverId Int
   content    String
   createdAt  DateTime @default(now())
 }
