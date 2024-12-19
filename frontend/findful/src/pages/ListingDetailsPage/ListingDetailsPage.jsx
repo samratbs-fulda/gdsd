@@ -1,16 +1,23 @@
 import React from "react";
 import Map from "../../components/map/Map";
 import ListingDetailAmenities from "../../components/listingDetails/ListingDetaiAmenities";
-import { Button, Carousel, Image, Col, Row, Layout, theme, List, Space } from "antd";
+import { Button, Carousel, Image, Col, Row, Layout, theme, List, Space, Card, Divider, Typography, Tag } from "antd";
 import { getListingById } from "../../services/listingService";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import Column from "antd/es/table/Column";
+import Title from "antd/es/typography/Title";
+import Paragraph from "antd/es/typography/Paragraph";
+import ImageCarousel from "../../components/imageCarousel/ImageCarousel";
+import "./ListingDetailsPage.css"
+import ListingDetailCosts from "../../components/listingDetails/ListingDetailCosts";
+import { AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, HomeOutlined, StarOutlined, TeamOutlined } from "@ant-design/icons";
 
 const { Content } = Layout;
 
 const ListingDetailsPage = () => {
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer, borderRadiusLG, colorTextLightSolid },
   } = theme.useToken();
 
   let { id } = useParams();
@@ -23,11 +30,60 @@ const ListingDetailsPage = () => {
   });
 
 
+  // TODO: D
   const listing = listingsQuery.data || [];
+  console.log(listing)
+  // const listing = {
+  //   landlordId: 1,
+  //   title: "Listing Title 1",
+  //   description: "This is the description for listing 1.",
+  //   type: "SINGLE", // Alternativ: "SUBLET"
+  //   availableFrom: new Date() + "",
+  //   availableTill: new Date(new Date().setMonth(new Date().getMonth() + 6)) + "",
+  //   status: "PENDING", // Alternativ: "APPROVED"
+  //   coldRent: 550,
+  //   deposit: 1000,
+  //   heatingCost: 50,
+  //   additionalCosts: 75,
+  //   warmRent: 675,
+  //   size: 60,
+  //   floor: 1,
+  //   totalRooms: 5,
+  //   freeRooms: 1.5,
+  //   energyRating: "A",
+  //   furnished: "FURNISHED", // Alternativen: "PARTIALLY", "NONFURNISHED"
+  //   street: "Street 1",
+  //   postalCode: "100001",
+  //   houseNumber: 1,
+  //   latitude: 52.51,
+  //   longitude: 13.41,
+  //   distanceFromUni: 0.5,
+  //   amenities: {
+  //     kitchenFitted: true,
+  //     petsAllowed: false,
+  //     parkingAvailable: false,
+  //     balconyAvailable: true,
+  //     gardenAvailable: false,
+  //     wifiAvailable: true,
+  //     storageAvailable: true,
+  //     smokingAllowed: false,
+  //     dishWasherAvailable: false,
+  //     washingMachineAvailable: true,
+  //     tvCableIncluded: false,
+  //   },
+  //   documents: {
+  //     proofOfIncome: true,
+  //     proofOfIdentity: true,
+  //     shufaCreditReport: false,
+  //     parentalGuarantee: false,
+  //   },
+  //   images: ['https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Fulda%2C_Marktstra%C3%9Fe%2C_2019-10_CN-01.jpg/1200px-Fulda%2C_Marktstra%C3%9Fe%2C_2019-10_CN-01.jpg', 'https://placesofgermany.de/wp-content/uploads/2023/04/Fulda-Altstadt.webp']
+  // };
+
 
   // TODO: Delete once longitude & latitude is calculated in backend
-  listing.longitude= 50.565187;
-  listing.latitude= 9.686583;
+  listing.longitude = 50.565187;
+  listing.latitude = 9.686583;
 
   return (
     <Layout className='page-content-layout' id='dashboard'
@@ -37,105 +93,168 @@ const ListingDetailsPage = () => {
       }}
     >
       <Content className='page-inner-content'>
-        <h1>{listing?.title}</h1>
+        <Typography>
+          <Title level={1}>{listing?.title}</Title>
 
-        <Carousel arrows infinite={false} className="imageCarousel">
-          {listing?.images?.map((image, index) => (
-            <Image key={index} src={image}></Image>
-          ))}
-        </Carousel>
+          {listing?.images && (
+            <ImageCarousel image={listing?.images} />
 
-        <div className="listingDetails">
-          <Space direction="vertical">
-            <Space direction="vertical">
-              <p>{listing?.warmRent}€ (warm)</p>
-              <p>{listing?.street} {listing?.houseNumber}, {listing?.postalCode} Fulda</p>
-              <p>{listing?.typeOfApartment == "SINGLE" && ("Single apartment")}</p>
-              <p>{listing?.furnished == 'PARTIALLY' && ("Partially")} furnished</p>
+          )}
+          <Divider />
 
-              <p>Size: {listing?.size}²m</p>
+          <div className="listingDetails">
+            <div className="important-details">
+              <Row justify={"space-around"}>
+                <Col>
+                  <Row justify={"center"}>
+                    <Title level={4}>{listing?.warmRent}€ (warm)</Title>
+                  </Row>
+                  <Row justify={"center"}>
+                    <Paragraph type="secondary">Rent</Paragraph>
+                  </Row>
+                </Col>
+                <Col>
+                  <Row justify={"center"}>
+                    <Title level={4}>{listing?.size}²m</Title>
+                  </Row>
+                  <Row justify={"center"}>
+                    <Paragraph type="secondary">Size</Paragraph>
+                  </Row>
+                </Col>
+                <Col>
+                  <Row justify={"center"}>
+                    <Title level={4}>{listing?.freeRooms}</Title>
+                  </Row>
+                  <Row justify={"center"}>
+                    {listing?.freeRooms <= 1 ? (<Paragraph type="secondary">Room</Paragraph>) : (<Paragraph type="secondary">Rooms</Paragraph>)}
+                  </Row>
+                </Col>
+              </Row>
+            </div>
+            <Divider />
 
-              <p>Available from: {listing?.availableFrom?.substring(0, 10)}</p>
-              <p>Available till: {listing?.availableTill?.substring(0, 10)}</p>
-            </Space>
-            <p>Total Rooms of the : {listing?.totalRooms}</p>
-            <p>Rooms available to rent: {listing?.freeRooms}</p>
-            <p>Energy rating: {listing?.energyRating}</p>
-          </Space>
-
-          <div className="costs">
-            <h3>Costs:</h3>
-            <Row gutter={16} >
-              <Col span={6}>
-                <p>Cold rent:</p>
+            
+            <Row gutter={[12,8]} justify={"space-around"}>
+              {/* Address Section */}
+              <Col span={8}>
+                <Card>
+                  <EnvironmentOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+                  <Title level={5}>Address</Title>
+                  <Paragraph>
+                    {listing?.street} {listing?.houseNumber},<br />
+                    {listing?.postalCode} Fulda
+                  </Paragraph>
+                </Card>
               </Col>
-              <Col span={6}>
-                <p>{listing?.coldRent}</p>
+
+              {/* Availability Section */}
+              <Col span={8}>
+                <Card>
+                  <CalendarOutlined style={{ fontSize: '24px', color: '#52c41a' }} />
+                  <Title level={5}>Availability</Title>
+                  <Paragraph>
+                    From: {listing?.availableFrom?.substring(0, 10)} <br />
+                    Till: {listing?.availableTill?.substring(0, 10)}
+                  </Paragraph>
+                </Card>
+              </Col>
+
+              {/* Furnishing Section */}
+              <Col span={8}>
+                <Card>
+                  <HomeOutlined style={{ fontSize: '24px', color: '#faad14' }} />
+                  <Title level={5}>Furnishing</Title>
+                  <Paragraph>
+                    {listing?.furnished === 'FURNISHED' ? 'Furnished' :
+                      listing?.furnished === 'PARTIALLY' ? 'Partially Furnished' :
+                      'Not Furnished'}
+                  </Paragraph>
+                </Card>
+              </Col>
+              
+              {/* Energy Rating */}
+              <Col span={8}>
+                <Card>
+                  <StarOutlined style={{ fontSize: '24px', color: '#fadb14' }} />
+                  <Title level={5}>Energy Rating</Title>
+                  <Paragraph>{listing?.energyRating || 'N/A'}</Paragraph>
+                </Card>
+              </Col>
+
+              {/* Type of Apartment */}
+              <Col span={8}>
+                <Card>
+                  <AppstoreOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+                  <Title level={5}>Type</Title>
+                  <Paragraph>
+                    {listing?.type === 'SINGLE' ? 'Single Apartment' :
+                      listing?.type === 'SHARED' ? 'Shared Apartment' :
+                        'Sublet'}
+                  </Paragraph>
+                </Card>
+              </Col>
+
+              {/* Rooms Section */}
+              <Col span={8}>
+                <Card>
+                  <TeamOutlined style={{ fontSize: '24px', color: '#722ed1' }} />
+                  <Title level={5}>Rooms</Title>
+                  <Paragraph>
+                    Total: {listing?.totalRooms || 'N/A'}<br />
+                    Available: {listing?.freeRooms || 'N/A'}
+                  </Paragraph>
+                </Card>
               </Col>
             </Row>
-            <Row gutter={16}>
-              <Col span={6}>
-                <p>Heating costs:</p>
-              </Col>
-              <Col span={6}>
-                <p>+ {listing?.heatingCost}€</p>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={6}>
-                <p>Additional costs:</p>
-              </Col>
-              <Col span={6}>
-                <p>+ {listing?.additionalCosts}€</p>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={6}>
-                <p>Warm rent:</p>
-              </Col>
-              <Col span={6}>
-                <p>= {listing?.warmRent}€</p>
-              </Col>
-            </Row>
+            <Divider />
+
+            <div className="description">
+              <Title level={3}>Description</Title>
+              <Paragraph>{listing?.description}</Paragraph>
+            </div>
+            <Divider />
+
+            <ListingDetailCosts costs={{ coldRent: listing?.coldRent, heatingCost: listing?.heatingCost, additionalCosts: listing?.additionalCosts, warmRent: listing?.warmRent, deposit: listing?.deposit }} />
+            <Divider />
+
+            <ListingDetailAmenities amenities={listing?.amenities} />
+            <Divider />
+
+            {listing.documents && (
+              <div className="listingDocuments">
+                <Title level={3}>Documents needed to apply: </Title>
+                <ul>
+                  {listing?.documents?.proofOfIncome && (
+                    <li>
+                      Proof of Income
+                    </li>)
+                  }
+                  {listing?.documents?.proofOfIdentity && (
+                    <li>
+                      Proof of Identidy
+                    </li>)
+                  }
+                  {listing?.documents?.shufaCreditReport && (
+                    <li>
+                      Schufa credit report
+                    </li>)
+                  }
+                  {listing?.documents?.parentalGuarantee && (
+                    <li>
+                      Parental guarantee
+                    </li>)
+                  }
+                </ul>
+              </div>
+            )}
+
+
+            <Button>Apply</Button> {/* TODO: Add route */}
+
+            <Map longitude={listing.longitude} latitude={listing.latitude} />
           </div>
 
-
-
-          <ListingDetailAmenities amenities={listing?.amenities} />
-
-          {listing.documents && (
-            <div className="listingDocuments">
-              <p>Documents needed to apply: </p>
-              <List >
-                {listing?.documents?.proofOfIncome && (
-                  <List.Item>
-                    Proof of Income
-                  </List.Item>)
-                }
-                {listing?.documents?.proofOfIdentity && (
-                  <List.Item>
-                    Proof of Identidy
-                  </List.Item>)
-                }
-                {listing?.documents?.shufaCreditReport && (
-                  <List.Item>
-                    Schufa credit report
-                  </List.Item>)
-                }
-                {listing?.documents?.parentalGuarantee && (
-                  <List.Item>
-                    Parental guarantee
-                  </List.Item>)
-                }
-              </List>
-            </div>
-          )}
-
-
-          <Button>Apply</Button> {/* TODO: Add route */}
-
-          <Map longitude={listing.longitude} latitude={listing.latitude} />
-        </div>
+        </Typography>
       </Content>
     </Layout>
   );
