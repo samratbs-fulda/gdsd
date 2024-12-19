@@ -29,57 +29,7 @@ const ListingDetailsPage = () => {
     },
   });
 
-
-  // TODO: D
   const listing = listingsQuery.data || [];
-  console.log(listing)
-  // const listing = {
-  //   landlordId: 1,
-  //   title: "Listing Title 1",
-  //   description: "This is the description for listing 1.",
-  //   type: "SINGLE", // Alternativ: "SUBLET"
-  //   availableFrom: new Date() + "",
-  //   availableTill: new Date(new Date().setMonth(new Date().getMonth() + 6)) + "",
-  //   status: "PENDING", // Alternativ: "APPROVED"
-  //   coldRent: 550,
-  //   deposit: 1000,
-  //   heatingCost: 50,
-  //   additionalCosts: 75,
-  //   warmRent: 675,
-  //   size: 60,
-  //   floor: 1,
-  //   totalRooms: 5,
-  //   freeRooms: 1.5,
-  //   energyRating: "A",
-  //   furnished: "FURNISHED", // Alternativen: "PARTIALLY", "NONFURNISHED"
-  //   street: "Street 1",
-  //   postalCode: "100001",
-  //   houseNumber: 1,
-  //   latitude: 52.51,
-  //   longitude: 13.41,
-  //   distanceFromUni: 0.5,
-  //   amenities: {
-  //     kitchenFitted: true,
-  //     petsAllowed: false,
-  //     parkingAvailable: false,
-  //     balconyAvailable: true,
-  //     gardenAvailable: false,
-  //     wifiAvailable: true,
-  //     storageAvailable: true,
-  //     smokingAllowed: false,
-  //     dishWasherAvailable: false,
-  //     washingMachineAvailable: true,
-  //     tvCableIncluded: false,
-  //   },
-  //   documents: {
-  //     proofOfIncome: true,
-  //     proofOfIdentity: true,
-  //     shufaCreditReport: false,
-  //     parentalGuarantee: false,
-  //   },
-  //   images: ['https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Fulda%2C_Marktstra%C3%9Fe%2C_2019-10_CN-01.jpg/1200px-Fulda%2C_Marktstra%C3%9Fe%2C_2019-10_CN-01.jpg', 'https://placesofgermany.de/wp-content/uploads/2023/04/Fulda-Altstadt.webp']
-  // };
-
 
   // TODO: Delete once longitude & latitude is calculated in backend
   listing.longitude = 50.565187;
