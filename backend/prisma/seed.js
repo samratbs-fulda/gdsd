@@ -1,6 +1,6 @@
 // to update schemas: npx prisma migrate dev --name <migration_name>
 require("dotenv").config({ path: ".env.local" });
-
+const { execSync } = require('child_process');
 const {
   PrismaClient,
   Role,
@@ -13,12 +13,7 @@ const prisma = new PrismaClient();
 async function main() {
   // Reset the database
   console.log("Resetting database...");
-  prisma.$executeRaw`TRUNCATE "Listing", "User", "Amenities", "Documents" RESTART IDENTITY CASCADE;`;
-  // await prisma.listing.deleteMany();
-  // await prisma.user.deleteMany();
-  // await prisma.address.deleteMany();
-  // await prisma.amenities.deleteMany();
-  // await prisma.documents.deleteMany();
+  execSync('npx prisma migrate reset --force', { stdio: 'inherit' });
 
   // // Populate the database
   console.log("Seeding database...");
@@ -111,7 +106,7 @@ async function main() {
             ? Furnished.PARTIALLY
             : Furnished.NONFURNISHED,
         street: `Street ${i}`,
-        postalCode: "10000" + i,
+        postalCode: `1000${i}`,
         houseNumber: i,
         latitude: 52.5 + i * 0.01,
         longitude: 13.4 + i * 0.01,
