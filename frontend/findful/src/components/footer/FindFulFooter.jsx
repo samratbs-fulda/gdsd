@@ -12,7 +12,8 @@ const FindFulFooter = () => {
       <a href="/dashboard">Dashboard</a><br></br>
       <a href="/chat">Chat</a><br></br>
       <a href="/listing/add">Add a listing</a><br></br>
-      <a href="/listing/1">View listing details</a>
+      <a href="/listing/1">View listing details</a><br></br>
+      <a href="/profile/1">Edit Profile</a>
     </>
   );
 };

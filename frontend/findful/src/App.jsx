@@ -13,6 +13,8 @@ import ListingDetailsPage from "./pages/ListingDetailsPage/ListingDetailsPage";
 import FindFulHeader from "./components/header/FindFulHeader";
 import FindFulFooter from "./components/footer/FindFulFooter";
 import AddListing from "./pages/AddListing/AddListing";
+import ProfileEditPage from "./pages/ProfileEditPage"; 
+
 
 const App = () => {
   const { token } = theme.useToken();
@@ -50,6 +52,8 @@ const App = () => {
 
             <Route path="/chat" element={<Chat />} />
             <Route path="/listing/:id" element={<ListingDetailsPage />} />
+            <Route path="/profile/:id" element={<ProfileEditPage />} />
+
           </Routes>
         </Content>
 

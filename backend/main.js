@@ -7,19 +7,18 @@ const { Server } = require("socket.io");
 const morgan = require("morgan");
 const prisma = require("./src/utils/db");
 const router = require("./src/routes");
+const profileRouter = require("./src/routes/profileRouter"); // Import profile router
 const jwt = require("jsonwebtoken");
 const app = express();
 
 const PORT = process.env.PORT || 8000;
 
 // Allow requests from the frontend
-
 const allowedOrigins = [
   "https://findful.us.to",
   "http://localhost:5174",
   "http://localhost:5173",
 ];
-// const allowedOrigins = ["http://localhost:5174/"];
 
 const corsOptions = {
   credentials: true,
@@ -50,11 +49,9 @@ io.use((socket, next) => {
     return next(new Error("invalid token"));
   }
 
-  // Decode the token to check its expiration
   const decodedToken = jwt.decode(token);
-  const currentTime = Date.now() / 1000; // Current time in seconds
+  const currentTime = Date.now() / 1000;
 
-  // Check if the token has expired
   if (decodedToken && decodedToken.exp < currentTime) {
     return next(new Error("token expired"));
   }
@@ -70,10 +67,8 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
   console.log("SOCKET CONNECTED", socket.user.id);
 
-  //listen for incoming messages
   socket.on("message", (message) => {
     console.log("message received", message);
-
     io.emit("message", message);
   });
 
@@ -82,7 +77,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// helps in validating a successful database connection
+// Helps in validating a successful database connection
 async function startServer() {
   try {
     await prisma.$connect();
@@ -96,5 +91,6 @@ async function startServer() {
 
 app.use(express.json());
 app.use("/api", router);
+app.use("/profile", profileRouter); // Add profile router
 
 startServer();
