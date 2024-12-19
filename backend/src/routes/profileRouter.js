@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const prisma = require("../utils/db");
 
-// Get profile details
 router.get("/:id", async (req, res) => {
   try {
     const profile = await prisma.profile.findUnique({
@@ -19,7 +18,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Update profile details
 router.put("/:id", async (req, res) => {
   try {
     const { age, gender, nationality, phone, bio } = req.body;

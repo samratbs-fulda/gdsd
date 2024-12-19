@@ -7,7 +7,7 @@ const { Server } = require("socket.io");
 const morgan = require("morgan");
 const prisma = require("./src/utils/db");
 const router = require("./src/routes");
-const profileRouter = require("./src/routes/profileRouter"); // Import profile router
+const profileRouter = require("./src/routes/profileRouter"); 
 const jwt = require("jsonwebtoken");
 const app = express();
 
@@ -91,6 +91,6 @@ async function startServer() {
 
 app.use(express.json());
 app.use("/api", router);
-app.use("/profile", profileRouter); // Add profile router
+app.use("/profile", profileRouter);
 
 startServer();
