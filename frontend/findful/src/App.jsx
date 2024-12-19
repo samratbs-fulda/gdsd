@@ -21,9 +21,14 @@ const App = () => {
       <ConfigProvider
         theme={{
           // Customization possible here
+          components: {
+            Typography: {
+              fontSizeHeading1: 40,
+            }
+          }
         }}
       >
-      </ConfigProvider>
+
       <Layout className='main-layout'>
         <Header><FindFulHeader /></Header>
 
@@ -55,6 +60,7 @@ const App = () => {
 
         <Footer><FindFulFooter /></Footer>
       </Layout>
+      </ConfigProvider>
     </div>
   );
 };
