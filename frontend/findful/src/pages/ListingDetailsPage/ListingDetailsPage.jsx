@@ -1,7 +1,7 @@
 import React from "react";
 import Map from "../../components/map/Map";
 import ListingDetailAmenities from "../../components/listingDetails/ListingDetaiAmenities";
-import { Button, Carousel, Image, Col, Row, Layout, theme, List, Space, Card, Divider, Typography, Tag } from "antd";
+import { Button, Carousel, Image, Col, Row, Layout, theme, List, Space, Card, Divider, Typography, Tag, Flex } from "antd";
 import { getListingById } from "../../services/listingService";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -11,13 +11,14 @@ import Paragraph from "antd/es/typography/Paragraph";
 import ImageCarousel from "../../components/imageCarousel/ImageCarousel";
 import "./ListingDetailsPage.css"
 import ListingDetailCosts from "../../components/listingDetails/ListingDetailCosts";
-import { AppstoreOutlined, CalendarOutlined, EnvironmentOutlined, HomeOutlined, StarOutlined, TeamOutlined } from "@ant-design/icons";
+import { AppstoreOutlined, BulbOutlined, CalendarOutlined, EnvironmentOutlined, HomeOutlined, StarOutlined, TeamOutlined } from "@ant-design/icons";
+import GeneralInfoCard from "../../components/listingDetails/GeneralInfoCard";
 
 const { Content } = Layout;
 
 const ListingDetailsPage = () => {
   const {
-    token: { colorBgContainer, borderRadiusLG, colorTextLightSolid },
+    token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   let { id } = useParams();
@@ -52,10 +53,11 @@ const ListingDetailsPage = () => {
           )}
           <Divider />
 
+          {/* Important details section */}
           <div className="listingDetails">
             <div className="important-details">
               <Row justify={"space-around"}>
-                <Col>
+                <Col xs={12} sm={8}>
                   <Row justify={"center"}>
                     <Title level={4}>{listing?.warmRent}€ (warm)</Title>
                   </Row>
@@ -63,7 +65,7 @@ const ListingDetailsPage = () => {
                     <Paragraph type="secondary">Rent</Paragraph>
                   </Row>
                 </Col>
-                <Col>
+                <Col xs={12} sm={8}>
                   <Row justify={"center"}>
                     <Title level={4}>{listing?.size}²m</Title>
                   </Row>
@@ -71,7 +73,7 @@ const ListingDetailsPage = () => {
                     <Paragraph type="secondary">Size</Paragraph>
                   </Row>
                 </Col>
-                <Col>
+                <Col xs={12} sm={8}>
                   <Row justify={"center"}>
                     <Title level={4}>{listing?.freeRooms}</Title>
                   </Row>
@@ -83,124 +85,114 @@ const ListingDetailsPage = () => {
             </div>
             <Divider />
 
-            
-            <Row gutter={[12,8]} justify={"space-around"}>
-              {/* Address Section */}
-              <Col span={8}>
-                <Card>
-                  <EnvironmentOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
-                  <Title level={5}>Address</Title>
-                  <Paragraph>
-                    {listing?.street} {listing?.houseNumber},<br />
-                    {listing?.postalCode} Fulda
-                  </Paragraph>
-                </Card>
-              </Col>
+            {/* General Info table */}
+            <Row gutter={[12, 12]} justify={"space-between"}>
+              <GeneralInfoCard>
+                <EnvironmentOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+                <Title level={5}>Address</Title>
+                <Paragraph>
+                  {listing?.street} {listing?.houseNumber},<br />
+                  {listing?.postalCode} Fulda
+                </Paragraph>
+              </GeneralInfoCard>
 
-              {/* Availability Section */}
-              <Col span={8}>
-                <Card>
-                  <CalendarOutlined style={{ fontSize: '24px', color: '#52c41a' }} />
-                  <Title level={5}>Availability</Title>
-                  <Paragraph>
-                    From: {listing?.availableFrom?.substring(0, 10)} <br />
-                    Till: {listing?.availableTill?.substring(0, 10)}
-                  </Paragraph>
-                </Card>
-              </Col>
+              <GeneralInfoCard>
+                <CalendarOutlined style={{ fontSize: '24px', color: '#52c41a' }} />
+                <Title level={5}>Availability</Title>
+                <Paragraph>
+                  From: {listing?.availableFrom?.substring(0, 10)} <br />
+                  Till: {listing?.availableTill?.substring(0, 10)}
+                </Paragraph>
+              </GeneralInfoCard>
 
-              {/* Furnishing Section */}
-              <Col span={8}>
-                <Card>
-                  <HomeOutlined style={{ fontSize: '24px', color: '#faad14' }} />
-                  <Title level={5}>Furnishing</Title>
-                  <Paragraph>
-                    {listing?.furnished === 'FURNISHED' ? 'Furnished' :
-                      listing?.furnished === 'PARTIALLY' ? 'Partially Furnished' :
+              <GeneralInfoCard>
+                <HomeOutlined style={{ fontSize: '24px', color: '#faad14' }} />
+                <Title level={5}>Furnishing</Title>
+                <Paragraph>
+                  {listing?.furnished === 'FURNISHED' ? 'Furnished' :
+                    listing?.furnished === 'PARTIALLY' ? 'Partially Furnished' :
                       'Not Furnished'}
-                  </Paragraph>
-                </Card>
-              </Col>
-              
-              {/* Energy Rating */}
-              <Col span={8}>
-                <Card>
-                  <StarOutlined style={{ fontSize: '24px', color: '#fadb14' }} />
-                  <Title level={5}>Energy Rating</Title>
-                  <Paragraph>{listing?.energyRating || 'N/A'}</Paragraph>
-                </Card>
-              </Col>
+                </Paragraph>
+              </GeneralInfoCard>
 
-              {/* Type of Apartment */}
-              <Col span={8}>
-                <Card>
-                  <AppstoreOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
-                  <Title level={5}>Type</Title>
-                  <Paragraph>
-                    {listing?.type === 'SINGLE' ? 'Single Apartment' :
-                      listing?.type === 'SHARED' ? 'Shared Apartment' :
-                        'Sublet'}
-                  </Paragraph>
-                </Card>
-              </Col>
+              <GeneralInfoCard>
+                <BulbOutlined style={{ fontSize: '24px', color: '#fadb14' }} />
+                <Title level={5}>Energy Rating</Title>
+                <Paragraph>{listing?.energyRating || 'N/A'}</Paragraph>
+              </GeneralInfoCard>
 
-              {/* Rooms Section */}
-              <Col span={8}>
-                <Card>
-                  <TeamOutlined style={{ fontSize: '24px', color: '#722ed1' }} />
-                  <Title level={5}>Rooms</Title>
-                  <Paragraph>
-                    Total: {listing?.totalRooms || 'N/A'}<br />
-                    Available: {listing?.freeRooms || 'N/A'}
-                  </Paragraph>
-                </Card>
-              </Col>
+              <GeneralInfoCard>
+                <AppstoreOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+                <Title level={5}>Type</Title>
+                <Paragraph>
+                  {listing?.type === 'SINGLE' ? 'Single Apartment' :
+                    listing?.type === 'SHARED' ? 'Shared Apartment' :
+                      'Sublet'}
+                </Paragraph>
+              </GeneralInfoCard>
+
+              <GeneralInfoCard>
+                <TeamOutlined style={{ fontSize: '24px', color: '#722ed1' }} />
+                <Title level={5}>Rooms</Title>
+                <Paragraph>
+                  Total: {listing?.totalRooms || 'N/A'}<br />
+                  Available: {listing?.freeRooms || 'N/A'}
+                </Paragraph>
+              </GeneralInfoCard>
             </Row>
             <Divider />
 
+            {/* Description */}
             <div className="description">
               <Title level={3}>Description</Title>
               <Paragraph>{listing?.description}</Paragraph>
             </div>
             <Divider />
 
+            {/* Costs */}
             <ListingDetailCosts costs={{ coldRent: listing?.coldRent, heatingCost: listing?.heatingCost, additionalCosts: listing?.additionalCosts, warmRent: listing?.warmRent, deposit: listing?.deposit }} />
             <Divider />
 
+            {/* Amenities */}
             <ListingDetailAmenities amenities={listing?.amenities} />
             <Divider />
 
+            {/* Documents */}
             {listing.documents && (
               <div className="listingDocuments">
                 <Title level={3}>Documents needed to apply: </Title>
-                <ul>
+                <ul style={{listStyleType: "disc"}}>
                   {listing?.documents?.proofOfIncome && (
                     <li>
-                      Proof of Income
+                      <Paragraph>Proof of Income</Paragraph>
                     </li>)
                   }
                   {listing?.documents?.proofOfIdentity && (
                     <li>
-                      Proof of Identidy
+                      <Paragraph>Proof of Identidy</Paragraph>
                     </li>)
                   }
                   {listing?.documents?.shufaCreditReport && (
                     <li>
-                      Schufa credit report
+                      <Paragraph>Schufa credit report</Paragraph>
                     </li>)
                   }
                   {listing?.documents?.parentalGuarantee && (
                     <li>
-                      Parental guarantee
+                      <Paragraph>Parental guarantee</Paragraph>
                     </li>)
                   }
                 </ul>
               </div>
             )}
 
-
-            <Button>Apply</Button> {/* TODO: Add route */}
-
+            {/* Apply Button */}
+            <Flex justify="center">
+                <Paragraph>
+              <Button color="primary" >Apply</Button></Paragraph> {/* TODO: Add route + disable for non-students */}
+            </Flex>
+            
+            {/* Map */}
             <Map longitude={listing.longitude} latitude={listing.latitude} />
           </div>
 
