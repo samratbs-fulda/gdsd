@@ -1,7 +1,7 @@
 import React from "react";
 import Map from "../../components/map/Map";
 import ListingDetailAmenities from "../../components/listingDetails/ListingDetaiAmenities";
-import { Button, Col, Row, Layout, theme, Divider, Typography, Flex } from "antd";
+import { Button, Col, Row, Layout, theme, Divider, Typography, Flex, Tooltip } from "antd";
 import { getListingById } from "../../services/listingService";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +12,8 @@ import "./ListingDetailsPage.css"
 import ListingDetailCosts from "../../components/listingDetails/ListingDetailCosts";
 import { AppstoreOutlined, BulbOutlined, CalendarOutlined, EnvironmentOutlined, HomeOutlined, TeamOutlined } from "@ant-design/icons";
 import GeneralInfoCard from "../../components/listingDetails/GeneralInfoCard";
+import { jwtDecode } from "jwt-decode";
+import { getRoleOfCurrentUser } from "../../services/authRole";
 
 const { Content } = Layout;
 
@@ -30,6 +32,8 @@ const ListingDetailsPage = () => {
   });
 
   const listing = listingsQuery.data || [];
+
+  const role = getRoleOfCurrentUser();
 
   // TODO: Delete once longitude & latitude is calculated in backend
   listing.longitude = 50.565187;
@@ -188,7 +192,19 @@ const ListingDetailsPage = () => {
             {/* Apply Button */}
             <Flex justify="center">
               <Paragraph>
-                <Button color="primary" >Apply</Button></Paragraph> {/* TODO: Add route + disable for non-students */}
+                {role == 'STUDENT' ? (
+                  <Button color="primary">Apply</Button>
+                ) : role == 'GUEST' ? (
+                  <Tooltip title="Please login to apply for listings.">
+                  <Button color="primary" disabled={true}>Apply</Button>
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="Only students can apply for listings.">
+                  <Button color="primary" disabled={true}>Apply</Button>
+                  </Tooltip>
+                )
+                }
+              </Paragraph> {/* TODO: Add route */}
             </Flex>
 
             {/* Map */}
