@@ -1,5 +1,5 @@
 import React from "react";
-import { Tooltip, Image, Row, Col, Card, theme } from "antd";
+import { Tooltip, Col, Card, theme } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';

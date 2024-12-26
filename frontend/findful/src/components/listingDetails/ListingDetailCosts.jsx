@@ -1,5 +1,5 @@
 import React from "react";
-import { Tooltip, Image, Row, Col } from "antd";
+import { Row, Col } from "antd";
 import Paragraph from "antd/es/typography/Paragraph";
 
 const ListingDetailCosts =  ({costs}) => {

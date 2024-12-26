@@ -1,17 +1,16 @@
 import React from "react";
 import Map from "../../components/map/Map";
 import ListingDetailAmenities from "../../components/listingDetails/ListingDetaiAmenities";
-import { Button, Carousel, Image, Col, Row, Layout, theme, List, Space, Card, Divider, Typography, Tag, Flex } from "antd";
+import { Button, Col, Row, Layout, theme, Divider, Typography, Flex } from "antd";
 import { getListingById } from "../../services/listingService";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import Column from "antd/es/table/Column";
 import Title from "antd/es/typography/Title";
 import Paragraph from "antd/es/typography/Paragraph";
 import ImageCarousel from "../../components/imageCarousel/ImageCarousel";
 import "./ListingDetailsPage.css"
 import ListingDetailCosts from "../../components/listingDetails/ListingDetailCosts";
-import { AppstoreOutlined, BulbOutlined, CalendarOutlined, EnvironmentOutlined, HomeOutlined, StarOutlined, TeamOutlined } from "@ant-design/icons";
+import { AppstoreOutlined, BulbOutlined, CalendarOutlined, EnvironmentOutlined, HomeOutlined, TeamOutlined } from "@ant-design/icons";
 import GeneralInfoCard from "../../components/listingDetails/GeneralInfoCard";
 
 const { Content } = Layout;
@@ -161,7 +160,7 @@ const ListingDetailsPage = () => {
             {listing.documents && (
               <div className="listingDocuments">
                 <Title level={3}>Documents needed to apply: </Title>
-                <ul style={{listStyleType: "disc"}}>
+                <ul style={{ listStyleType: "disc" }}>
                   {listing?.documents?.proofOfIncome && (
                     <li>
                       <Paragraph>Proof of Income</Paragraph>
@@ -188,10 +187,10 @@ const ListingDetailsPage = () => {
 
             {/* Apply Button */}
             <Flex justify="center">
-                <Paragraph>
-              <Button color="primary" >Apply</Button></Paragraph> {/* TODO: Add route + disable for non-students */}
+              <Paragraph>
+                <Button color="primary" >Apply</Button></Paragraph> {/* TODO: Add route + disable for non-students */}
             </Flex>
-            
+
             {/* Map */}
             <Map longitude={listing.longitude} latitude={listing.latitude} />
           </div>

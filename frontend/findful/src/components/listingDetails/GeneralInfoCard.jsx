@@ -1,10 +1,7 @@
 import React from "react";
-import { Tooltip, Image, Row, Col, Card, theme } from "antd";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Col, Card, theme } from "antd";
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
-import { StopOutlined } from "@ant-design/icons";
-import AmenityIcon from "./AmenityIcon";
 
 library.add(fas);
 
