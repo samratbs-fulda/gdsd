@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import { useQuery } from "@tanstack/react-query";
 import { getReviewListings } from "../../services/reviewContent/reviewListingService";
 import { Row } from 'antd';
-import PendingCard from './cards/pendingCard';
-import ApprovedCard from './cards/approvedCard';
-import RejectedCard from './cards/rejectedCard';
+import PendingCard from '../cards/pendingCard';
+import ApprovedCard from '../cards/approvedCard';
+import RejectedCard from '../cards/rejectedCard';
 
 const ReviewListings = ({ status }) => {
     const listingQuery = useQuery({
