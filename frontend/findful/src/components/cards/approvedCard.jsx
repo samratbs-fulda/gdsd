@@ -2,9 +2,9 @@ import React from "react";
 import { Card, Col, Button } from "antd";
 import Meta from "antd/es/card/Meta";
 import PropTypes from "prop-types";
+import { updateListingStatus } from "../../services/reviewContent/reviewListingService";
 
-const ApprovedCard = ({ listing }) => {
-    console.log(listing);
+const ApprovedCard = ({ listing, onReload }) => {
     return (
         <Col
             span={24}
@@ -26,7 +26,11 @@ const ApprovedCard = ({ listing }) => {
                     <Button key="view-details" type="primary">
                         View Details
                     </Button>,
-                    <Button key="reject" type="primary">
+                    <Button key="reject" type="primary" 
+                    onClick={async () => {
+                        await updateListingStatus(listing.id, "REJECTED");
+                        onReload();
+                    }}>
                             Reject
                         </Button>,
                 ]}
@@ -48,6 +52,7 @@ ApprovedCard.propTypes = {
         warmRent: PropTypes.number.isRequired,
         postalCode: PropTypes.string.isRequired,
     }).isRequired,
+    onReload: PropTypes.func.isRequired,
 };
 
 export default ApprovedCard;

@@ -2,8 +2,9 @@ import React from "react";
 import { Card, Col, Button } from "antd";
 import Meta from "antd/es/card/Meta";
 import PropTypes from "prop-types";
+import { updateListingStatus } from "../../services/reviewContent/reviewListingService";
 
-const PendingCard = ({ listing }) => {
+const PendingCard = ({ listing, onReload }) => {
     return (
         <Col
             span={24}
@@ -21,15 +22,21 @@ const PendingCard = ({ listing }) => {
                         className="listing-image"
                     />
                 }
-                actions={[<Button key="approve" type="primary">
-                            Approve 
-                        </Button>,
-                    <Button key="view-details" type="primary">
-                        View Details
-                    </Button>,
-                    <Button key="reject" type="primary">
-                            Reject
-                        </Button>,
+                actions={[  <Button key="approve" type="primary"
+                            onClick={async () => {
+                                await updateListingStatus(listing.id, "APPROVED");
+                                onReload();}}>
+                                Approve 
+                            </Button>,
+                            <Button key="view-details" type="primary">
+                                View Details
+                            </Button>,
+                            <Button key="reject" type="primary"
+                            onClick={async () => {
+                                await updateListingStatus(listing.id, "REJECTED");
+                                onReload();}}>
+                                Reject
+                            </Button>,
                 ]}
             >
                 <Meta title={listing.title} description={listing.type} />
@@ -49,6 +56,7 @@ PendingCard.propTypes = {
         warmRent: PropTypes.number.isRequired,
         postalCode: PropTypes.string.isRequired,
     }).isRequired,
+    onReload: PropTypes.func.isRequired,
 };
 
 export default PendingCard;
