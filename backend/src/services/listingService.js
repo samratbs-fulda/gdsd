@@ -79,6 +79,42 @@ class ListingService {
     }
   }
 
+  async getListingsByLandlordId(landlordId) {
+    try {
+      const listings = await prisma.listing.findMany({
+        where: {
+          landlordId: landlordId,
+        },
+      });
+      const image = await S3Service.fetchImage("image.webp");
+      const img = { img: image };
+      const newListings = listings.map((listing) => {
+        return { ...listing, ...img };
+      });
+      return newListings;
+    } catch (error) {
+      console.error("Error fetching listings:", error);
+    }
+  }
+
+  async updateListingStatus(listingId, status) {
+    try {
+      const updatedListing = await prisma.listing.update({
+        where: {
+          id: listingId,
+        },
+        data: {
+          status: status,
+        },
+      });
+
+      return updatedListing;
+    } catch (error) {
+      console.error("Error updating listing status:", error);
+      throw error;
+    }
+  }
+
   async addListing(listingData) {
     try {
       const { images } = listingData;
