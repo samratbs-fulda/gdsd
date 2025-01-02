@@ -9,24 +9,28 @@ import ApprovedCard from '../cards/approvedCard';
 import RejectedCard from '../cards/rejectedCard';
 
 const ReviewListings = ({ status }) => {
+    const [reload, setReload] = React.useState(false);
     const listingQuery = useQuery({
         queryKey: ["listings", { status }],
         queryFn: () => {
             return getReviewListings(status.toUpperCase());
         },
       });
+
+      const handleReload = () => {
+        setReload(!reload);
+      };
     
       const listings = listingQuery.data || [];
-      console.log(status);
     return (
         <Row gutter={16}>
             {listings.map((listing) =>{
                 if(status === "pending"){
-                    return <PendingCard listing={listing} />;
+                    return <PendingCard listing={listing} onReload={handleReload} />;
                 } else if(status === "approved"){
-                    return <ApprovedCard listing={listing} />;
+                    return <ApprovedCard listing={listing} onReload={handleReload} />;
                 } else if(status === "rejected"){
-                    return <RejectedCard listing={listing} />;
+                    return <RejectedCard listing={listing} onReload={handleReload} />;
                 }
             })}
         </Row>
