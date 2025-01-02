@@ -1,7 +1,12 @@
+/* eslint-disable react/jsx-key */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from "@tanstack/react-query";
 import { getReviewListings } from "../../services/reviewContent/reviewListingService";
+import { Row } from 'antd';
+import PendingCard from './cards/pendingCard';
+import ApprovedCard from './cards/approvedCard';
+import RejectedCard from './cards/rejectedCard';
 
 const ReviewListings = ({ status }) => {
     const listingQuery = useQuery({
@@ -12,15 +17,19 @@ const ReviewListings = ({ status }) => {
       });
     
       const listings = listingQuery.data || [];
-      // change views depending on status
+      console.log(status);
     return (
-        <div>
-        {listings.map((listing) => (
-            <div key={listing.id}>
-            <p>{listing.title + ' - ' + listing.type}</p>
-            </div>
-        ))}
-        </div>
+        <Row gutter={16}>
+            {listings.map((listing) =>{
+                if(status === "pending"){
+                    return <PendingCard listing={listing} />;
+                } else if(status === "approved"){
+                    return <ApprovedCard listing={listing} />;
+                } else if(status === "rejected"){
+                    return <RejectedCard listing={listing} />;
+                }
+            })}
+        </Row>
     );
 };
 
