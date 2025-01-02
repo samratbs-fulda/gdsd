@@ -18,3 +18,16 @@ export const getReviewListings = async (status) => {
     throw error;
   }
 };
+
+export const updateListingStatus = async (listingId, status) => {
+  try {
+    const response = await axios.patch(`${apiUrl}/api/listings/status`, {
+      listingId: listingId,
+      status: status,
+    });
+    return response.data.updatedListing;
+  } catch (error) {
+    console.error("Failed to update listing status:", error);
+    throw error;
+  }
+}
