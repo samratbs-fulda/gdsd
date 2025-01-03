@@ -23,7 +23,7 @@ const items = [UnorderedListOutlined, UserOutlined].map((icon, index) => {
         key: `sub${index + 1}`,
         icon: React.createElement(icon),
         label: `Users`,
-        children: ['Review', 'Approved', 'Banned'].map((label, j) => {
+        children: ['All', 'Banned', 'Deleted'].map((label, j) => {
             return {
                 key: j + 4,
                 label: label,
