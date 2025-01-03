@@ -33,25 +33,7 @@ const items = [UnorderedListOutlined, UserOutlined].map((icon, index) => {
   };
 });
 
-import { verifyAuth } from '../../services/verifyAuth';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-
 const Dashboard = () => {
-  const navigate = useNavigate();
-  useEffect(() => {
-    verifyAuth('MODERATOR')
-      .then(() => {
-        console.log('Authorized');
-      })
-      .catch((error) => {
-        console.error('Authorization failed:', error.message);
-        // redirect to forbidden page
-        navigate('/');
-      });
-  }, [navigate]);
-
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
