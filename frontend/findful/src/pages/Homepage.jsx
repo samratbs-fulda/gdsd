@@ -5,6 +5,7 @@ import "./Homepage.css";
 import { Input, Select, Button, Row, Col, Card, Form, Slider } from "antd";
 import Meta from "antd/es/card/Meta";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router";
 
 const Homepage = () => {
   const [filters, setFilters] = useState({
@@ -175,9 +176,9 @@ const Homepage = () => {
                       />
                     }
                     actions={[
-                      <Button key="view-details" type="primary">
-                        View Details
-                      </Button>,
+                        <Button key="view-details" type="primary" href={"listing/" + listing.id}>
+                          View Details
+                        </Button>,
                     ]}
                   >
                     <Meta title={listing.title} description={listing.type} />
