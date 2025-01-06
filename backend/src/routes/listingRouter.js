@@ -16,8 +16,8 @@ router.get("/detail/:id", async (req, res) => {
   res.json({ listing });
 });
 
-router.get("/review", async (req, res) => {
-  const { status } = req.query;
+router.get("/review/:status", async (req, res) => {
+  const status = req.params.status;
 
   const listings = await listingService.getListingsByStatus(status);
   res.json({ listings });
@@ -81,6 +81,32 @@ router.post("/add", async (req, res) => {
     return res.status(500).json({
       status: "error",
       message: "Failed to create the listing.",
+    });
+  }
+});
+
+router.get("/search/:landlordId", async (req, res) => {
+  const landlordId = parseInt(req.params.landlordId);
+  try{
+    const listings = await listingService.getListingsByLandlordId(landlordId);
+    res.status(200).json({ listings });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
+router.patch("/status", async (req, res) => {
+  const { listingId, status } = req.body;
+  try {
+    const updatedListing = await listingService.updateListingStatus(listingId, status);
+    res.status(200).json({ updatedListing });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
     });
   }
 });

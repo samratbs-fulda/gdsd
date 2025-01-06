@@ -24,6 +24,19 @@ class UserRepository {
         return result;
     }
 
+    static async updateUserStatus(id, status){
+        const userStatus = getEnumValue(UserStatusEnum, status);
+        const result = await prisma.user.update({
+            where: {
+                id: id,
+            },
+            data: {
+                status: userStatus,
+            },
+        });
+        return result;
+    }
+
     static async findUniqueBy(field, value){
         const result = await prisma.user.findUnique({
             where: {

@@ -13,9 +13,11 @@ import ListingDetailsPage from "./pages/ListingDetailsPage/ListingDetailsPage";
 import FindFulHeader from "./components/header/FindFulHeader";
 import FindFulFooter from "./components/footer/FindFulFooter";
 import AddListing from "./pages/AddListing/AddListing";
+import { AuthContext } from './services/authContext';
 
 const App = () => {
   const { token } = theme.useToken();
+  const { user } = React.useContext(AuthContext);
   return (
     <div className="app">
       <ConfigProvider
@@ -41,14 +43,14 @@ const App = () => {
 
             {/* Protected routes to moderator */}
             <Route path="/dashboard" element={
-              <ProtectedRoute requiredRole="MODERATOR">
+              <ProtectedRoute requiredRole="MODERATOR" user={user}>
                 <Dashboard />
               </ProtectedRoute>
             } />
             
             {/* Protected routes to landlord */}
             <Route path="/listing/add" element={
-              <ProtectedRoute requiredRole="LANDLORD">
+              <ProtectedRoute requiredRole="LANDLORD" user={user}>
                 <AddListing />
               </ProtectedRoute>
             } />

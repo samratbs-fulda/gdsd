@@ -94,6 +94,16 @@ class UserService {
       return error;
     }
   }
+
+  async updateUserStatus(id, status) {
+    try {
+      const updatedUser = await UserRepository.updateUserStatus(id, status);
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating user status:", error);
+      return error;
+    }
+  }
 }
 
 module.exports = UserService;

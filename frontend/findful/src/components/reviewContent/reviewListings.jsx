@@ -2,25 +2,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from "@tanstack/react-query";
 import { getReviewListings } from "../../services/reviewContent/reviewListingService";
+import { Row } from 'antd';
+import PendingCard from '../cards/pendingCard';
 
 const ReviewListings = ({ status }) => {
+    const [reload, setReload] = React.useState(false);
     const listingQuery = useQuery({
         queryKey: ["listings", { status }],
         queryFn: () => {
             return getReviewListings(status.toUpperCase());
         },
       });
+
+      const handleReload = () => {
+        setReload(!reload);
+      };
     
       const listings = listingQuery.data || [];
-      // change views depending on status
     return (
-        <div>
-        {listings.map((listing) => (
-            <div key={listing.id}>
-            <p>{listing.title + ' - ' + listing.type}</p>
-            </div>
-        ))}
-        </div>
+        <Row gutter={16}>
+            {listings.map((listing) =>{
+                return <PendingCard key={listing.id} listing={listing} status={status} onReload={handleReload} />;
+            })}
+        </Row>
     );
 };
 
