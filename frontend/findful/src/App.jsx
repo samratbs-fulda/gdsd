@@ -32,6 +32,7 @@ const App = () => {
       >
 
       <Layout className='main-layout'>
+          <Paragraph className="project-notice" type="secondary" italic={true} style={{ marginBottom: 0 }}>Fulda University of Applied Sciences Software Engineering Project, Fall 2024 For Demonstration Only</Paragraph>
         <Header><FindFulHeader /></Header>
 
         <Content className='route-content'>
