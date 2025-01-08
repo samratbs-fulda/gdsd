@@ -3,6 +3,7 @@ const prisma = require("../utils/db");
 const ListingRepository = require("../repo/listingRepository");
 const Calculations = require("../utils/calculationUtils");
 const S3Service = require("../services/s3Service");
+const { compressImageToThumbnail } = require('../utils/imageCompressor');
 
 class ListingService {
 
@@ -121,10 +122,17 @@ class ListingService {
       const warmRent = Calculations.calculateWarmRent(listingData);
       const newListing = await ListingRepository.createNewListing(listingData, warmRent);
       const listingId = newListing.id;
-      const folderKey = `listings/${listingId}`;
+      const folderKey = `${process.env.NODE_ENV}/listings/${listingId}`;
+      const thumbnailFolderKey = `${folderKey}/thumbnails`;
       let s3Warning = false;
   
       if (images && images.length > 0) {
+        const firstImage = images[0]; 
+        const { imageBase64 } = firstImage;
+        if (firstImage) {
+          const compressedBase64 = await compressImageToThumbnail(imageBase64, 1024, 768);
+          await S3Service.uploadImage(compressedBase64, 'image/jpeg', thumbnailFolderKey);
+        }
         for (const image of images) {
           try {
             const { imageBase64, imageMimeType } = image;

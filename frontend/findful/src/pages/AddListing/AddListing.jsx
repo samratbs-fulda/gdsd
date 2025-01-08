@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout, theme } from "antd";
+import { message, Layout, theme } from "antd";
 import { Content } from "antd/es/layout/layout";
 import AddListingForm from "../../components/addListingContent/AddListingForm";
 import AddListingSuccessful from "../../components/addListingContent/AddListingSuccessful";
@@ -16,11 +16,15 @@ const AddListing = () => {
 
   const submitListing = (values) => {
     setPendingSubmission(true);
-
-    addListing(values).then(() => {
-      setPendingSubmission(false);
-      setSubmissionDone(true);
-    }) 
+    addListing(values)
+        .then(() => {
+            setPendingSubmission(false);
+            setSubmissionDone(true);
+        })
+        .catch(() => {
+            setPendingSubmission(false); 
+            message.error("Failed to add Listing");
+        });
   };
 
   const submitFailed = () => {
@@ -54,7 +58,6 @@ const AddListing = () => {
       parentalGuarantee: false,
     },
   };
-
 
   return (
     <Layout className='page-content-layout' id='dashboard'

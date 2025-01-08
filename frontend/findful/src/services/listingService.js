@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getEnvironment } from "../utils/fetchEnvironment";
+import { jwtDecode } from "jwt-decode";
 
 const environment = getEnvironment();
 const apiUrl = environment.VITE_BACKEND;
@@ -61,10 +62,14 @@ export const searchListing = async (filters) => {
 
 export const addListing = async (listingValues) => {
   try {
+    const token = localStorage.getItem('token');
+    const decodedToken = jwtDecode(token);
+    const landlordId = decodedToken.id;
+
     listingValues = {
       ...listingValues,
       distanceFromUni: 0.2, // TODO: Calculate distance
-      landlordId: 6, // TODO: Add that from the DB
+      landlordId: landlordId,
     }
     const response = await axios.post(`${apiUrl}/api/listings/add`, listingValues);
     return response.status;
