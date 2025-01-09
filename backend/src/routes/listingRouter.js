@@ -35,18 +35,40 @@ router.get("/search", async (req, res) => {
     max_distance,
   } = req.query;
 
+  const availableAmenities = [
+    "kitchenFitted",
+    "petsAllowed",
+    "parkingAvailable",
+    "balconyAvailable",
+    "gardenAvailable",
+    "wifiAvailable",
+    "storageAvailable",
+    "smokingAllowed",
+    "dishWasherAvailable",
+    "washingMachineAvailable",
+    "tvCableIncluded"
+  ];
+
   const filters = {};
-if (postal_code) filters.postalCode = postal_code;
-if (type) filters.type = type;
-if (min_price) filters.warmRent = { gt: parseFloat(min_price) };
-if (max_price) filters.warmRent = { ...filters.warmRent, lt: parseFloat(max_price) };
-if (size) filters.size = { gt: parseInt(size[0]), lt: parseInt(size[1]) };
-if (rooms) filters.totalRooms = { gt: parseInt(rooms[0]), lt: parseInt(rooms[1]) };
-// if (amenities) filters.amenities = amenities;
-if (max_distance) filters.distanceFromUni = { lt: parseFloat(max_distance) };
+
+  if (amenities) {
+    filters.amenities = {};
+    availableAmenities.forEach((amenity) => {
+      if (amenities.includes(amenity)) {
+        filters.amenities[amenity] = true;
+      }
+    });
+  }
+  if (postal_code) searchText = postal_code;
+  if (type) filters.type = type;
+  if (min_price) filters.warmRent = { gt: parseFloat(min_price) };
+  if (max_price) filters.warmRent = { ...filters.warmRent, lt: parseFloat(max_price) };
+  if (size) filters.size = { gt: parseInt(size[0]), lt: parseInt(size[1]) };
+  if (rooms) filters.totalRooms = { gt: parseInt(rooms[0]), lt: parseInt(rooms[1]) };
+  if (max_distance) filters.distanceFromUni = { lt: parseFloat(max_distance) };
   console.log(filters);
-  try{
-    const listings = await listingService.getFilteredListings(
+  try {
+    const listings = await listingService.getFilteredListings(searchText,
       filters
     );
     res.status(200).json({ listings });
@@ -87,7 +109,7 @@ router.post("/add", async (req, res) => {
 
 router.get("/search/:landlordId", async (req, res) => {
   const landlordId = parseInt(req.params.landlordId);
-  try{
+  try {
     const listings = await listingService.getListingsByLandlordId(landlordId);
     res.status(200).json({ listings });
   } catch (error) {
