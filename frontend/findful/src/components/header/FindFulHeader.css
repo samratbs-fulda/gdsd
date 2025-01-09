@@ -1,8 +1,18 @@
-header p {
-  color: white; /* TODO: change color */
-  max-height: 100%;
+.findful-header {
+  height: 100%;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-#demonstrationNotice {
-  font-size: xx-small;
+.header-button {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
 }
