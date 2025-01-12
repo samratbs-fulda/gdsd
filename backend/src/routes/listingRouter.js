@@ -59,12 +59,18 @@ router.get("/search", async (req, res) => {
       }
     });
   }
-  if (postal_code) searchText = postal_code;
-  if (type) filters.type = type;
-  if (min_price) filters.warmRent = { gt: parseFloat(min_price) };
-  if (max_price) filters.warmRent = { ...filters.warmRent, lt: parseFloat(max_price) };
-  if (size) filters.size = { gt: parseInt(size[0]), lt: parseInt(size[1]) };
-  if (rooms) filters.totalRooms = { gt: parseInt(rooms[0]), lt: parseInt(rooms[1]) };
+  if (postal_code){
+    searchText = postal_code;
+  }
+  else{
+    searchText = "";
+  }
+
+  if (type && type != 'All') filters.type = type;
+  if (min_price) filters.warmRent = { gte: parseFloat(min_price) };
+  if (max_price) filters.warmRent = { ...filters.warmRent, lte: parseFloat(max_price) };
+  if (size) filters.size = { gte: parseInt(size[0]), lte: parseInt(size[1]) };
+  if (rooms) filters.totalRooms = { gte: parseInt(rooms[0]), lte: parseInt(rooms[1]) };
   if (max_distance) filters.distanceFromUni = { lt: parseFloat(max_distance) };
   console.log(filters);
   try {

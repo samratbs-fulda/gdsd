@@ -10,11 +10,11 @@ import { Link } from "react-router";
 const Homepage = () => {
   const [filters, setFilters] = useState({
     searchText: "",
-    listingType: "all",
+    listingType: "All",
     minPrice: 0,
     maxPrice: 1500,
     size: [0, 200],
-    rooms: [1, 10],
+    rooms: [1, 20],
     amenities: [],
     maxDistance: 10.0,
   });
@@ -67,6 +67,10 @@ const Homepage = () => {
               >
                 <Select
                   options={[
+                    {
+                      value: "All",
+                      label: "All",
+                    },
                     {
                       value: "SINGLE",
                       label: "Single-room apartment",
@@ -174,9 +178,6 @@ const Homepage = () => {
                         className="listing-image"
                       />
                     }
-                    style={{ width: 380,
-                      marginLeft: 20
-                     }}
                     actions={[
                         <Button key="view-details" type="primary" href={"listing/" + listing.id}>
                           View Details
