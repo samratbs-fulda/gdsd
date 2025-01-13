@@ -17,10 +17,57 @@ class S3Service {
         };
 
         try {
+            // Check if the object exists
+            await s3.headObject({ Bucket: params.Bucket, Key: params.Key }).promise();  
             const signedUrl = await s3.getSignedUrlPromise("getObject", params);
             return signedUrl;
         } catch (error) {
-            console.error("Error fetching file:", error);
+            // Return the default image URL
+            const defaultParams = {
+                Bucket: process.env.BUCKET_NAME,
+                Key: "image.webp",
+                Expires: expiresIn,
+            };
+            return s3.getSignedUrlPromise("getObject", defaultParams);
+        }
+    }
+
+    async fetchAllImages(folderKey, options = { multiple: true, expiresIn: 30 }) {
+        const { multiple, expiresIn } = options;
+    
+        try {
+            // List objects in the folder
+            const params = {
+                Bucket: process.env.BUCKET_NAME,
+                Prefix: folderKey, // Folder key
+            };
+    
+            const data = await s3.listObjectsV2(params).promise();
+    
+            // Check if there are any objects in the folder
+            if (data.Contents.length === 0) {
+                console.log(`No files found. Returning default image.`);
+                const defaultParams = {
+                    Bucket: process.env.BUCKET_NAME,
+                    Key: "image.webp",
+                    Expires: expiresIn,
+                };
+                const defaultSignedUrl = await s3.getSignedUrlPromise("getObject", defaultParams);
+                return multiple ? [defaultSignedUrl] : defaultSignedUrl;
+            }
+    
+            const signedUrls = await Promise.all(
+                data.Contents.map((file) =>
+                    s3.getSignedUrlPromise("getObject", {
+                        Bucket: process.env.BUCKET_NAME,
+                        Key: file.Key,
+                        Expires: expiresIn,
+                    })
+                )
+            );
+            return multiple ? signedUrls : signedUrls[0];
+        } catch (error) {
+            console.error(`Error fetching file(s) from folder ${folderKey}:`, error);
             throw error;
         }
     }

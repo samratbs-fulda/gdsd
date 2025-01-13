@@ -43,19 +43,51 @@ class ListingService {
     }
   }
 
-  async getFilteredListings(filters) {
+  async getFilteredListings(searchText, filters) {
     try {
+      // Prepare the filter for the amenities relation
+      const amenitiesFilter = filters.amenities ? {
+        is: {
+          kitchenFitted: filters.amenities.kitchenFitted,
+          petsAllowed: filters.amenities.petsAllowed,
+          parkingAvailable: filters.amenities.parkingAvailable,
+          balconyAvailable: filters.amenities.balconyAvailable,
+          gardenAvailable: filters.amenities.gardenAvailable,
+          wifiAvailable: filters.amenities.wifiAvailable,
+          storageAvailable: filters.amenities.storageAvailable,
+          smokingAllowed: filters.amenities.smokingAllowed,
+          dishWasherAvailalbe: filters.amenities.dishWasherAvailalbe,
+          washingMachineAvailable: filters.amenities.washingMachineAvailable,
+          tvCableIncluded: filters.amenities.tvCableIncluded
+        }
+      } : {};
+
       const listings = await prisma.listing.findMany({
         where: {
-          ...filters,
+          ...filters,  // Spread the filters (direct fields)
+          amenities: amenitiesFilter.is,
+          street: {
+            contains: searchText, // Search for streets containing the string
+          },
+        },
+        include: {
+          amenities: true, // Include the amenities data in the result
         },
       });
-      const image = await S3Service.fetchImage("image.webp");
-      const img = { img: image };
-      const newListing = listings.map((listing) => {
-        return { ...listing, ...img };
-      });
-      return newListing;
+      const listingsWithImages = await Promise.all(
+        listings.map(async (listing) => {
+          const folderKey = `${process.env.NODE_ENV}/listings/${listing.id}/thumbnails`;
+          let image;
+          try {
+            image = await S3Service.fetchAllImages(folderKey, { multiple: false });
+          } catch (error) {
+            console.error(`Error fetching image for listing ${listing.id}:`, error);
+            image = await S3Service.fetchImage("image.webp");
+          }
+          return { ...listing, img: image };
+        })
+      );
+      return listingsWithImages;
     } catch (error) {
       console.log(error.message);
       throw Error(error.message);
@@ -125,9 +157,8 @@ class ListingService {
       const folderKey = `${process.env.NODE_ENV}/listings/${listingId}`;
       const thumbnailFolderKey = `${folderKey}/thumbnails`;
       let s3Warning = false;
-  
       if (images && images.length > 0) {
-        const firstImage = images[0]; 
+        const firstImage = images[0];
         const { imageBase64 } = firstImage;
         if (firstImage) {
           const compressedBase64 = await compressImageToThumbnail(imageBase64, 1024, 768);
