@@ -1,0 +1,24 @@
+.ant-carousel {
+  height: 20%;
+  width: 100%;
+  /* margin-left: auto;
+  margin-right: auto; */
+}
+
+.image-carousel {
+  display: flex;
+  width: 75%;
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+  justify-content: center;
+  max-height: 20%;
+}
+
+.image-carousel-images img {
+   margin-top: auto;
+  margin-bottom: auto;/*
+  width: 80px;
+  height: auto; */
+  /* max-height: 40%; */
+} 

@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.2",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@tanstack/react-query": "^5.61.5",
     "antd": "^5.22.2",
     "axios": "^1.7.7",

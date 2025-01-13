@@ -1,9 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Row } from 'antd';
 import { useQuery } from "@tanstack/react-query";
 import { getReviewUsers } from "../../services/reviewContent/reviewUserService";
+import UserCard from "../cards/reviewUserCard";
 
 const ReviewUsers = ({ status }) => {
+    const [reload, setReload] = React.useState(false);
+    const handleReload = () => {
+        setReload(!reload);
+      };
+      
     const usersQuery = useQuery({
         queryKey: ["users", { status }],
         queryFn: () => {
@@ -14,13 +21,11 @@ const ReviewUsers = ({ status }) => {
       const users = usersQuery.data || [];
         // change views depending on status
     return (
-        <div>
+        <Row gutter={16}>
         {users.map((user) => (
-            <div key={user.id}>
-            <p>{user.firstname + ' ' + user.lastname}</p>
-            </div>
+            <UserCard key={user.id} user={user} onReload={handleReload} status={status} />
         ))}
-        </div>
+        </Row>
     );
 };
 

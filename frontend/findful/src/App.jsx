@@ -14,51 +14,72 @@ import FindFulHeader from "./components/header/FindFulHeader";
 import FindFulFooter from "./components/footer/FindFulFooter";
 import AddListing from "./pages/AddListing/AddListing";
 import ProfileEditPage from "./pages/ProfileEditPage"; 
-
+import { AuthContext } from './services/authContext';
+import Paragraph from "antd/es/typography/Paragraph";
+import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 
 const App = () => {
-  const { token } = theme.useToken();
+  const { user } = React.useContext(AuthContext);
+
+  const breakpoint = useBreakpoint();
+
   return (
     <div className="app">
+      {/* Custom color theme */}
       <ConfigProvider
         theme={{
-          // Customization possible here
+          token: {
+            colorPrimary: '#75B541', // HS Fulda green
+            colorLink: '#75B541',
+
+            fontFamily: 'Lato',
+          },
+          components: {
+            Typography: {
+              fontSizeHeading1: 40,
+            },
+            Layout: {
+              headerBg: "#fff",
+            }
+          }
         }}
       >
-      </ConfigProvider>
-      <Layout className='main-layout'>
-        <Header><FindFulHeader /></Header>
 
-        <Content className='route-content'>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Homepage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+        <Layout className='main-layout'>
+          <Paragraph className="project-notice" type="secondary" italic={true} style={{ marginBottom: 0 }}>Fulda University of Applied Sciences Software Engineering Project, Fall 2024 For Demonstration Only</Paragraph>
+          <Header style={{ height: breakpoint.xl ? "8vh" : breakpoint.sm ? "10vh" : "12vh" }}><FindFulHeader /></Header>
 
-            {/* Protected routes to moderator */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute requiredRole="MODERATOR">
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            
-            {/* Protected routes to landlord */}
-            <Route path="/listing/add" element={
-              <ProtectedRoute requiredRole="LANDLORD">
-                <AddListing />
-              </ProtectedRoute>
-            } />
+          <Content className='route-content'>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Homepage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/listing/:id" element={<ListingDetailsPage />} />
+              {/* Protected routes to moderator */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute requiredRole="MODERATOR" user={user}>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+
+              {/* Protected routes to landlord */}
+              <Route path="/listing/add" element={
+                <ProtectedRoute requiredRole="LANDLORD" user={user}>
+                  <AddListing />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/listing/:id" element={<ListingDetailsPage />} />
             <Route path="/profile/:id" element={<ProfileEditPage />} />
 
-          </Routes>
-        </Content>
+            </Routes>
+          </Content>
 
-        <Footer><FindFulFooter /></Footer>
-      </Layout>
+          <Footer><FindFulFooter /></Footer>
+        </Layout>
+      </ConfigProvider>
     </div>
   );
 };

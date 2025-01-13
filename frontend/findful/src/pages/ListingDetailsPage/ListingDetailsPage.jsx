@@ -1,10 +1,19 @@
 import React from "react";
 import Map from "../../components/map/Map";
 import ListingDetailAmenities from "../../components/listingDetails/ListingDetaiAmenities";
-import { Button, Carousel, Image, Col, Row, Layout, theme, List, Space } from "antd";
+import { Button, Col, Row, Layout, theme, Divider, Typography, Flex, Tooltip } from "antd";
 import { getListingById } from "../../services/listingService";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import Title from "antd/es/typography/Title";
+import Paragraph from "antd/es/typography/Paragraph";
+import ImageCarousel from "../../components/imageCarousel/ImageCarousel";
+import "./ListingDetailsPage.css"
+import ListingDetailCosts from "../../components/listingDetails/ListingDetailCosts";
+import { AppstoreOutlined, BulbOutlined, CalendarOutlined, EnvironmentOutlined, HomeOutlined, TeamOutlined } from "@ant-design/icons";
+import GeneralInfoCard from "../../components/listingDetails/GeneralInfoCard";
+import { jwtDecode } from "jwt-decode";
+import { getRoleOfCurrentUser } from "../../services/authRole";
 
 const { Content } = Layout;
 
@@ -22,12 +31,13 @@ const ListingDetailsPage = () => {
     },
   });
 
-
   const listing = listingsQuery.data || [];
 
+  const role = getRoleOfCurrentUser();
+
   // TODO: Delete once longitude & latitude is calculated in backend
-  listing.longitude= 50.565187;
-  listing.latitude= 9.686583;
+  listing.longitude = 50.565187;
+  listing.latitude = 9.686583;
 
   return (
     <Layout className='page-content-layout' id='dashboard'
@@ -37,105 +47,171 @@ const ListingDetailsPage = () => {
       }}
     >
       <Content className='page-inner-content'>
-        <h1>{listing?.title}</h1>
+        <Typography>
+          <Title level={1}>{listing?.title}</Title>
 
-        <Carousel arrows infinite={false} className="imageCarousel">
-          {listing?.images?.map((image, index) => (
-            <Image key={index} src={image}></Image>
-          ))}
-        </Carousel>
+          {listing?.images && (
+            <ImageCarousel image={listing?.images} />
 
-        <div className="listingDetails">
-          <Space direction="vertical">
-            <Space direction="vertical">
-              <p>{listing?.warmRent}€ (warm)</p>
-              <p>{listing?.street} {listing?.houseNumber}, {listing?.postalCode} Fulda</p>
-              <p>{listing?.typeOfApartment == "SINGLE" && ("Single apartment")}</p>
-              <p>{listing?.furnished == 'PARTIALLY' && ("Partially")} furnished</p>
+          )}
+          <Divider />
 
-              <p>Size: {listing?.size}²m</p>
+          {/* Important details section */}
+          <div className="listingDetails">
+            <div className="important-details">
+              <Row justify={"space-around"}>
+                <Col xs={12} sm={8}>
+                  <Row justify={"center"}>
+                    <Title level={4}>{listing?.warmRent}€ (warm)</Title>
+                  </Row>
+                  <Row justify={"center"}>
+                    <Paragraph type="secondary">Rent</Paragraph>
+                  </Row>
+                </Col>
+                <Col xs={12} sm={8}>
+                  <Row justify={"center"}>
+                    <Title level={4}>{listing?.size}²m</Title>
+                  </Row>
+                  <Row justify={"center"}>
+                    <Paragraph type="secondary">Size</Paragraph>
+                  </Row>
+                </Col>
+                <Col xs={12} sm={8}>
+                  <Row justify={"center"}>
+                    <Title level={4}>{listing?.freeRooms}</Title>
+                  </Row>
+                  <Row justify={"center"}>
+                    {listing?.freeRooms <= 1 ? (<Paragraph type="secondary">Room</Paragraph>) : (<Paragraph type="secondary">Rooms</Paragraph>)}
+                  </Row>
+                </Col>
+              </Row>
+            </div>
+            <Divider />
 
-              <p>Available from: {listing?.availableFrom?.substring(0, 10)}</p>
-              <p>Available till: {listing?.availableTill?.substring(0, 10)}</p>
-            </Space>
-            <p>Total Rooms of the : {listing?.totalRooms}</p>
-            <p>Rooms available to rent: {listing?.freeRooms}</p>
-            <p>Energy rating: {listing?.energyRating}</p>
-          </Space>
+            {/* General Info table */}
+            <Row gutter={[12, 12]} justify={"space-between"}>
+              <GeneralInfoCard>
+                <EnvironmentOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+                <Title level={5}>Address</Title>
+                <Paragraph>
+                  {listing?.street} {listing?.houseNumber},<br />
+                  {listing?.postalCode} Fulda
+                </Paragraph>
+              </GeneralInfoCard>
 
-          <div className="costs">
-            <h3>Costs:</h3>
-            <Row gutter={16} >
-              <Col span={6}>
-                <p>Cold rent:</p>
-              </Col>
-              <Col span={6}>
-                <p>{listing?.coldRent}</p>
-              </Col>
+              <GeneralInfoCard>
+                <CalendarOutlined style={{ fontSize: '24px', color: '#52c41a' }} />
+                <Title level={5}>Availability</Title>
+                <Paragraph>
+                  From: {listing?.availableFrom?.substring(0, 10)} <br />
+                  Till: {listing?.availableTill?.substring(0, 10)}
+                </Paragraph>
+              </GeneralInfoCard>
+
+              <GeneralInfoCard>
+                <HomeOutlined style={{ fontSize: '24px', color: '#faad14' }} />
+                <Title level={5}>Furnishing</Title>
+                <Paragraph>
+                  {listing?.furnished === 'FURNISHED' ? 'Furnished' :
+                    listing?.furnished === 'PARTIALLY' ? 'Partially Furnished' :
+                      'Not Furnished'}
+                </Paragraph>
+              </GeneralInfoCard>
+
+              <GeneralInfoCard>
+                <BulbOutlined style={{ fontSize: '24px', color: '#fadb14' }} />
+                <Title level={5}>Energy Rating</Title>
+                <Paragraph>{listing?.energyRating || 'N/A'}</Paragraph>
+              </GeneralInfoCard>
+
+              <GeneralInfoCard>
+                <AppstoreOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+                <Title level={5}>Type</Title>
+                <Paragraph>
+                  {listing?.type === 'SINGLE' ? 'Single Apartment' :
+                    listing?.type === 'SHARED' ? 'Shared Apartment' :
+                      'Sublet'}
+                </Paragraph>
+              </GeneralInfoCard>
+
+              <GeneralInfoCard>
+                <TeamOutlined style={{ fontSize: '24px', color: '#722ed1' }} />
+                <Title level={5}>Rooms</Title>
+                <Paragraph>
+                  Total: {listing?.totalRooms || 'N/A'}<br />
+                  Available: {listing?.freeRooms || 'N/A'}
+                </Paragraph>
+              </GeneralInfoCard>
             </Row>
-            <Row gutter={16}>
-              <Col span={6}>
-                <p>Heating costs:</p>
-              </Col>
-              <Col span={6}>
-                <p>+ {listing?.heatingCost}€</p>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={6}>
-                <p>Additional costs:</p>
-              </Col>
-              <Col span={6}>
-                <p>+ {listing?.additionalCosts}€</p>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={6}>
-                <p>Warm rent:</p>
-              </Col>
-              <Col span={6}>
-                <p>= {listing?.warmRent}€</p>
-              </Col>
-            </Row>
+            <Divider />
+
+            {/* Description */}
+            <div className="description">
+              <Title level={3}>Description</Title>
+              <Paragraph>{listing?.description}</Paragraph>
+            </div>
+            <Divider />
+
+            {/* Costs */}
+            <ListingDetailCosts costs={{ coldRent: listing?.coldRent, heatingCost: listing?.heatingCost, additionalCosts: listing?.additionalCosts, warmRent: listing?.warmRent, deposit: listing?.deposit }} />
+            <Divider />
+
+            {/* Amenities */}
+            <ListingDetailAmenities amenities={listing?.amenities} />
+            <Divider />
+
+            {/* Documents */}
+            {listing.documents && (
+              <div className="listingDocuments">
+                <Title level={3}>Documents needed to apply: </Title>
+                <ul style={{ listStyleType: "disc" }}>
+                  {listing?.documents?.proofOfIncome && (
+                    <li>
+                      <Paragraph>Proof of Income</Paragraph>
+                    </li>)
+                  }
+                  {listing?.documents?.proofOfIdentity && (
+                    <li>
+                      <Paragraph>Proof of Identidy</Paragraph>
+                    </li>)
+                  }
+                  {listing?.documents?.shufaCreditReport && (
+                    <li>
+                      <Paragraph>Schufa credit report</Paragraph>
+                    </li>)
+                  }
+                  {listing?.documents?.parentalGuarantee && (
+                    <li>
+                      <Paragraph>Parental guarantee</Paragraph>
+                    </li>)
+                  }
+                </ul>
+              </div>
+            )}
+
+            {/* Apply Button */}
+            <Flex justify="center">
+              <Paragraph>
+                {role == 'STUDENT' ? (
+                  <Button color="primary">Apply</Button>
+                ) : role == 'GUEST' ? (
+                  <Tooltip title="Please login to apply for listings.">
+                  <Button color="primary" disabled={true}>Apply</Button>
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="Only students can apply for listings.">
+                  <Button color="primary" disabled={true}>Apply</Button>
+                  </Tooltip>
+                )
+                }
+              </Paragraph> {/* TODO: Add route */}
+            </Flex>
+
+            {/* Map */}
+            <Map longitude={listing.longitude} latitude={listing.latitude} />
           </div>
 
-
-
-          <ListingDetailAmenities amenities={listing?.amenities} />
-
-          {listing.documents && (
-            <div className="listingDocuments">
-              <p>Documents needed to apply: </p>
-              <List >
-                {listing?.documents?.proofOfIncome && (
-                  <List.Item>
-                    Proof of Income
-                  </List.Item>)
-                }
-                {listing?.documents?.proofOfIdentity && (
-                  <List.Item>
-                    Proof of Identidy
-                  </List.Item>)
-                }
-                {listing?.documents?.shufaCreditReport && (
-                  <List.Item>
-                    Schufa credit report
-                  </List.Item>)
-                }
-                {listing?.documents?.parentalGuarantee && (
-                  <List.Item>
-                    Parental guarantee
-                  </List.Item>)
-                }
-              </List>
-            </div>
-          )}
-
-
-          <Button>Apply</Button> {/* TODO: Add route */}
-
-          <Map longitude={listing.longitude} latitude={listing.latitude} />
-        </div>
+        </Typography>
       </Content>
     </Layout>
   );

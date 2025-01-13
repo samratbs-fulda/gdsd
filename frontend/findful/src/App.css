@@ -8,8 +8,12 @@ h1 {
   padding-bottom: 0.75em;
 }
 
+h2 {
+  padding-bottom: 0.625em;
+}
+
 h3 {
-  padding-top: 0.75em;
+  padding-bottom: 0.5em;
 }
 
 .main-layout {

@@ -18,3 +18,16 @@ export const getReviewUsers = async (status) => {
     throw error;
   }
 };
+
+export const updateUserStatus = async (userId, status) => {
+  try {
+    const response = await axios.patch(`${apiUrl}/api/users/status`, {
+      userId: userId,
+      status: status,
+    });
+    return response.data.updatedUser;
+  } catch (error) {
+    console.error("Failed to update user status:", error);
+    throw error;
+  }
+}

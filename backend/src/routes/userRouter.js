@@ -59,4 +59,12 @@ router.get("/review", async (req, res) => {
   res.status(200).json({ users });
 });
 
+router.patch("/status", async (req, res) => {
+  const { userId } = req.body;
+  const { status } = req.body;
+
+  const updatedUser = await userService.updateUserStatus(userId, status);
+  res.json({ updatedUser });
+});
+
 module.exports = router;
