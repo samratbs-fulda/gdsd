@@ -10,11 +10,11 @@ import { Link } from "react-router";
 const Homepage = () => {
   const [filters, setFilters] = useState({
     searchText: "",
-    listingType: "all",
+    listingType: "All",
     minPrice: 0,
     maxPrice: 1500,
     size: [0, 200],
-    rooms: [1, 10],
+    rooms: [1, 20],
     amenities: [],
     maxDistance: 10.0,
   });
@@ -63,10 +63,14 @@ const Homepage = () => {
               <Form.Item
                 name="listingType"
                 label="Apartment Type"
-                initialValue="all"
+                initialValue="All"
               >
                 <Select
                   options={[
+                    {
+                      value: "All",
+                      label: "All",
+                    },
                     {
                       value: "SINGLE",
                       label: "Single-room apartment",
@@ -90,7 +94,7 @@ const Homepage = () => {
                 </Col>
               </Row>
 
-              <Form.Item name="size" label="Size (sq.ft)">
+              <Form.Item name="size" label="Size (sq.m)">
                 <Slider range defaultValue={[0, 200]} max={200} />
               </Form.Item>
 
@@ -102,18 +106,17 @@ const Homepage = () => {
                 <Select
                   mode="multiple"
                   options={[
-                    { value: "fitted kitchen", label: "Fitted Kitchen" },
-                    { value: "furnished", label: "Furnished" },
-                    { value: "pets allowed", label: "Pets Allowed" },
-                    { value: "smoking allowed", label: "Smoking Allowed" },
-                    { value: "parking", label: "Parking" },
-                    { value: "balcony", label: "Balcony" },
-                    { value: "garden", label: "Garden" },
-                    { value: "wi-fi", label: "Wi-Fi" },
-                    { value: "cable", label: "Cable" },
-                    { value: "store room", label: "Store Room" },
-                    { value: "washing machine", label: "Washing Machine" },
-                    { value: "dish washer", label: "Dish Washer" },
+                    { value: "kitchenFitted", label: "Fitted Kitchen" },
+                    { value: "parkingAvailable", label: "Parking" },
+                    { value: "petsAllowed", label: "Pets Allowed" },
+                    { value: "smokingAllowed", label: "Smoking Allowed" },
+                    { value: "balconyAvailable", label: "Balcony" },
+                    { value: "gardenAvailable", label: "Garden" },
+                    { value: "wifiAvailable", label: "Wi-Fi" },
+                    { value: "tvCableIncluded", label: "Cable" },
+                    { value: "storageAvailable", label: "Store Room" },
+                    { value: "washingMachineAvailable", label: "Washing Machine" },
+                    { value: "dishWasherAvailable", label: "Dish Washer" },
                   ]}
                 />
               </Form.Item>
@@ -183,7 +186,9 @@ const Homepage = () => {
                   >
                     <Meta title={listing.title} description={listing.type} />
                     <p>Rent: ${listing.warmRent}</p>
-                    <p>Postcode: {listing.postalCode}</p>
+                    <p>Size: {listing.size} sq.m</p>
+                    <p>Rooms Available: {listing.freeRooms}</p>
+                    <p>Address: {listing.street} {listing.houseNumber}, {listing.postalCode}</p>
                   </Card>
                 </Col>
               ))}
