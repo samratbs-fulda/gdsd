@@ -2,14 +2,16 @@ import React from 'react';
 import { Form, Input, Button, message, Select, Layout } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { registerUser } from '../../services/login/loginService';
+import { useNavigate } from 'react-router-dom'; 
 
 const { Option } = Select;
 const Register = () => {
+  const navigate = useNavigate();
   const onFinish = async (values) => {
     try {
       await registerUser(values);
       message.success('Registration successful! Please log in.');
-      // window.location.href = '/';
+      navigate('/login');
     } catch (error) {
       console.error('Registration error:', error);
       message.error(error.message || 'An unexpected error occurred.');
@@ -82,6 +84,7 @@ const Register = () => {
         rules={[
           { required: true, message: 'Please enter your name!' },
           { min: 1, message: 'Please enter a valid name!' },
+          { pattern: /^[a-zA-Z]*$/, message: 'Name can only contain alphanumeric characters!' },
         ]}
       >
         <Input
@@ -95,6 +98,7 @@ const Register = () => {
         rules={[
           { required: true, message: 'Please enter your lastname!' },
           { min: 1, message: 'Please enter a valid lastname!' },
+          { pattern: /^[a-zA-Z]*$/, message: 'Lastname can only contain alphanumeric characters!' },
         ]}
       >
         <Input
@@ -108,6 +112,7 @@ const Register = () => {
         rules={[
           { required: true, message: 'Please enter a username!' },
           { min: 1, message: 'Please enter a valid username!' },
+          { pattern: /^[a-zA-Z0-9]*$/, message: 'Username can only contain alphanumeric characters!' },
         ]}
       >
         <Input

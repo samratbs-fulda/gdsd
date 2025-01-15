@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { UserService } = require("../services");
 
 const express = require("express");
+const { parse } = require("dotenv-flow");
 const router = express.Router();
 const userService = new UserService();
 
@@ -26,22 +27,29 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  const user = await userService.logUserIn(email, password);
-  if (!user) {
-    return res.status(404).json({ message: "User not found!" });
+  try{
+    const user = await userService.logUserIn(email, password);
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+  
+    res.status(200).json({ token });
+  }catch(error){
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
   }
-  const token = jwt.sign(
-    { id: user.id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN }
-  );
-
-  res.status(200).json({ token });
 });
 
 // get user by id
 router.get("/:id", async (req, res) => {
-  const { id } = req.params;
+  const id = parseInt(req.params.id);
   const user = await userService.getUserById(id);
   res.json({ user });
 });

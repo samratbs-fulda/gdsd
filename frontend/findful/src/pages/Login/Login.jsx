@@ -4,9 +4,11 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { loginUser } from "../../services/login/loginService";
 import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../../services/authContext";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { setUser } = useAuth();
+  const navigate = useNavigate();
   const onFinish = async (values) => {
     try {
       const response = await loginUser(values);
@@ -14,15 +16,15 @@ const Login = () => {
       try {
         if (response.status !== 200)
           throw Error(data.message || "Authentication failed!");
-        console.log("Login response:", data);
         localStorage.setItem("token", data.token);
         const tokenData = jwtDecode(data.token);
+        // @ts-ignore
         setUser({
-          id: tokenData.id,
-          role: tokenData.role,
+          id: tokenData["id"],
+          role: tokenData["role"],
         });
         message.success("Login successful!");
-        // window.location.href = '/';
+        navigate("/");
       } catch (error) {
         console.error("Login error:", error);
         message.error(error.message || "Login failed!");
@@ -56,11 +58,10 @@ const Login = () => {
           <Form.Item
             name="email"
             rules={[
-              { required: true, message: "Please enter your email!" },
-              { type: "email", message: "Please enter a valid email!" },
+              { required: true, message: "Please enter your email or username!" },
             ]}
           >
-            <Input prefix={<UserOutlined />} placeholder="Email" type="email" />
+            <Input prefix={<UserOutlined />} placeholder="Email or Username" type="text" />
           </Form.Item>
 
           <Form.Item
