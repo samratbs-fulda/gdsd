@@ -8,6 +8,15 @@
 .chat-menu-item {
   padding: 24px;
 }
+.no-chat-selected {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Align at the top */
+  height: 100%; /* Ensure the container spans full height */
+  padding-top: 20px; /* Add some spacing from the top */
+  font-size: 16px; /* Optional: Adjust font size for better readability */
+  color: #555; /* Optional: Adjust color for better aesthetics */
+}
 
 .chat-content {
   padding: 0; /* Remove padding for content */

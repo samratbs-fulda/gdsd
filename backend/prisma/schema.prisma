@@ -100,7 +100,6 @@ model Chat {
   createdAt  DateTime @default(now())
 
   Messages Messages[]
-<<<<<<< HEAD
 }
 
 model Profile {
@@ -112,8 +111,6 @@ model Profile {
   bio           String
   user          User    @relation(fields: [userId], references: [id])
   userId        Int     @unique
-=======
->>>>>>> 7f19109 (add: Chat and message routing and frontend connection for getUserChats)
 }
 
 model Messages {
