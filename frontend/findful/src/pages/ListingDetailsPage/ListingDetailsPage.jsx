@@ -62,7 +62,6 @@ const ListingDetailsPage = () => {
 
           {listing?.images && (
             <ImageCarousel image={listing?.images} />
-
           )}
           <Divider />
 
