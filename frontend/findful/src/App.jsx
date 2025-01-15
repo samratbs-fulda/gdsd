@@ -39,6 +39,9 @@ const App = () => {
             },
             Layout: {
               headerBg: "#fff",
+            },
+            Carousel: {
+              arrowSize: 32,
             }
           }
         }}

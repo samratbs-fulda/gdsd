@@ -35,7 +35,16 @@ class ListingService {
       ]);
       listing.amenities = amenities;
       listing.documents = documents;
-
+      
+      const folderKey = `${process.env.NODE_ENV}/listings/${id}/`;
+      
+      try {
+        listing.images = await S3Service.fetchAllImages(folderKey, { multiple: true });
+        listing.images.pop(); // remove thumbnail from response
+      } catch (error) {
+        console.error(`Error fetching images for listing ${listing.id}:`, error);
+        listing.images = await S3Service.fetchImage("image.webp");
+      }
       return listing;
     } catch (error) {
       console.log(error.message);

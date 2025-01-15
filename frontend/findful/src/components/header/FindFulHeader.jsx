@@ -8,7 +8,7 @@ const FindFulHeader = () => {
   const {
     token: { colorBgBase, colorText },
   } = theme.useToken();
-  
+
   // Logout user
   const logout = () => {
     localStorage.removeItem("token");
@@ -45,23 +45,31 @@ const FindFulHeader = () => {
 
   return (
     <div className="findful-header">
-      <Row justify={"space-between"} align={"middle"} style={{ height: "100%", width: "100%"}}>
+      <Row justify={(window.location.pathname === "/register" || window.location.pathname === "/login") ? "center" : "space-between"}
+        align={"middle"} style={{ height: "100%", width: "100%" }}>
+
         {/* Logo button */}
         <Col xs={8} md={6} xl={4} style={{ height: "100%" }}>
-          <Button className="header-button" href="/" type="link" style={{ maxWidth: "fit-content", marginLeft: 0}}>
-            <Image height={"100%"} src="/findful-logo-black.png" preview={false} style={{ maxWidth: "100%", objectFit: "contain" }}/>
+          <Button className="header-button" href="/" type="link"
+            style={{
+              maxWidth: "fit-content",
+              marginLeft: (!(window.location.pathname === "/register") && !(window.location.pathname === "/login")) && 0,
+            }}>
+            <Image height={"100%"} src="/findful-logo-black.png" preview={false} style={{ maxWidth: "100%", objectFit: "contain" }} />
           </Button>
         </Col>
 
-        {/* Profile Dropdown */}
-        <Col xs={8} md={6} xl={4} style={{ height: "100%" }}>
-          <Dropdown menu={{ items }} placement="bottomRight" arrow={{ pointAtCenter: true }} overlayStyle={{ width: "20%" }}>
-            <Button className="header-button" type="link" style={{ marginRight: 0 }}>
-              <Avatar icon={<UserOutlined style={{ height: "100%", color: colorText }} />} shape="circle" style={{ height: "100%", width: "auto", objectFit: "fill", aspectRatio: "1 / 1", fontSize: "2.5em", backgroundColor: colorBgBase}}/>
-            </Button>
-          </Dropdown>
-
-        </Col>
+        {/* Profile Dropdown (Not displayed on login and register page) */}
+        {(!(window.location.pathname === "/register") && !(window.location.pathname === "/login")) &&
+          (<Col xs={8} md={6} xl={4} style={{ height: "100%" }}>
+            <Dropdown menu={{ items }} placement="bottomRight" arrow={{ pointAtCenter: true }} overlayStyle={{ width: "20%" }}>
+              <Button className="header-button" type="link" style={{ marginRight: 0 }}>
+                <Avatar icon={<UserOutlined style={{ height: "100%", color: colorText }} />} shape="circle"
+                  style={{ height: "100%", width: "auto", objectFit: "fill", aspectRatio: "1 / 1", fontSize: "2.5em", backgroundColor: colorBgBase }} />
+              </Button>
+            </Dropdown>
+          </Col>)
+        }
       </Row>
     </div>
   );

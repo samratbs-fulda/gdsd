@@ -1,13 +1,19 @@
 import React from "react";
-import { Image, Carousel } from "antd";
+import { Image, Carousel, theme } from "antd";
 import './ImageCarousel.css'
+import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 
-const ImageCarousel = ({image}) => {
+const ImageCarousel = ({ image }) => {
+  const {
+    token: { colorBgLayout },
+  } = theme.useToken();
+
+  const breakpoint = useBreakpoint();
   return (
-    <div className="image-carousel">
-      <Carousel arrows infinite={false} adaptiveHeight={false} style={{maxHeight: "50%", width: "80%"}}>
+    <div style={{ backgroundColor: colorBgLayout}}>
+      <Carousel arrows infinite={false} adaptiveHeight={false} style={{height: "100%", width: "100%"}}>
         {image.map((image, index) => (
-          <Image className="image-carousel-images" key={index} src={image} style={{height: "50px"}}></Image>
+          <Image key={index} src={image} height={image.height > image.width ? "auto" : "60vh"} width={image.height > image.width ? "100%" : "auto"} />
         ))}
       </Carousel>
     </div>
