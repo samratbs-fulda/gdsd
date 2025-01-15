@@ -110,7 +110,7 @@ class UserService {
       return updatedUser;
     } catch (error) {
       console.error("Error updating user status:", error);
-      return error;
+      throw Error(error.message);
     }
   }
 }

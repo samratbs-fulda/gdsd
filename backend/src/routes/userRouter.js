@@ -48,11 +48,11 @@ router.post("/login", async (req, res) => {
 });
 
 // get user by id
-router.get("/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  const user = await userService.getUserById(id);
-  res.json({ user });
-});
+// router.get("/:id", async (req, res) => {
+//   const id = parseInt(req.params.id);
+//   const user = await userService.getUserById(id);
+//   res.json({ user });
+// });
 
 // admin endpoints
 router.get("/", async (req, res) => {
@@ -61,18 +61,29 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/review", async (req, res) => {
-  const { status } = req.query;
+  try {
+    const { status } = req.query;
 
-  const users = await userService.getUsersByStatus(status);
-  res.status(200).json({ users });
+    const users = await userService.getUsersByStatus(status);
+    res.status(200).json({ users });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
 });
 
 router.patch("/status", async (req, res) => {
-  const { userId } = req.body;
-  const { status } = req.body;
+  try {
+    const { userId } = req.body;
+    const { status } = req.body;
 
-  const updatedUser = await userService.updateUserStatus(userId, status);
-  res.json({ updatedUser });
+    const updatedUser = await userService.updateUserStatus(userId, status);
+    res.status(200).json({ updatedUser });
+  } catch (error) {
+    res.status(500).json({status: "error", message: error.message});
+  }
 });
 
 module.exports = router;
