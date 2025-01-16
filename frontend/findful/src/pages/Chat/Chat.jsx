@@ -14,6 +14,7 @@ import {
   getMessages,
   getUserChats,
 } from "../../services/chatService";
+import { useParams, useNavigate } from "react-router-dom";
 
 const socket = io("http://localhost:8000", {
   autoConnect: false,
@@ -21,10 +22,14 @@ const socket = io("http://localhost:8000", {
 
 const Chat = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
+  // socket connection
   const [connected, setConnected] = useState(false);
+
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
+
   const [currentChat, setCurrentChat] = useState(null);
 
   const userQuery = useQuery({
@@ -43,6 +48,11 @@ const Chat = () => {
 
   const username = userQuery.data?.username;
   const chats = chatQuery.data;
+
+  const updateCurrentChat = (chat) => {
+    setCurrentChat(chat);
+    navigate(`/chat/${chat.id}`, { replace: true });
+  };
 
   const connectSocket = () => {
     const token = localStorage.getItem("token");
@@ -91,12 +101,9 @@ const Chat = () => {
     }
   };
 
-  const updateCurrentChat = (chat) => {
-    setCurrentChat(chat);
-  };
-
   console.log("current chat", currentChat);
 
+  //get all messages in a current chat
   const messagesQuery = useQuery({
     queryKey: ["messages", { id: currentChat?.id }],
     enabled: !!currentChat,
@@ -112,6 +119,7 @@ const Chat = () => {
     }
   }, [messagesData]);
 
+  // Mutation to create a new message
   const messageMutation = useMutation({
     mutationKey: ["message", { id: currentChat?.id }],
     mutationFn: () => createMessages(currentChat.id, user.id, messageInput),

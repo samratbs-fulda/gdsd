@@ -34,6 +34,20 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
+//findChatByIc
+router.get("/chat-window/:chatId", async (req, res) => {
+  const { chatId } = req.params;
+  try {
+    const chat = await chatService.findChatById(parseInt(chatId));
+    res.json(chat);
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to find the chat.",
+    });
+  }
+});
+
 //findChat
 router.get("/open/:user1Id/:user2Id", async (req, res) => {
   const { user1Id, user2Id } = req.params;
