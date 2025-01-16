@@ -5,6 +5,20 @@ import PropTypes from "prop-types";
 import { updateUserStatus } from "../../services/reviewContent/reviewUserService";
 
 const UserCard = ({ user, onReload, status }) => {
+    const [loading, setLoading] = React.useState(false);
+
+    const handleUpdate = async (newStatus) => {
+        setLoading(true);
+        try {
+            await updateUserStatus(user.id, newStatus);
+            onReload();
+        } catch (error) {
+            console.error("An error occurred: ", error);
+        } /*finally{
+            setLoading(false);
+        }*/
+    };
+
     const statusValues = {
         active: ["Ban", "Delete"],
         banned: ["Unban", "Delete"],
@@ -42,9 +56,9 @@ const UserCard = ({ user, onReload, status }) => {
                     <Button key='restore' type="primary"
                     onClick={async () => {
                         const newStatus = statusUpdate[statusValues[status]];
-                        await updateUserStatus(user.id, newStatus);
-                        onReload();
-                        }}>
+                        await handleUpdate(newStatus);
+                        }}
+                    loading={loading}>
                         Restore
                     </Button>,
                 ]}
@@ -77,17 +91,17 @@ const UserCard = ({ user, onReload, status }) => {
                     <Button key={button1} type="primary"
                     onClick={async () => {
                         const newStatus = statusUpdate[button1];
-                        await updateUserStatus(user.id, newStatus);
-                        onReload();
-                        }}>
+                        await handleUpdate(newStatus);
+                        }}
+                    loading={loading}>
                         {button1}
                     </Button>,
                     <Button key={button2} type="primary"
                     onClick={async () => {
                         const newStatus = statusUpdate[button2];
-                        await updateUserStatus(user.id, newStatus);
-                        onReload();
-                        }}>
+                        await handleUpdate(newStatus);
+                        }}
+                    loading={loading}>
                         {button2}
                     </Button>,
                 ]}

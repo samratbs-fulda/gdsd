@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { UserService } = require("../services");
 
 const express = require("express");
+const { parse } = require("dotenv-flow");
 const router = express.Router();
 const userService = new UserService();
 
@@ -26,17 +27,24 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  const user = await userService.logUserIn(email, password);
-  if (!user) {
-    return res.status(404).json({ message: "User not found!" });
+  try{
+    const user = await userService.logUserIn(email, password);
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+  
+    res.status(200).json({ token });
+  }catch(error){
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
   }
-  const token = jwt.sign(
-    { id: user.id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN }
-  );
-
-  res.status(200).json({ token });
 });
 
 // admin endpoints
@@ -46,18 +54,29 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/review", async (req, res) => {
-  const { status } = req.query;
+  try {
+    const { status } = req.query;
 
-  const users = await userService.getUsersByStatus(status);
-  res.status(200).json({ users });
+    const users = await userService.getUsersByStatus(status);
+    res.status(200).json({ users });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
 });
 
 router.patch("/status", async (req, res) => {
-  const { userId } = req.body;
-  const { status } = req.body;
+  try {
+    const { userId } = req.body;
+    const { status } = req.body;
 
-  const updatedUser = await userService.updateUserStatus(userId, status);
-  res.json({ updatedUser });
+    const updatedUser = await userService.updateUserStatus(userId, status);
+    res.status(200).json({ updatedUser });
+  } catch (error) {
+    res.status(500).json({status: "error", message: error.message});
+  }
 });
 
 router.get("/:id", async (req, res) => {
