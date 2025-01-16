@@ -96,5 +96,11 @@ router.patch("/profile/:id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+  
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  const user = await userService.getUserById(id);
+  res.json({ user });
+});
 
 module.exports = router;
