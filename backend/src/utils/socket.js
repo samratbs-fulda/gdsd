@@ -9,6 +9,9 @@ const initializeSocket = (server, allowedOrigins) => {
     },
   });
 
+  // Store connected users
+  const connectedUsers = new Map();
+
   //middleware
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;
@@ -37,11 +40,21 @@ const initializeSocket = (server, allowedOrigins) => {
   io.on("connection", (socket) => {
     console.log("SOCKET CONNECTED", socket.user.id);
 
+    // Store the socket connection for this user
+    connectedUsers.set(socket.user.id, socket);
+
     //listen for incoming messages
     socket.on("message", (message) => {
       console.log("message received", message);
 
-      io.emit("message", message);
+      // Send to recipient if they're connected
+      const recipientSocket = connectedUsers.get(message.recipientId);
+      if (recipientSocket) {
+        recipientSocket.emit("message", message);
+      }
+
+      // Send back to sender
+      socket.emit("message", message);
     });
 
     socket.on("disconnect", () => {

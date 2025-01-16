@@ -1,5 +1,9 @@
 require("dotenv-flow").config();
 const cookieParser = require("cookie-parser");
+<<<<<<< HEAD
+=======
+const bodyParser = require("body-parser");
+>>>>>>> 9408144c333820440953e48855c1b12601af2015
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
@@ -43,11 +47,8 @@ const io = new Server(server, {
   },
 });
 
-io.use((socket, next) => {
-  const token = socket.handshake.auth.token;
-  if (!token) {
-    return next(new Error("invalid token"));
-  }
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 
   const decodedToken = jwt.decode(token);
   const currentTime = Date.now() / 1000;

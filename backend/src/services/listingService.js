@@ -78,6 +78,7 @@ class ListingService {
           street: {
             contains: searchText, // Search for streets containing the string
           },
+          status: "APPROVED",
         },
         include: {
           amenities: true, // Include the amenities data in the result

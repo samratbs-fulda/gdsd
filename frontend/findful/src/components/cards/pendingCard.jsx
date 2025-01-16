@@ -3,8 +3,24 @@ import { Card, Col, Button } from "antd";
 import Meta from "antd/es/card/Meta";
 import PropTypes from "prop-types";
 import { updateListingStatus } from "../../services/reviewContent/reviewListingService";
+import { useNavigate } from "react-router-dom";
 
 const PendingCard = ({ listing, status, onReload }) => {
+    const [loading, setLoading] = React.useState(false);
+
+    const handleUpdate = async (newStatus) => {
+        setLoading(true);
+        try {
+            await updateListingStatus(listing.id, newStatus);
+            onReload();
+        } catch (error) {
+            console.error("An error occurred: ", error);
+        } /*finally{
+            setLoading(false);
+        }*/
+    };
+
+    const navigate = useNavigate();
     if (status === "pending"){
         return (
             <Col
@@ -23,21 +39,13 @@ const PendingCard = ({ listing, status, onReload }) => {
                             className="listing-image"
                         />
                     }
-                    actions={[  <Button key="approve" type="primary"
+                    actions={[
+                                <Button key="view-details" type="primary"
                                 onClick={async () => {
-                                    await updateListingStatus(listing.id, "APPROVED");
-                                    onReload();}}>
-                                    Approve 
-                                </Button>,
-                                <Button key="view-details" type="primary">
+                                    navigate(`/listing/${listing.id}`);
+                                }}>
                                     View Details
-                                </Button>,
-                                <Button key="reject" type="primary"
-                                onClick={async () => {
-                                    await updateListingStatus(listing.id, "REJECTED");
-                                    onReload();}}>
-                                    Reject
-                                </Button>,
+                                </Button>
                     ]}
                 >
                     <Meta title={listing.title} description={listing.type} />
@@ -74,14 +82,20 @@ const PendingCard = ({ listing, status, onReload }) => {
                         className="listing-image"
                     />
                 }
+
                 actions={[  <Button key={status} type="primary"
                             onClick={async () => {
-                                await updateListingStatus(listing.id, newStatus);
-                                onReload();}}>
+                                await handleUpdate(newStatus);
+                                }
+                            }
+                            loading={loading}>
                                 {text} 
                             </Button>,
-                            <Button key="view-details" type="primary">
-                                View Details
+                            <Button key="view-details" type="primary"
+                            onClick={async () => {
+                                navigate(`/listing/${listing.id}`);
+                            }}>
+                                Details
                             </Button>
                 ]}
             >
