@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getEnvironment } from "../utils/fetchEnvironment";
+import { getEnvironment } from "../../utils/fetchEnvironment";
 
 const environment = getEnvironment();
 const apiUrl = environment.VITE_BACKEND;
