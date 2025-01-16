@@ -1,22 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { useParams } from "react-router-dom";
 import { Form, Input, Button, message, Typography, Layout } from "antd";
 import { getUserProfile, updateUserProfile } from "../../services/profileService";
+import { AuthContext } from "../../services/authContext"; 
 
 const { Content } = Layout;
 
 const EditProfilePage = () => {
-  const [user, setUser] = useState(null);
+  const { user } = useContext(AuthContext); 
+  const { id } = useParams(); 
+
+  const userId = id || user?.id; 
+
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const userId = 1; // Replace with the logged-in user ID
-    fetchUserProfile(userId);
-  }, []);
+    if (userId) {
+      fetchUserProfile(userId);
+    }
+  }, [userId]);
 
   const fetchUserProfile = async (userId) => {
     try {
       const userData = await getUserProfile(userId);
-      setUser(userData);
+      setUserProfile(userData);
     } catch (error) {
       message.error("Failed to fetch profile information.");
     }
@@ -25,7 +33,6 @@ const EditProfilePage = () => {
   const handleFormSubmit = async (values) => {
     setLoading(true);
     try {
-      const userId = 1; // Replace with the logged-in user ID
       await updateUserProfile(userId, values);
       message.success("Profile updated successfully!");
       fetchUserProfile(userId);
@@ -36,8 +43,8 @@ const EditProfilePage = () => {
     }
   };
 
-  if (!user) {
-    return <p>Loading...</p>;
+  if (!userProfile) {
+    return <p>`</p>;
   }
 
   return (
@@ -47,24 +54,24 @@ const EditProfilePage = () => {
         <Form
           layout="vertical"
           initialValues={{
-            email: user.email,
-            phone: user.phone,
-            bio: user.bio,
+            email: userProfile.email,
+            phone: userProfile.phone,
+            bio: userProfile.bio,
           }}
           onFinish={handleFormSubmit}
         >
           <Typography.Title level={4}>Personal Information</Typography.Title>
           <Form.Item label="Name">
-            <Input value={user.firstname + " " + user.lastname} disabled />
+            <Input value={`${userProfile.firstname} ${userProfile.lastname}`} disabled />
           </Form.Item>
           <Form.Item label="Age">
-            <Input value={user.age} disabled />
+            <Input value={userProfile.age} disabled />
           </Form.Item>
           <Form.Item label="Gender">
-            <Input value={user.gender} disabled />
+            <Input value={userProfile.gender} disabled />
           </Form.Item>
           <Form.Item label="Nationality">
-            <Input value={user.nationality} disabled />
+            <Input value={userProfile.nationality} disabled />
           </Form.Item>
 
           <Typography.Title level={4}>Contact Information</Typography.Title>
