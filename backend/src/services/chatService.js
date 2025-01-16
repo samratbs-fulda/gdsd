@@ -53,6 +53,20 @@ class ChatService {
     }
   }
 
+  async findChatById(chatId) {
+    try {
+      console.log("chatId", chatId);
+      const chat = await prisma.chat.findUnique({
+        where: {
+          id: chatId,
+        },
+      });
+      return chat;
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  }
+
   async findChat(user1Id, user2Id) {
     try {
       const chat = await prisma.chat.findFirst({

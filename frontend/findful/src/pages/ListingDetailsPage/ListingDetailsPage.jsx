@@ -1,28 +1,51 @@
 import React from "react";
 import Map from "../../components/map/Map";
 import ListingDetailAmenities from "../../components/listingDetails/ListingDetaiAmenities";
-import { Button, Col, Row, Layout, theme, Divider, Typography, Flex, Tooltip, Space } from "antd";
+import {
+  Button,
+  Col,
+  Row,
+  Layout,
+  theme,
+  Divider,
+  Typography,
+  Flex,
+  Tooltip,
+  Space,
+} from "antd";
 import { getListingById } from "../../services/listingService";
-import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useNavigate, useParams } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Title from "antd/es/typography/Title";
 import Text from "antd/es/typography/Text";
 import Paragraph from "antd/es/typography/Paragraph";
 import ImageCarousel from "../../components/imageCarousel/ImageCarousel";
-import "./ListingDetailsPage.css"
+import "./ListingDetailsPage.css";
 import ListingDetailCosts from "../../components/listingDetails/ListingDetailCosts";
-import { AppstoreOutlined, BulbOutlined, CalendarOutlined, EnvironmentOutlined, HomeOutlined, TeamOutlined } from "@ant-design/icons";
+import {
+  AppstoreOutlined,
+  BulbOutlined,
+  CalendarOutlined,
+  EnvironmentOutlined,
+  HomeOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
 import GeneralInfoCard from "../../components/listingDetails/GeneralInfoCard";
 import { jwtDecode } from "jwt-decode";
 import { getRoleOfCurrentUser } from "../../services/authRole";
 import { updateListingStatus } from "../../services/reviewContent/reviewListingService";
+import { createUserChats } from "../../services/chatService";
+import { useAuth } from "../../services/authContext";
 
 const { Content } = Layout;
 
 const ListingDetailsPage = () => {
+  const navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const { user } = useAuth();
 
   let { id } = useParams();
 
@@ -41,28 +64,69 @@ const ListingDetailsPage = () => {
   listing.longitude = 50.565187;
   listing.latitude = 9.686583;
 
+  const createChatMutation = useMutation({
+    mutationFn: (landlordId) => {
+      console.log(
+        "Mutation: Creating chat between",
+
+        landlordId
+      );
+      return createUserChats(user.id, landlordId);
+    },
+    onSuccess: (response) => {
+      // You might want to show a success message or redirect to the chat page
+      console.log("Chat created successfully", response);
+      navigate(`/chat/${response.id}`);
+    },
+    onError: (error) => {
+      console.error("Error creating chat:", error);
+    },
+  });
+
+  const sendMessage = (landlordId) => {
+    if (!user || !landlordId) {
+      console.error("Missing user or landlord information");
+      return;
+    }
+    console.log(
+      "SendMessage: Creating chat between",
+      user.id,
+      "and",
+      landlordId
+    );
+    createChatMutation.mutate(landlordId);
+  };
+
   return (
-    <Layout className='page-content-layout' id='dashboard'
+    <Layout
+      className="page-content-layout"
+      id="dashboard"
       style={{
         background: colorBgContainer,
         borderRadius: borderRadiusLG,
       }}
     >
-      <Content className='page-inner-content'>
+      <Content className="page-inner-content">
         <Typography>
-          <Title level={1}>{listing?.title}
-            {
-              role == 'MODERATOR' &&
-              (<Paragraph>Status: {listing?.status == 'APPROVED' ? <Text type="success">Approved</Text>
-                : (listing?.status == 'PENDING' ? <Text type="warning">Pending</Text>
-                  : (listing?.status == 'REJECTED' ? <Text type="danger">Rejected</Text>
-                    : (<Text type="danger">DELETED</Text>)))
-              }</Paragraph>)}
+          <Title level={1}>
+            {listing?.title}
+            {role == "MODERATOR" && (
+              <Paragraph>
+                Status:{" "}
+                {listing?.status == "APPROVED" ? (
+                  <Text type="success">Approved</Text>
+                ) : listing?.status == "PENDING" ? (
+                  <Text type="warning">Pending</Text>
+                ) : listing?.status == "REJECTED" ? (
+                  <Text type="danger">Rejected</Text>
+                ) : (
+                  <Text type="danger">DELETED</Text>
+                )}
+              </Paragraph>
+            )}
           </Title>
 
-          {listing?.images && (
-            <ImageCarousel image={listing?.images} />
-          )}
+          {listing?.images && <ImageCarousel image={listing?.images} />}
           <Divider />
 
           {/* Important details section */}
@@ -90,7 +154,11 @@ const ListingDetailsPage = () => {
                     <Title level={4}>{listing?.freeRooms}</Title>
                   </Row>
                   <Row justify={"center"}>
-                    {listing?.freeRooms <= 1 ? (<Paragraph type="secondary">Room</Paragraph>) : (<Paragraph type="secondary">Rooms</Paragraph>)}
+                    {listing?.freeRooms <= 1 ? (
+                      <Paragraph type="secondary">Room</Paragraph>
+                    ) : (
+                      <Paragraph type="secondary">Rooms</Paragraph>
+                    )}
                   </Row>
                 </Col>
               </Row>
@@ -100,7 +168,9 @@ const ListingDetailsPage = () => {
             {/* General Info table */}
             <Row gutter={[12, 12]} justify={"space-between"}>
               <GeneralInfoCard>
-                <EnvironmentOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+                <EnvironmentOutlined
+                  style={{ fontSize: "24px", color: "#1890ff" }}
+                />
                 <Title level={5}>Address</Title>
                 <Paragraph>
                   {listing?.street} {listing?.houseNumber},<br />
@@ -109,7 +179,9 @@ const ListingDetailsPage = () => {
               </GeneralInfoCard>
 
               <GeneralInfoCard>
-                <CalendarOutlined style={{ fontSize: '24px', color: '#52c41a' }} />
+                <CalendarOutlined
+                  style={{ fontSize: "24px", color: "#52c41a" }}
+                />
                 <Title level={5}>Availability</Title>
                 <Paragraph>
                   From: {listing?.availableFrom?.substring(0, 10)} <br />
@@ -118,37 +190,44 @@ const ListingDetailsPage = () => {
               </GeneralInfoCard>
 
               <GeneralInfoCard>
-                <HomeOutlined style={{ fontSize: '24px', color: '#faad14' }} />
+                <HomeOutlined style={{ fontSize: "24px", color: "#faad14" }} />
                 <Title level={5}>Furnishing</Title>
                 <Paragraph>
-                  {listing?.furnished === 'FURNISHED' ? 'Furnished' :
-                    listing?.furnished === 'PARTIALLY' ? 'Partially Furnished' :
-                      'Not Furnished'}
+                  {listing?.furnished === "FURNISHED"
+                    ? "Furnished"
+                    : listing?.furnished === "PARTIALLY"
+                    ? "Partially Furnished"
+                    : "Not Furnished"}
                 </Paragraph>
               </GeneralInfoCard>
 
               <GeneralInfoCard>
-                <BulbOutlined style={{ fontSize: '24px', color: '#fadb14' }} />
+                <BulbOutlined style={{ fontSize: "24px", color: "#fadb14" }} />
                 <Title level={5}>Energy Rating</Title>
-                <Paragraph>{listing?.energyRating || 'N/A'}</Paragraph>
+                <Paragraph>{listing?.energyRating || "N/A"}</Paragraph>
               </GeneralInfoCard>
 
               <GeneralInfoCard>
-                <AppstoreOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
+                <AppstoreOutlined
+                  style={{ fontSize: "24px", color: "#1890ff" }}
+                />
                 <Title level={5}>Type</Title>
                 <Paragraph>
-                  {listing?.type === 'SINGLE' ? 'Single Apartment' :
-                    listing?.type === 'SHARED' ? 'Shared Apartment' :
-                      'Sublet'}
+                  {listing?.type === "SINGLE"
+                    ? "Single Apartment"
+                    : listing?.type === "SHARED"
+                    ? "Shared Apartment"
+                    : "Sublet"}
                 </Paragraph>
               </GeneralInfoCard>
 
               <GeneralInfoCard>
-                <TeamOutlined style={{ fontSize: '24px', color: '#722ed1' }} />
+                <TeamOutlined style={{ fontSize: "24px", color: "#722ed1" }} />
                 <Title level={5}>Rooms</Title>
                 <Paragraph>
-                  Total: {listing?.totalRooms || 'N/A'}<br />
-                  Available: {listing?.freeRooms || 'N/A'}
+                  Total: {listing?.totalRooms || "N/A"}
+                  <br />
+                  Available: {listing?.freeRooms || "N/A"}
                 </Paragraph>
               </GeneralInfoCard>
             </Row>
@@ -162,7 +241,15 @@ const ListingDetailsPage = () => {
             <Divider />
 
             {/* Costs */}
-            <ListingDetailCosts costs={{ coldRent: listing?.coldRent, heatingCost: listing?.heatingCost, additionalCosts: listing?.additionalCosts, warmRent: listing?.warmRent, deposit: listing?.deposit }} />
+            <ListingDetailCosts
+              costs={{
+                coldRent: listing?.coldRent,
+                heatingCost: listing?.heatingCost,
+                additionalCosts: listing?.additionalCosts,
+                warmRent: listing?.warmRent,
+                deposit: listing?.deposit,
+              }}
+            />
             <Divider />
 
             {/* Amenities */}
@@ -177,23 +264,23 @@ const ListingDetailsPage = () => {
                   {listing?.documents?.proofOfIncome && (
                     <li>
                       <Paragraph>Proof of Income</Paragraph>
-                    </li>)
-                  }
+                    </li>
+                  )}
                   {listing?.documents?.proofOfIdentity && (
                     <li>
                       <Paragraph>Proof of Identidy</Paragraph>
-                    </li>)
-                  }
+                    </li>
+                  )}
                   {listing?.documents?.shufaCreditReport && (
                     <li>
                       <Paragraph>Schufa credit report</Paragraph>
-                    </li>)
-                  }
+                    </li>
+                  )}
                   {listing?.documents?.parentalGuarantee && (
                     <li>
                       <Paragraph>Parental guarantee</Paragraph>
-                    </li>)
-                  }
+                    </li>
+                  )}
                 </ul>
               </div>
             )}
@@ -202,35 +289,67 @@ const ListingDetailsPage = () => {
             <Flex justify="center">
               <Paragraph style={{ width: "100%" }}>
                 <Row justify={"center"}>
-                  {role == 'STUDENT' ? (
+                  {role == "STUDENT" ? (
                     <Col lg={2} xs={4}>
-                      <Button color="primary" style={{ width: "100%" }}>Apply</Button>
+                      <Button
+                        color="primary"
+                        style={{ width: "100%" }}
+                        onClick={() => sendMessage(listing?.landlordId)}
+                      >
+                        Apply
+                      </Button>
                     </Col>
-                  ) : role == 'GUEST' ? (
+                  ) : role == "GUEST" ? (
                     <Col lg={2} xs={4}>
                       <Tooltip title="Please login to apply for listings.">
-                        <Button color="primary" disabled={true} style={{ width: "100%" }}>Apply</Button>
+                        <Button
+                          color="primary"
+                          disabled={true}
+                          style={{ width: "100%" }}
+                        >
+                          Apply
+                        </Button>
                       </Tooltip>
                     </Col>
-                  ) : role == 'MODERATOR' ? (
-                    listing?.status == 'PENDING' && (<>
-                      <Col lg={2} xs={4}>
-                        <Button key="approve" type="primary" style={{ width: "100%" }}
-                          onClick={async () => { await updateListingStatus(listing.id, "APPROVED"); }}>
-                          Approve
-                        </Button>
-                      </Col>
-                      <Col lg={2} xs={4} offset={1}>
-                        <Button key="reject" type="primary" style={{ width: "100%" }}
-                          onClick={async () => { await updateListingStatus(listing.id, "REJECTED"); }}>
-                          Reject
-                        </Button>
-                      </Col></>
+                  ) : role == "MODERATOR" ? (
+                    listing?.status == "PENDING" && (
+                      <>
+                        <Col lg={2} xs={4}>
+                          <Button
+                            key="approve"
+                            type="primary"
+                            style={{ width: "100%" }}
+                            onClick={async () => {
+                              await updateListingStatus(listing.id, "APPROVED");
+                            }}
+                          >
+                            Approve
+                          </Button>
+                        </Col>
+                        <Col lg={2} xs={4} offset={1}>
+                          <Button
+                            key="reject"
+                            type="primary"
+                            style={{ width: "100%" }}
+                            onClick={async () => {
+                              await updateListingStatus(listing.id, "REJECTED");
+                            }}
+                          >
+                            Reject
+                          </Button>
+                        </Col>
+                      </>
                     )
                   ) : (
                     <Col lg={2} xs={4}>
                       <Tooltip title="Only students can apply for listings.">
-                        <Button color="primary" disabled={true} style={{ width: "100%" }}>Apply</Button>
+                        <Button
+                          color="primary"
+                          disabled={true}
+                          style={{ width: "100%" }}
+                        >
+                          Apply
+                        </Button>
                       </Tooltip>
                     </Col>
                   )}
@@ -241,7 +360,6 @@ const ListingDetailsPage = () => {
             {/* Map */}
             <Map longitude={listing.longitude} latitude={listing.latitude} />
           </div>
-
         </Typography>
       </Content>
     </Layout>
