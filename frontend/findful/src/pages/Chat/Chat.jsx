@@ -131,7 +131,7 @@ const Chat = () => {
 
   return (
     <div className="container">
-      <Layout style={{ height: "calc(100vh - 64px)" }}>
+      <Layout style={{ height: "100%" }}>
         <Sider className="chat-sider">
           <Menu
             mode="inline"
