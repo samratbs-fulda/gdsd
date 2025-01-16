@@ -13,10 +13,11 @@ import ListingDetailsPage from "./pages/ListingDetailsPage/ListingDetailsPage";
 import FindFulHeader from "./components/header/FindFulHeader";
 import FindFulFooter from "./components/footer/FindFulFooter";
 import AddListing from "./pages/AddListing/AddListing";
-import ProfileEditPage from "./pages/ProfileEditPage"; 
 import { AuthContext } from './services/authContext';
 import Paragraph from "antd/es/typography/Paragraph";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
+import EditProfilePage from './pages/profile/EditProfilePage';
+
 
 const App = () => {
   const { user } = React.useContext(AuthContext);
@@ -40,9 +41,6 @@ const App = () => {
             },
             Layout: {
               headerBg: "#fff",
-            },
-            Carousel: {
-              arrowSize: 32,
             }
           }
         }}
@@ -75,8 +73,7 @@ const App = () => {
 
               <Route path="/chat" element={<Chat />} />
               <Route path="/listing/:id" element={<ListingDetailsPage />} />
-            <Route path="/profile/:id" element={<ProfileEditPage />} />
-
+              <Route path="/profile" element={<EditProfilePage />} />
             </Routes>
           </Content>
 
