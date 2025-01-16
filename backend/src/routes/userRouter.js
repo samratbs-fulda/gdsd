@@ -67,4 +67,22 @@ router.patch("/status", async (req, res) => {
   res.json({ updatedUser });
 });
 
+router.get("/profile/:id", async (req, res) => {
+  try {
+    const user = await userService.getUserProfile(req.params.id);
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.patch("/profile/:id", async (req, res) => {
+  try {
+    const updatedUser = await userService.updateUserProfile(req.params.id, req.body);
+    res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
