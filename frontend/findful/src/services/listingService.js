@@ -39,7 +39,7 @@ export const searchListing = async (filters) => {
   } = filters;
   var params = {};
   if (searchText) params.postal_code = searchText;
-  if (listingType !== "all") params.type = listingType;
+  if (listingType !== "All") params.type = listingType;
   if (minPrice) params.min_price = minPrice;
   if (maxPrice) params.max_price = maxPrice;
   if (size) params.size = size;

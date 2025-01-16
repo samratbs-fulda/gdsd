@@ -1,11 +1,12 @@
 import React from "react";
 import Map from "../../components/map/Map";
 import ListingDetailAmenities from "../../components/listingDetails/ListingDetaiAmenities";
-import { Button, Col, Row, Layout, theme, Divider, Typography, Flex, Tooltip } from "antd";
+import { Button, Col, Row, Layout, theme, Divider, Typography, Flex, Tooltip, Space } from "antd";
 import { getListingById } from "../../services/listingService";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Title from "antd/es/typography/Title";
+import Text from "antd/es/typography/Text";
 import Paragraph from "antd/es/typography/Paragraph";
 import ImageCarousel from "../../components/imageCarousel/ImageCarousel";
 import "./ListingDetailsPage.css"
@@ -14,6 +15,7 @@ import { AppstoreOutlined, BulbOutlined, CalendarOutlined, EnvironmentOutlined, 
 import GeneralInfoCard from "../../components/listingDetails/GeneralInfoCard";
 import { jwtDecode } from "jwt-decode";
 import { getRoleOfCurrentUser } from "../../services/authRole";
+import { updateListingStatus } from "../../services/reviewContent/reviewListingService";
 
 const { Content } = Layout;
 
@@ -48,11 +50,18 @@ const ListingDetailsPage = () => {
     >
       <Content className='page-inner-content'>
         <Typography>
-          <Title level={1}>{listing?.title}</Title>
+          <Title level={1}>{listing?.title}
+            {
+              role == 'MODERATOR' &&
+              (<Paragraph>Status: {listing?.status == 'APPROVED' ? <Text type="success">Approved</Text>
+                : (listing?.status == 'PENDING' ? <Text type="warning">Pending</Text>
+                  : (listing?.status == 'REJECTED' ? <Text type="danger">Rejected</Text>
+                    : (<Text type="danger">DELETED</Text>)))
+              }</Paragraph>)}
+          </Title>
 
           {listing?.images && (
             <ImageCarousel image={listing?.images} />
-
           )}
           <Divider />
 
@@ -189,22 +198,44 @@ const ListingDetailsPage = () => {
               </div>
             )}
 
-            {/* Apply Button */}
+            {/* Apply button - dependent on role (or ) */}
             <Flex justify="center">
-              <Paragraph>
-                {role == 'STUDENT' ? (
-                  <Button color="primary">Apply</Button>
-                ) : role == 'GUEST' ? (
-                  <Tooltip title="Please login to apply for listings.">
-                  <Button color="primary" disabled={true}>Apply</Button>
-                  </Tooltip>
-                ) : (
-                  <Tooltip title="Only students can apply for listings.">
-                  <Button color="primary" disabled={true}>Apply</Button>
-                  </Tooltip>
-                )
-                }
-              </Paragraph> {/* TODO: Add route */}
+              <Paragraph style={{ width: "100%" }}>
+                <Row justify={"center"}>
+                  {role == 'STUDENT' ? (
+                    <Col lg={2} xs={4}>
+                      <Button color="primary" style={{ width: "100%" }}>Apply</Button>
+                    </Col>
+                  ) : role == 'GUEST' ? (
+                    <Col lg={2} xs={4}>
+                      <Tooltip title="Please login to apply for listings.">
+                        <Button color="primary" disabled={true} style={{ width: "100%" }}>Apply</Button>
+                      </Tooltip>
+                    </Col>
+                  ) : role == 'MODERATOR' ? (
+                    listing?.status == 'PENDING' && (<>
+                      <Col lg={2} xs={4}>
+                        <Button key="approve" type="primary" style={{ width: "100%" }}
+                          onClick={async () => { await updateListingStatus(listing.id, "APPROVED"); }}>
+                          Approve
+                        </Button>
+                      </Col>
+                      <Col lg={2} xs={4} offset={1}>
+                        <Button key="reject" type="primary" style={{ width: "100%" }}
+                          onClick={async () => { await updateListingStatus(listing.id, "REJECTED"); }}>
+                          Reject
+                        </Button>
+                      </Col></>
+                    )
+                  ) : (
+                    <Col lg={2} xs={4}>
+                      <Tooltip title="Only students can apply for listings.">
+                        <Button color="primary" disabled={true} style={{ width: "100%" }}>Apply</Button>
+                      </Tooltip>
+                    </Col>
+                  )}
+                </Row>
+              </Paragraph>
             </Flex>
 
             {/* Map */}
