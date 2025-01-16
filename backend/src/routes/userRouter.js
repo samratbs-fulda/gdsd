@@ -9,15 +9,15 @@ const userService = new UserService();
 
 // user endpoints
 router.post("/register", async (req, res) => {
-  try{
+  try {
     const newUser = await userService.registerUser(req.body);
     res.status(201).json({
       status: "success",
       message: "User registered successfully",
       data: newUser,
     });
-  }catch(error){
-    const message = `Fail to register new user: ${error.message}`
+  } catch (error) {
+    const message = `Fail to register new user: ${error.message}`;
     res.status(500).json({
       status: "error",
       message: message,
@@ -46,13 +46,6 @@ router.post("/login", async (req, res) => {
     });
   }
 });
-
-// get user by id
-// router.get("/:id", async (req, res) => {
-//   const id = parseInt(req.params.id);
-//   const user = await userService.getUserById(id);
-//   res.json({ user });
-// });
 
 // admin endpoints
 router.get("/", async (req, res) => {
@@ -84,6 +77,12 @@ router.patch("/status", async (req, res) => {
   } catch (error) {
     res.status(500).json({status: "error", message: error.message});
   }
+});
+
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  const user = await userService.getUserById(id);
+  res.json({ user });
 });
 
 module.exports = router;
