@@ -30,6 +30,15 @@ class UserService {
     }
   }
 
+  async getUserByUsername(username) {
+    try{
+      const user = await UserRepository.findUniqueBy("username", username);
+      return user;
+    }catch(error){
+      throw Error("Error fetching user:", error);
+    }
+  }
+
   async registerUser(userData) {
     try {
       const { role, email, password } = userData;
@@ -50,7 +59,7 @@ class UserService {
 
   async logUserIn(email, password) {
     try {
-      const user = await this.getUserByEmail(email);
+      const user = email.includes("@") ? await this.getUserByEmail(email) : await this.getUserByUsername(email);
       if (!user) {
         throw Error("User not found!");
       }
@@ -61,7 +70,7 @@ class UserService {
       return user;
     } catch (error) {
       console.error("Error fetching user:", error);
-      return error;
+      throw Error(error);
     }
   }
 
@@ -77,7 +86,7 @@ class UserService {
 
   async getUserById(id) {
     try {
-      const user = await UserRepository.findUniqueBy("id", parseInt(id));
+      const user = await UserRepository.findUniqueBy("id", id);
       return user;
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -101,7 +110,7 @@ class UserService {
       return updatedUser;
     } catch (error) {
       console.error("Error updating user status:", error);
-      return error;
+      throw Error(error.message);
     }
   }
 }

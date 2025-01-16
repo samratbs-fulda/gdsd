@@ -30,5 +30,8 @@
   "devDependencies": {
     "nodemon": "^3.1.7",
     "prisma": "^5.22.0"
+  },
+  "optionalDependencies": {
+    "@img/sharp-win32-x64": "^0.33.5"
   }
 }
