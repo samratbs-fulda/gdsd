@@ -16,6 +16,8 @@ import AddListing from "./pages/AddListing/AddListing";
 import { AuthContext } from './services/authContext';
 import Paragraph from "antd/es/typography/Paragraph";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
+import EditProfilePage from './pages/profile/EditProfilePage';
+
 
 const App = () => {
   const { user } = React.useContext(AuthContext);
@@ -74,6 +76,7 @@ const App = () => {
 
               <Route path="/chat" element={<Chat />} />
               <Route path="/listing/:id" element={<ListingDetailsPage />} />
+              <Route path="/profile" element={<EditProfilePage />} />
             </Routes>
           </Content>
 
