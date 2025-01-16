@@ -1,6 +1,6 @@
 require("dotenv-flow").config();
 const cookieParser = require("cookie-parser");
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
@@ -41,8 +41,8 @@ app.use(cookieParser());
 const server = http.createServer(app);
 const io = initializeSocket(server, allowedOrigins);
 
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 
 // helps in validating a successful database connection
 async function startServer() {

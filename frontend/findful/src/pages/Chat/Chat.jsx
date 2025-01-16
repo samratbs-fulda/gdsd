@@ -8,8 +8,12 @@ import { SendOutlined } from "@ant-design/icons";
 import io from "socket.io-client";
 import { useAuth } from "../../services/authContext";
 import { getUserById } from "../../services/login/loginService";
-import { useQuery } from "@tanstack/react-query";
-import { getUserChats } from "../../services/chatService";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  createMessages,
+  getMessages,
+  getUserChats,
+} from "../../services/chatService";
 
 const socket = io("http://localhost:8000", {
   autoConnect: false,
@@ -21,6 +25,7 @@ const Chat = () => {
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
+  const [currentChat, setCurrentChat] = useState(null);
 
   const userQuery = useQuery({
     queryKey: ["user"],
@@ -38,8 +43,6 @@ const Chat = () => {
 
   const username = userQuery.data?.username;
   const chats = chatQuery.data;
-
-  console.log("user chats", chats);
 
   const connectSocket = () => {
     const token = localStorage.getItem("token");
@@ -63,9 +66,10 @@ const Chat = () => {
       setConnected(false);
     });
 
-    // Listen for incoming messages
     socket.on("message", (message) => {
-      setMessages((messages) => [...messages, message]);
+      if (currentChat && currentChat.id === message.chatId) {
+        setMessages((messages) => [...messages, message]);
+      }
     });
 
     return () => {
@@ -74,19 +78,56 @@ const Chat = () => {
       socket.off("disconnect");
       socket.off("message");
     };
-  }, []);
+  }, [currentChat]);
 
-  const sendMessage = () => {
-    if (messageInput) {
-      const message = {
-        text: messageInput,
-        timestamp: new Date(),
-        sender: user.id,
-      };
-      socket.emit("message", message);
-      setMessageInput("");
+  const sendMessage = async () => {
+    if (messageInput.trim()) {
+      // Check for non-empty message
+      try {
+        await messageMutation.mutateAsync();
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
   };
+
+  const updateCurrentChat = (chat) => {
+    setCurrentChat(chat);
+  };
+
+  console.log("current chat", currentChat);
+
+  const messagesQuery = useQuery({
+    queryKey: ["messages", { id: currentChat?.id }],
+    enabled: !!currentChat,
+    queryFn: () => getMessages(currentChat.id),
+  });
+
+  const messagesData = messagesQuery.data;
+  console.log("user messages", messagesData);
+
+  useEffect(() => {
+    if (messagesData) {
+      setMessages(messagesData);
+    }
+  }, [messagesData]);
+
+  const messageMutation = useMutation({
+    mutationKey: ["message", { id: currentChat?.id }],
+    mutationFn: () => createMessages(currentChat.id, user.id, messageInput),
+    onSuccess: () => {
+      socket.emit("message", {
+        chatId: currentChat.id,
+        senderId: user.id,
+        content: messageInput,
+        recipientId: currentChat.recipientId,
+      });
+
+      // Invalidate and refetch messages after successful mutation
+      messagesQuery.refetch();
+      setMessageInput(""); // Clear input after successful send
+    },
+  });
 
   return (
     <div className="container">
@@ -100,54 +141,68 @@ const Chat = () => {
               borderRight: 0,
             }}
           >
-            {chats?.map((chat) => (
-              <Menu.Item className="chat-menu-item" key={chat.id}>
-                {chat.recipientUsername}
-              </Menu.Item>
-            ))}
+            {chats &&
+              chats?.map((chat) => (
+                <Menu.Item
+                  className="chat-menu-item"
+                  key={chat.id}
+                  onClick={() => updateCurrentChat(chat)}
+                >
+                  {chat.recipientUsername}
+                </Menu.Item>
+              ))}
           </Menu>
         </Sider>
 
         <Layout>
           <Content className="chat-content">
             <div className="chat-title">
-              <h3 style={{ margin: 0 }}>3-room shared bedroom apartment</h3>
+              <h3 style={{ margin: 0 }}>{currentChat?.recipientUsername}</h3>
               <div>
                 <p>{connected ? "Connected" : "Disconnected"}</p>
                 <p>{user ? `Logged in: ${username}` : "Not logged in"}</p>
               </div>
             </div>
             <div className="message-box">
-              {messages.map((message, idx) => (
-                <div
-                  className={`message-${
-                    message.sender === user.id ? "right" : "left"
-                  }`}
-                  key={idx}
-                >
-                  <div
-                    className={`message-bubble-${
-                      message.sender === user.id ? "right" : "left"
-                    }`}
-                  >
-                    {message.text}
-                  </div>
+              {!currentChat ? (
+                <div className="no-chat-selected">
+                  Select a chat to start messaging
                 </div>
-              ))}
+              ) : (
+                messages &&
+                messages.map((message, idx) => (
+                  <div
+                    className={`message-${
+                      message.senderId === user.id ? "right" : "left"
+                    }`}
+                    key={idx}
+                  >
+                    <div
+                      className={`message-bubble-${
+                        message.senderId === user.id ? "right" : "left"
+                      }`}
+                    >
+                      {message.content}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
-            <div className="input-area">
-              <Input
-                placeholder="Type a message..."
-                className="input-field"
-                value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-              />
-              <Button
-                type="primary"
-                icon={<SendOutlined />}
-                onClick={sendMessage}
-              />
-            </div>
+            {currentChat ? (
+              <div className="input-area">
+                <Input
+                  placeholder="Type a message..."
+                  className="input-field"
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
+                />
+                <Button
+                  type="primary"
+                  icon={<SendOutlined />}
+                  onClick={sendMessage}
+                />
+              </div>
+            ) : null}
           </Content>
         </Layout>
       </Layout>
