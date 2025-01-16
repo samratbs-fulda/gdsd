@@ -77,7 +77,12 @@ class UserService {
 
   async getUserById(id) {
     try {
-      const user = await UserRepository.findUniqueBy("id", parseInt(id));
+      const user = await prisma.user.findUnique({
+        where: {
+          id: +id,
+        },
+      });
+
       return user;
     } catch (error) {
       console.error("Error fetching user:", error);
