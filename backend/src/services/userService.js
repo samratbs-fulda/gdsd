@@ -113,6 +113,85 @@ class UserService {
       throw Error(error.message);
     }
   }
+
+  async getUserProfile(id) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: parseInt(id) },
+        include: {
+          profile: true, 
+        },
+      });
+  
+      if (!user || !user.profile) {
+        throw new Error("Profile not found for this user.");
+      } 
+      return {
+        id: user.id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+
+        age: user.profile.age,
+        gender: user.profile.gender,
+        nationality: user.profile.nationality,
+        phone: user.profile.phone,
+        bio: user.profile.bio,
+      };
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      throw error;
+    }
+  }
+  
+
+  async updateUserProfile(id, data) {
+    try {
+      const updatedUser = await prisma.user.update({
+        where: { id: parseInt(id) },
+        data: {
+          email: data.email,
+          username: data.username,
+          profile: {
+            update: {
+              age: data.age,
+              gender: data.gender,
+              nationality: data.nationality,
+              phone: data.phone,
+              bio: data.bio,
+            },
+          },
+        },
+        include: { profile: true }, 
+      });
+  
+      return {
+        id: updatedUser.id,
+        firstname: updatedUser.firstname,
+        lastname: updatedUser.lastname,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        role: updatedUser.role,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+
+        age: updatedUser.profile.age,
+        gender: updatedUser.profile.gender,
+        nationality: updatedUser.profile.nationality,
+        phone: updatedUser.profile.phone,
+        bio: updatedUser.profile.bio,
+      };
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      throw error;
+    }
+  }
+  
 }
+
 
 module.exports = UserService;
