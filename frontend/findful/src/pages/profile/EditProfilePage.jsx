@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { Form, Input, Button, message, Typography, Layout } from "antd";
-import { getUserProfile, updateUserProfile } from "../../services/profileService";
+import { getUserProfile, updateUserProfile } from "../../services/profile/profileService";
 import { AuthContext } from "../../services/authContext"; 
 
 const { Content } = Layout;
@@ -26,7 +26,17 @@ const EditProfilePage = () => {
       const userData = await getUserProfile(userId);
       setUserProfile(userData);
     } catch (error) {
-      message.error("Failed to fetch profile information.");
+      // message.error("Failed to fetch profile information.");
+      const userData = {
+        firstname: "",
+        lastname: "",
+        age: 0,
+        nationality: "",
+        email: "",
+        phone: "",
+        description: "",
+      }
+      setUserProfile(userData);
     }
   };
 
@@ -62,16 +72,16 @@ const EditProfilePage = () => {
         >
           <Typography.Title level={4}>Personal Information</Typography.Title>
           <Form.Item label="Name">
-            <Input value={`${userProfile.firstname} ${userProfile.lastname}`} disabled />
+            <Input value={`${userProfile.firstname} ${userProfile.lastname}`} />
           </Form.Item>
           <Form.Item label="Age">
-            <Input value={userProfile.age} disabled />
+            <Input value={userProfile.age} />
           </Form.Item>
           <Form.Item label="Gender">
-            <Input value={userProfile.gender} disabled />
+            <Input value={userProfile.gender} />
           </Form.Item>
           <Form.Item label="Nationality">
-            <Input value={userProfile.nationality} disabled />
+            <Input value={userProfile.nationality} />
           </Form.Item>
 
           <Typography.Title level={4}>Contact Information</Typography.Title>

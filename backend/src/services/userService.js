@@ -53,7 +53,7 @@ class UserService {
       const newUser = await UserRepository.createNewUser(userData);
       return newUser;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
