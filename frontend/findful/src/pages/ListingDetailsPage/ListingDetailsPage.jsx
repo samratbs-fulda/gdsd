@@ -47,6 +47,8 @@ const ListingDetailsPage = () => {
   } = theme.useToken();
 
   const { user } = useAuth();
+  const userId = !user ? -1 : user.id;
+
 
   let { id } = useParams();
 
@@ -424,6 +426,7 @@ const ListingDetailsPage = () => {
                       </>
                     )
                   ) : (
+                    listing?.landlordId !== userId ? (
                     <Col lg={2} xs={4}>
                       <Tooltip title="Only students can apply for listings.">
                         <Button
@@ -435,6 +438,22 @@ const ListingDetailsPage = () => {
                         </Button>
                       </Tooltip>
                     </Col>
+                    ) : (
+                      <>
+                        <Col lg={2} xs={4}>
+                          <Button
+                            key="manage"
+                            type="primary"
+                            style={{ width: "100%" }}
+                            onClick={async () => {
+                              navigate("/dashboard/landlord");
+                            }}
+                          >
+                            Manage
+                          </Button>
+                        </Col>
+                      </>
+                    )
                   )}
                 </Row>
               </Paragraph>
