@@ -16,31 +16,31 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("detail/amenities/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  try {
-    const amenities = await listingService.getAmenitiesByListingId(id);
-    res.status(200).json({ amenities });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
-  }
-});
+// router.get("details/amenities/:id", async (req, res) => {
+//   const id = parseInt(req.params.id);
+//   try {
+//     const amenities = await listingService.getAmenitiesByListingId(id);
+//     res.status(200).json({ amenities });
+//   } catch (error) {
+//     res.status(500).json({
+//       status: "error",
+//       message: error.message,
+//     });
+//   }
+// });
 
-router.get("/detail/documents/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  try {
-    const documents = await listingService.getDocumentsByListingId(id);
-    res.status(200).json({ documents });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
-  }
-});
+// router.get("/details/documents/:id", async (req, res) => {
+//   const id = parseInt(req.params.id);
+//   try {
+//     const documents = await listingService.getDocumentsByListingId(id);
+//     res.status(200).json({ documents });
+//   } catch (error) {
+//     res.status(500).json({
+//       status: "error",
+//       message: error.message,
+//     });
+//   }
+// });
 
 router.get("/detail/:id", async (req, res) => {
   const id = parseInt(req.params.id);
