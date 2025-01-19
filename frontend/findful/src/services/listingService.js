@@ -17,23 +17,8 @@ export const getAllListings = async () => {
 
 export const getListingById = async (id) => {
   try {
-    const listingResponse = await axios.get(`${apiUrl}/api/listings/detail/${id}`);
-    const listingData = listingResponse.data.listing;
-
-    const amenitiesResponse = await axios.get(`${apiUrl}/api/listings/detail/amenities/${id}`);
-    const amenitiesData = amenitiesResponse.data.amenities;
-
-    const documentsResponse = await axios.get(`${apiUrl}/api/listings/detail/documents/${id}`);
-    const documentsData = documentsResponse.data.documents;
-
-    const data =  {
-      ...listingData,
-      amenities: amenitiesData,
-      documents: documentsData,
-    };
-    
-    console.log(data);
-    return data;
+    const response = await axios.get(`${apiUrl}/api/listings/detail/${id}`);
+    return response.data.listing;
   } catch (error) {
     console.error("Failed to fetch listing:", error);
     throw error;
@@ -78,7 +63,7 @@ export const addListing = async (listingValues) => {
   try {
     const token = localStorage.getItem('token');
     const decodedToken = jwtDecode(token);
-    const landlordId = decodedToken["id"];
+    const landlordId = decodedToken.id;
 
     listingValues = {
       ...listingValues,
