@@ -11,7 +11,7 @@ const items = [UnorderedListOutlined, UserOutlined].map((icon, index) => {
       key: `sub${index + 1}`,
       icon: React.createElement(icon),
       label: `Listings`,
-      children: ['Review', 'Approved', 'Rejected'].map((label, j) => {
+      children: ['Review', 'Approved', 'Rejected', 'Deleted'].map((label, j) => {
         return {
           key: j + 1,
           label: label,
@@ -25,7 +25,7 @@ const items = [UnorderedListOutlined, UserOutlined].map((icon, index) => {
         label: `Users`,
         children: ['All', 'Banned', 'Deleted'].map((label, j) => {
             return {
-                key: j + 4,
+                key: j + 5,
                 label: label,
             }
         }),
@@ -53,10 +53,12 @@ const Dashboard = () => {
       case '3':
         return <ReviewListings status={"rejected"} />;
       case '4':
-        return <ReviewUsers status={"active"} />;
+        return <ReviewListings status={"deleted"} />;
       case '5':
-        return <ReviewUsers status={"banned"} />;
+        return <ReviewUsers status={"active"} />;
       case '6':
+        return <ReviewUsers status={"banned"} />;
+      case '7':
         return <ReviewUsers status={"deleted"} />;
     }
   };
