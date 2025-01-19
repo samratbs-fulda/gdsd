@@ -1,16 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useQuery } from "@tanstack/react-query";
 import { getReviewListings } from "../../services/reviewContent/reviewListingService";
+import { getListingsByLandlordId } from '../../services/landlord/listingsByLandlord';
+import { useQuery } from "@tanstack/react-query";
 import { Row } from 'antd';
 import { Col, Card, Button } from 'antd';
 import Meta from 'antd/es/card/Meta';
+import { useAuth } from '../../services/authContext';
 
 const ReviewListings = ({ status }) => {
+    const { user } = useAuth();
     const listingQuery = useQuery({
         queryKey: ["listings", { status }],
         queryFn: () => {
+          const landlordId = user.id;
+          const role = user.role;
+          if(role === "MODERATOR"){
             return getReviewListings(status.toUpperCase());
+          } else if (role === "LANDLORD"){
+            return getListingsByLandlordId(landlordId, status.toUpperCase());
+          }
         },
     });
     
@@ -35,7 +44,7 @@ const ReviewListings = ({ status }) => {
                       />
                     }
                     actions={[
-                        <Button key="view-details" type="primary" href={"listing/" + listing.id}>
+                        <Button key="view-details" type="primary" href={"/listing/" + listing.id}>
                           View Details
                         </Button>,
                     ]}
