@@ -1,6 +1,7 @@
 require("dotenv-flow").config();
 const prisma = require("../utils/db");
 const UserRepository = require("../repo/userRepository");
+const ProfileRepository = require("../repo/profileRepository");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
@@ -39,18 +40,38 @@ class UserService {
     }
   }
 
+  async usernameExist(username){
+    try{
+      const user = await UserRepository.findUniqueBy("username", username);
+      return user;
+    }catch(error){
+      throw Error("Error fetching user:", error);
+    }
+  }
+
   async registerUser(userData) {
     try {
-      const { role, email, password } = userData;
+      const { role, username, email, password } = userData;
 
       // Validate email existance and constrains
       const existingUser = await this.getUserByEmail(email);
       if (existingUser) throw Error("Email already in use.");
+
+      const existingUsername = await this.getUserByUsername(username);
+      if (existingUsername) throw Error("Username already in use.");
+
       if (role === "STUDENT" && !this.validateEmail(email))
         throw Error("Students must register with hs email.");
 
       userData.password = await this.hashPassword(password);
       const newUser = await UserRepository.createNewUser(userData);
+
+      const profileData = {
+        userId: newUser.id,
+        // firstname: newUser.firstname,
+      }
+      const newProfile = await ProfileRepository.createNewProfile(profileData);
+
       return newUser;
     } catch (error) {
       throw error;
