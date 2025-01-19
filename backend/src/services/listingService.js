@@ -122,10 +122,11 @@ class ListingService {
     }
   }
 
-  async getListingsByLandlordId(landlordId) {
+  async getListingsByLandlordId(landlordId, status) {
     try {
       const listings = await prisma.listing.findMany({
         where: {
+          status: status,
           landlordId: landlordId,
         },
       });

@@ -5,22 +5,81 @@ const router = express.Router();
 const listingService = new ListingService();
 
 router.get("/", async (req, res) => {
-  const listings = await listingService.getAllListings();
-  res.json({ listings });
+  try {
+    const listings = await listingService.getAllListings();
+    res.status(200).json({ listings });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
+router.get("detail/amenities/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    const amenities = await listingService.getAmenitiesByListingId(id);
+    res.status(200).json({ amenities });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
+router.get("/detail/documents/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    const documents = await listingService.getDocumentsByListingId(id);
+    res.status(200).json({ documents });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
 });
 
 router.get("/detail/:id", async (req, res) => {
   const id = parseInt(req.params.id);
+  try {
+    const listing = await listingService.getListingById(id);
+    res.status(200).json({ listing });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
 
-  const listing = await listingService.getListingById(id);
-  res.json({ listing });
+router.get("/review/landlord", async (req, res) => {
+  const { landlordId, status } = req.query;
+  try {
+    const landId = parseInt(landlordId);
+    const listings = await listingService.getListingsByLandlordId(landId, status);
+    res.status(200).json({ listings });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
 });
 
 router.get("/review/:status", async (req, res) => {
   const status = req.params.status;
-
-  const listings = await listingService.getListingsByStatus(status);
-  res.json({ listings });
+  try {
+    const listings = await listingService.getListingsByStatus(status);
+    res.status(200).json({ listings });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
 });
 
 router.get("/search", async (req, res) => {
