@@ -11,7 +11,8 @@ import {
   Typography,
   Flex,
   Tooltip,
-  Space,
+  message,
+  // Space,
 } from "antd";
 import { getListingById } from "../../services/listingService";
 import { useNavigate, useParams } from "react-router-dom";
@@ -31,7 +32,7 @@ import {
   TeamOutlined,
 } from "@ant-design/icons";
 import GeneralInfoCard from "../../components/listingDetails/GeneralInfoCard";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 import { getRoleOfCurrentUser } from "../../services/authRole";
 import { updateListingStatus } from "../../services/reviewContent/reviewListingService";
 import { createUserChats } from "../../services/chatService";
@@ -68,7 +69,6 @@ const ListingDetailsPage = () => {
     mutationFn: (landlordId) => {
       console.log(
         "Mutation: Creating chat between",
-
         landlordId
       );
       return createUserChats(user.id, landlordId);
@@ -120,7 +120,7 @@ const ListingDetailsPage = () => {
                 ) : listing?.status == "REJECTED" ? (
                   <Text type="danger">Rejected</Text>
                 ) : (
-                  <Text type="danger">DELETED</Text>
+                  <Text type="danger">Deleted</Text>
                 )}
               </Paragraph>
             )}
@@ -312,7 +312,7 @@ const ListingDetailsPage = () => {
                       </Tooltip>
                     </Col>
                   ) : role == "MODERATOR" ? (
-                    listing?.status == "PENDING" && (
+                    listing?.status == "PENDING" ? (
                       <>
                         <Col lg={2} xs={4}>
                           <Button
@@ -321,6 +321,8 @@ const ListingDetailsPage = () => {
                             style={{ width: "100%" }}
                             onClick={async () => {
                               await updateListingStatus(listing.id, "APPROVED");
+                              message.success("Listing approved successfully");
+                              navigate("/dashboard");
                             }}
                           >
                             Approve
@@ -333,9 +335,90 @@ const ListingDetailsPage = () => {
                             style={{ width: "100%" }}
                             onClick={async () => {
                               await updateListingStatus(listing.id, "REJECTED");
+                              message.success("Listing rejected successfully");
+                              navigate("/dashboard");
                             }}
                           >
                             Reject
+                          </Button>
+                        </Col>
+                      </>
+                    ) : listing?.status == "APPROVED"   ? (
+                      <>
+                        <Col lg={2} xs={4}>
+                          <Button
+                            key="reject"
+                            type="primary"
+                            style={{ width: "100%" }}
+                            onClick={async () => {
+                              await updateListingStatus(listing.id, "REJECTED");
+                              message.success("Listing rejected successfully");
+                              navigate("/dashboard");
+                            }}
+                          >
+                            Reject
+                          </Button>
+                        </Col>
+                        <Col lg={2} xs={4} offset={1}>
+                          <Button
+                            key="delete"
+                            type="primary"
+                            style={{ width: "100%" }}
+                            onClick={async () => {
+                              await updateListingStatus(listing.id, "DELETED");
+                              message.success("Listing deleted successfully");
+                              navigate("/dashboard");
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </Col>
+                      </>
+                    ) : listing?.status == "REJECTED" ? (
+                      <>
+                        <Col lg={2} xs={4}>
+                          <Button
+                            key="approve"
+                            type="primary"
+                            style={{ width: "100%" }}
+                            onClick={async () => {
+                              await updateListingStatus(listing.id, "APPROVED");
+                              message.success("Listing approved successfully");
+                              navigate("/dashboard");
+                            }}
+                          >
+                            Approve
+                          </Button>
+                        </Col>
+                        <Col lg={2} xs={4} offset={1}>
+                          <Button
+                            key="delete"
+                            type="primary"
+                            style={{ width: "100%" }}
+                            onClick={async () => {
+                              await updateListingStatus(listing.id, "DELETED");
+                              message.success("Listing deleted successfully");
+                              navigate("/dashboard");
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </Col>
+                      </>
+                    ) : (
+                      <>
+                        <Col lg={2} xs={4}>
+                          <Button
+                            key="restore"
+                            type="primary"
+                            style={{ width: "100%" }}
+                            onClick={async () => {
+                              await updateListingStatus(listing.id, "PENDING");
+                              message.success("Listing restore successfully");
+                              navigate("/dashboard");
+                            }}
+                          >
+                            Restore
                           </Button>
                         </Col>
                       </>
