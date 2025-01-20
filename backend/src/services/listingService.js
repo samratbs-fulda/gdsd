@@ -75,9 +75,18 @@ class ListingService {
         where: {
           ...filters,  // Spread the filters (direct fields)
           amenities: amenitiesFilter.is,
-          street: {
-            contains: searchText, // Search for streets containing the string
-          },
+          OR: [
+            {
+              street: {
+                contains: searchText,
+              },
+            },
+            {
+              postalCode: {
+                contains: searchText,
+              },
+            },
+          ],
           status: "APPROVED",
         },
         include: {
