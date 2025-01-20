@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { ConfigProvider, Layout, theme } from "antd";
+import { ConfigProvider, Layout } from "antd";
 const { Header, Content, Footer } = Layout;
 import Homepage from "./pages/Homepage";
 import Login from "./pages/Login/Login";
@@ -13,6 +13,7 @@ import ListingDetailsPage from "./pages/ListingDetailsPage/ListingDetailsPage";
 import FindFulHeader from "./components/header/FindFulHeader";
 import FindFulFooter from "./components/footer/FindFulFooter";
 import AddListing from "./pages/AddListing/AddListing";
+import LandlordDashboard from "./pages/landlordDashboard/LandlordDashboard";
 import { AuthContext } from "./services/authContext";
 import Paragraph from "antd/es/typography/Paragraph";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
@@ -92,6 +93,17 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                path="/dashboard/landlord"
+                element={
+                  <ProtectedRoute requiredRole="LANDLORD" user={user}>
+                    <LandlordDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* --------------------- */}
 
               <Route path="/chat/:id" element={<Chat />} />
               <Route path="/chat" element={<Chat />} />

@@ -1,7 +1,7 @@
 require("dotenv-flow").config();
 const prisma = require("../utils/db");
 const UserRepository = require("../repo/userRepository");
-const ProfileRepository = require("../repo/profileRepository");
+// const ProfileRepository = require("../repo/profileRepository");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
@@ -70,7 +70,7 @@ class UserService {
         userId: newUser.id,
         // firstname: newUser.firstname,
       }
-      const newProfile = await ProfileRepository.createNewProfile(profileData);
+      // const newProfile = await ProfileRepository.createNewProfile(profileData);
 
       return newUser;
     } catch (error) {

@@ -18,7 +18,6 @@ export const getAllListings = async () => {
 export const getListingById = async (id) => {
   try {
     const response = await axios.get(`${apiUrl}/api/listings/detail/${id}`);
-
     return response.data.listing;
   } catch (error) {
     console.error("Failed to fetch listing:", error);

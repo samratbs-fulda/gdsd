@@ -1,29 +1,62 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useQuery } from "@tanstack/react-query";
 import { getReviewListings } from "../../services/reviewContent/reviewListingService";
+import { getListingsByLandlordId } from '../../services/landlord/listingsByLandlord';
+import { useQuery } from "@tanstack/react-query";
 import { Row } from 'antd';
-import PendingCard from '../cards/pendingCard';
+import { Col, Card, Button } from 'antd';
+import Meta from 'antd/es/card/Meta';
+import { useAuth } from '../../services/authContext';
 
 const ReviewListings = ({ status }) => {
-    const [reload, setReload] = React.useState(false);
+    const { user } = useAuth();
     const listingQuery = useQuery({
         queryKey: ["listings", { status }],
         queryFn: () => {
+          const landlordId = user.id;
+          const role = user.role;
+          if(role === "MODERATOR"){
             return getReviewListings(status.toUpperCase());
+          } else if (role === "LANDLORD"){
+            return getListingsByLandlordId(landlordId, status.toUpperCase());
+          }
         },
-      });
-
-      const handleReload = () => {
-        setReload(!reload);
-      };
+    });
     
-      const listings = listingQuery.data || [];
+    const listings = listingQuery.data || [];
     return (
         <Row gutter={16}>
-            {listings.map((listing) =>{
-                return <PendingCard key={listing.id} listing={listing} status={status} onReload={handleReload} />;
-            })}
+            {listings.map((listing) => (
+                <Col
+                  span={24}
+                  sm={12}
+                  md={8}
+                  key={listing.id}
+                  style={{ marginBottom: 16 }}
+                >
+                  <Card
+                    hoverable
+                    cover={
+                      <img
+                        alt="listing"
+                        src={listing.img}
+                        className="listing-image"
+                      />
+                    }
+                    actions={[
+                        <Button key="view-details" type="primary" href={"/listing/" + listing.id}>
+                          View Details
+                        </Button>,
+                    ]}
+                  >
+                    <Meta title={listing.title} description={listing.type} />
+                    <p>Rent: ${listing.warmRent}</p>
+                    <p>Size: {listing.size} sq.m</p>
+                    <p>Rooms Available: {listing.freeRooms}</p>
+                    <p>Address: {listing.street} {listing.houseNumber}, {listing.postalCode}</p>
+                  </Card>
+                </Col>
+              ))}
         </Row>
     );
 };
