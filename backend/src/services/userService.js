@@ -125,29 +125,25 @@ class UserService {
     try {
       const user = await prisma.user.findUnique({
         where: { id: parseInt(id) },
-        include: {
-          profile: true, 
-        },
+        include: { profile: true },
       });
   
-      if (!user || !user.profile) {
-        throw new Error("Profile not found for this user.");
-      } 
+      if (!user) throw new Error("User not found.");
+  
       return {
         id: user.id,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        email: user.email,
-        username: user.username,
-        role: user.role,
+        firstname: user.firstname || "",
+        lastname: user.lastname || "",
+        email: user.email || "",
+        username: user.username || "",
+        role: user.role || "",
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
-
-        age: user.profile.age,
-        gender: user.profile.gender,
-        nationality: user.profile.nationality,
-        phone: user.profile.phone,
-        bio: user.profile.bio,
+        age: user.profile?.age || "",
+        gender: user.profile?.gender || "",
+        nationality: user.profile?.nationality || "",
+        phone: user.profile?.phone || "",
+        bio: user.profile?.bio || "",
       };
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -155,50 +151,50 @@ class UserService {
     }
   }
   
+  
 
   async updateUserProfile(id, data) {
     try {
+      console.log("Updating Profile for User ID:", id);
+      console.log("Received Data:", data);
+      
+      const formattedPhone = `${data.phone}`;
       const updatedUser = await prisma.user.update({
         where: { id: parseInt(id) },
         data: {
-          email: data.email,
-          username: data.username,
+          username: data.username ?? undefined,
+          firstname: data.firstname ?? undefined,
+          lastname: data.lastname ?? undefined,
+          email: data.email ?? undefined,
           profile: {
-            update: {
-              age: data.age,
-              gender: data.gender,
-              nationality: data.nationality,
-              phone: data.phone,
-              bio: data.bio,
+            upsert: {
+              create: {
+                age: data.age ? Number(data.age) : null,
+                gender: data.gender ?? "",
+                nationality: data.nationality ?? "",
+                phone: formattedPhone,
+                bio: data.bio ?? "",
+              },
+              update: {
+                age: data.age ? Number(data.age) : undefined,
+                gender: data.gender ?? undefined,
+                nationality: data.nationality ?? undefined,
+                phone: formattedPhone,
+                bio: data.bio ?? undefined,
+              },
             },
           },
         },
-        include: { profile: true }, 
+        include: { profile: true },
       });
   
-      return {
-        id: updatedUser.id,
-        firstname: updatedUser.firstname,
-        lastname: updatedUser.lastname,
-        email: updatedUser.email,
-        username: updatedUser.username,
-        role: updatedUser.role,
-        createdAt: updatedUser.createdAt,
-        updatedAt: updatedUser.updatedAt,
-
-        age: updatedUser.profile.age,
-        gender: updatedUser.profile.gender,
-        nationality: updatedUser.profile.nationality,
-        phone: updatedUser.profile.phone,
-        bio: updatedUser.profile.bio,
-      };
+      console.log("Profile Updated Successfully:", updatedUser);
+      return updatedUser;
     } catch (error) {
       console.error("Error updating user profile:", error);
       throw error;
     }
-  }
-  
-}
-
+  }  
+}  
 
 module.exports = UserService;
