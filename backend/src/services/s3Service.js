@@ -1,5 +1,6 @@
 const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require('uuid');
+const BACKEND_URL = `${process.env.FINDFUL_URL}:${process.env.PORT}`;
 
 const s3 = new AWS.S3({
     region: process.env.AWS_REGION,
@@ -22,13 +23,7 @@ class S3Service {
             const signedUrl = await s3.getSignedUrlPromise("getObject", params);
             return signedUrl;
         } catch (error) {
-            // Return the default image URL
-            const defaultParams = {
-                Bucket: process.env.BUCKET_NAME,
-                Key: "image.webp",
-                Expires: expiresIn,
-            };
-            return s3.getSignedUrlPromise("getObject", defaultParams);
+            return `${BACKEND_URL}/static/image.webp`;
         }
     }
 
@@ -46,16 +41,10 @@ class S3Service {
     
             // Check if there are any objects in the folder
             if (data.Contents.length === 0) {
-                console.log(`No files found. Returning default image.`);
-                const defaultParams = {
-                    Bucket: process.env.BUCKET_NAME,
-                    Key: "image.webp",
-                    Expires: expiresIn,
-                };
-                const defaultSignedUrl = await s3.getSignedUrlPromise("getObject", defaultParams);
-                return multiple ? [defaultSignedUrl] : defaultSignedUrl;
+                console.log(`No files found. Returning default image from ${BACKEND_URL}`);
+                const defaultImageUrl = `${BACKEND_URL}/static/image.webp`;
+                return multiple ? [defaultImageUrl] : defaultImageUrl;
             }
-    
             const signedUrls = await Promise.all(
                 data.Contents.map((file) =>
                     s3.getSignedUrlPromise("getObject", {
@@ -92,7 +81,6 @@ class S3Service {
             throw error;
         }
     }
-
 }
 
 module.exports = new S3Service();

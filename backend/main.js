@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
+const path = require('path');
 const { Server } = require("socket.io");
 const morgan = require("morgan");
 const prisma = require("./src/utils/db");
@@ -37,6 +38,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(morgan("dev"));
 app.use(cookieParser());
+app.use('/static', express.static(path.join(__dirname, 'public')));
 
 const server = http.createServer(app);
 const io = initializeSocket(server, allowedOrigins);
