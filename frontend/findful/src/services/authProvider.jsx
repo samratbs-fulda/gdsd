@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
       setUser({
         id: tokenData["id"],
         role: tokenData["role"],
+        email: tokenData["email"],
       });
     } else {
       localStorage.removeItem("token");
