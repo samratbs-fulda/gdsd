@@ -14,9 +14,13 @@ import {
   getMessages,
   getUserChats,
 } from "../../services/chatService";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { getEnvironment } from "../../utils/fetchEnvironment";
 
-const socket = io("http://localhost:8000", {
+const environment = getEnvironment();
+const apiUrl = environment.VITE_BACKEND;
+
+const socket = io(`${apiUrl}`, {
   autoConnect: false,
 });
 
