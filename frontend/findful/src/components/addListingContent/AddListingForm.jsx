@@ -17,6 +17,7 @@ import {
   Upload,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import moment from 'moment';
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -51,6 +52,7 @@ const AddListingForm = ({
   //for image upload and preview
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+  const [availableFrom, setAvailableFrom] = useState(null); 
   const [fileList, setFileList] = useState([]);
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
@@ -70,6 +72,10 @@ const AddListingForm = ({
         };
       })
     );
+  };
+
+  const handleAvailableFromChange = (date) => {
+    setAvailableFrom(date);
   };
 
   const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
@@ -219,21 +225,25 @@ const AddListingForm = ({
               },
             ]}
           >
-            <DatePicker />
+            <DatePicker
+            placeholder="Select a date"
+            disabledDate={(current) => current && current.isBefore(moment(), 'day')}
+            onChange={handleAvailableFromChange}
+          />
           </Form.Item>
         </Col>
         <Col span={4}>
           <Form.Item
             label="Available till"
             name="availableTill"
-            rules={[
-              {
-                required: true,
-                message: "Please enter a date for the end of the availability.",
-              },
-            ]}
           >
-            <DatePicker />
+             <DatePicker
+            format="YYYY-MM-DD"
+            placeholder="Select a date"
+            disabledDate={(current) => 
+              current && current.isBefore(availableFrom, 'day')  // Disable dates before 'Available from'
+            }
+          />
           </Form.Item>
         </Col>
       </Row>
