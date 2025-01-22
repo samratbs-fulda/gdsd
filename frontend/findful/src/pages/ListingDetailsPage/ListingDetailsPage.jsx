@@ -61,10 +61,6 @@ const ListingDetailsPage = () => {
 
   const role = getRoleOfCurrentUser();
 
-  // TODO: Delete once longitude & latitude is calculated in backend
-  listing.longitude = 50.565187;
-  listing.latitude = 9.686583;
-
   return (
     <Layout
       className="page-content-layout"
