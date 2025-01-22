@@ -199,6 +199,9 @@ const Chat = () => {
                       }`}
                     >
                       {message.content}
+                      {message.senderId !== user.id ? (
+                        <div className="message-username">{`sent by ${currentChat?.recipientUsername}`}</div>
+                      ) : null}
                     </div>
                   </div>
                 ))
