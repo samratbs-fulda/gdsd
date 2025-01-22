@@ -169,7 +169,11 @@ const Chat = () => {
         <Layout>
           <Content className="chat-content">
             <div className="chat-title">
-              <h3 style={{ margin: 0 }}>{currentChat?.recipientUsername}</h3>
+              <h3 style={{ margin: 0 }}>
+                {user.role === "LANDLORD"
+                  ? currentChat?.recipientUsername
+                  : currentChat?.listing.title}
+              </h3>
               <div>
                 <p>{connected ? "Connected" : "Disconnected"}</p>
                 <p>{user ? `Logged in: ${username}` : "Not logged in"}</p>

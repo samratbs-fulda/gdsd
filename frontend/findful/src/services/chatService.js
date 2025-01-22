@@ -14,11 +14,11 @@ export const getUserChats = async (userId) => {
   }
 };
 
-export const createUserChats = async (studentId, landlordId) => {
+export const createUserChats = async (listingId, studentIds) => {
   try {
     const response = await axios.post(`${apiUrl}/api/chats`, {
-      user1Id: studentId,
-      user2Id: landlordId,
+      listingId,
+      studentIds,
     });
     console.log("response", response.data);
     return response.data;

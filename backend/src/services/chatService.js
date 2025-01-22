@@ -1,56 +1,100 @@
 const prisma = require("../utils/db");
 
 class ChatService {
-  async createChat(user1Id, user2Id) {
-    try {
-      const chat = await prisma.chat.create({
-        data: {
-          user1Id: user1Id,
-          user2Id: user2Id,
+  async createChat(listingId, studentIds) {
+    return await prisma.$transaction(async (prisma) => {
+      // Get the listing with the landlordId
+      const listing = await prisma.listing.findUnique({
+        where: {
+          id: listingId,
+        },
+        select: {
+          landlordId: true,
         },
       });
-      return chat;
+
+      if (!listing) {
+        throw new Error("Listing not found");
+      }
+
+      //create the chat
+      const newChat = await prisma.chat.create({
+        data: {
+          listingId,
+        },
+      });
+
+      // add landlord as participant
+      await prisma.chatParticipant.create({
+        data: {
+          chatId: newChat.id,
+          userId: listing.landlordId,
+        },
+      });
+
+      // Add all student participants
+      await prisma.chatParticipant.createMany({
+        data: studentIds.map((studentId) => ({
+          chatId: newChat.id,
+          userId: studentId,
+        })),
+      });
+
+      return newChat;
+    });
+  }
+
+  async addChatParticipant(chatId, userId) {
+    try {
+      const chatParticipant = await prisma.chatParticipant.create({
+        data: {
+          chatId,
+          userId,
+        },
+      });
+      return chatParticipant;
     } catch (error) {
-      throw Error("Failed to create chat.", error);
+      throw Error("Failed to add chat participant.", error);
     }
   }
 
   async findUserChats(userId) {
-    try {
-      const chats = await prisma.chat.findMany({
-        where: {
-          OR: [
-            {
-              user1Id: userId,
-            },
-            {
-              user2Id: userId,
-            },
-          ],
+    const chats = await prisma.chat.findMany({
+      where: {
+        ChatParticipant: {
+          some: {
+            userId: userId,
+          },
         },
-        include: {
-          user1: true, // Include user1 details
-          user2: true, // Include user2 details
+      },
+      include: {
+        listing: true,
+        ChatParticipant: {
+          include: {
+            user: true,
+          },
         },
-      });
+      },
+    });
 
-      // Transform chats to include recipient info
-      const transformedChats = chats.map((chat) => {
-        const recipient = chat.user1Id === userId ? chat.user2 : chat.user1;
+    // Transform chats to include recipient info
+    const transformedChats = chats.map((chat) => {
+      // Find the other participant (not the current user)
+      const otherParticipant = chat.ChatParticipant.find(
+        (participant) => participant.userId !== userId
+      );
 
-        return {
-          id: chat.id,
-          user1Id: chat.user1Id,
-          user2Id: chat.user2Id,
-          createdAt: chat.createdAt,
-          recipientId: recipient.id,
-          recipientUsername: recipient.username,
-        };
-      });
-      return transformedChats;
-    } catch (error) {
-      throw Error("Failed to get userChat.", error);
-    }
+      return {
+        id: chat.id,
+        listingId: chat.listingId,
+        createdAt: chat.createdAt,
+        recipientId: otherParticipant?.userId,
+        recipientUsername: otherParticipant?.user.username,
+        listing: chat.listing,
+      };
+    });
+
+    return transformedChats;
   }
 
   async findChatById(chatId) {
