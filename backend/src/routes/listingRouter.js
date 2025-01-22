@@ -59,7 +59,10 @@ router.get("/review/landlord", async (req, res) => {
   const { landlordId, status } = req.query;
   try {
     const landId = parseInt(landlordId);
-    const listings = await listingService.getListingsByLandlordId(landId, status);
+    const listings = await listingService.getListingsByLandlordId(
+      landId,
+      status
+    );
     res.status(200).json({ listings });
   } catch (error) {
     res.status(500).json({
@@ -105,10 +108,11 @@ router.get("/search", async (req, res) => {
     "smokingAllowed",
     "dishWasherAvailable",
     "washingMachineAvailable",
-    "tvCableIncluded"
+    "tvCableIncluded",
   ];
 
   const filters = {};
+  4;
 
   if (amenities) {
     filters.amenities = {};
@@ -118,22 +122,24 @@ router.get("/search", async (req, res) => {
       }
     });
   }
-  if (postal_code){
+  if (postal_code) {
     searchText = postal_code;
-  }
-  else{
+  } else {
     searchText = "";
   }
 
-  if (type && type != 'All') filters.type = type;
+  if (type && type != "All") filters.type = type;
   if (min_price) filters.warmRent = { gte: parseFloat(min_price) };
-  if (max_price) filters.warmRent = { ...filters.warmRent, lte: parseFloat(max_price) };
+  if (max_price)
+    filters.warmRent = { ...filters.warmRent, lte: parseFloat(max_price) };
   if (size) filters.size = { gte: parseInt(size[0]), lte: parseInt(size[1]) };
-  if (rooms) filters.totalRooms = { gte: parseInt(rooms[0]), lte: parseInt(rooms[1]) };
+  if (rooms)
+    filters.totalRooms = { gte: parseInt(rooms[0]), lte: parseInt(rooms[1]) };
   if (max_distance) filters.distanceFromUni = { lt: parseFloat(max_distance) };
   console.log(filters);
   try {
-    const listings = await listingService.getFilteredListings(searchText,
+    const listings = await listingService.getFilteredListings(
+      searchText,
       filters
     );
     res.status(200).json({ listings });
@@ -153,8 +159,9 @@ router.post("/add", async (req, res) => {
       // Partial success: database succeeded but S3 failed.
       return res.status(207).json({
         status: "Partial Success",
-        message: "Listing created successfully, but some images failed to upload.",
-        data: result.data
+        message:
+          "Listing created successfully, but some images failed to upload.",
+        data: result.data,
       });
     }
     // Full success: database and S3 both succeeded.
@@ -188,7 +195,10 @@ router.get("/search/:landlordId", async (req, res) => {
 router.patch("/status", async (req, res) => {
   const { listingId, status } = req.body;
   try {
-    const updatedListing = await listingService.updateListingStatus(listingId, status);
+    const updatedListing = await listingService.updateListingStatus(
+      listingId,
+      status
+    );
     res.status(200).json({ updatedListing });
   } catch (error) {
     res.status(500).json({
