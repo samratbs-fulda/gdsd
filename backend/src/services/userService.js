@@ -36,7 +36,7 @@ class UserService {
       const user = await UserRepository.findUniqueBy("username", username);
       return user;
     }catch(error){
-      throw Error("Error fetching user:", error);
+      throw Error(error.message);
     }
   }
 
