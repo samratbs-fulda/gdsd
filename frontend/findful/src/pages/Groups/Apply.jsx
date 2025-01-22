@@ -6,6 +6,7 @@ import { useAuth } from "../../services/authContext"
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { getListingById } from '../../services/listingService';
+import GroupModal from '../../components/groupModal/groupModal';
 
 const Apply = () => {
   const navigate = useNavigate();
@@ -57,9 +58,16 @@ const Apply = () => {
   const [applyType, setApplyType] = useState('group');
   const [selectedGroup, setSelectedGroup] = useState(null);
 
-  const createNewGroup = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+  const closeModal = () => {
+    setIsModalVisible(false);
     message.success('Group created successfully!');
-  }
+    // navigate to chat or group page
+  };
+
   const handleApply = () => {
     if (applyType === 'individual') {
       sendMessage(listing?.landlordId);
@@ -80,6 +88,7 @@ const Apply = () => {
   ];
 
   return (
+    <>
     <Card style={{ maxWidth: 600, margin: '50px auto', padding: '20px' }}>
       <Form layout="vertical">
       <Typography.Title level={4} style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '20px' }}>
@@ -112,7 +121,8 @@ const Apply = () => {
                   </Select.Option>
                 ))}
               </Select>
-              <Button icon={<PlusOutlined />} onClick={createNewGroup}>Create Group</Button>
+              <Button icon={<PlusOutlined />} onClick={showModal}>Create Group</Button>
+              <GroupModal isVisible={isModalVisible} onClose={closeModal} />
             </Space>
           </Form.Item>
         )}
@@ -123,6 +133,7 @@ const Apply = () => {
         </Form.Item>
       </Form>
     </Card>
+    </>
   );
 };
 
