@@ -1,12 +1,11 @@
 const prisma = require("../utils/db");
 
 class ChatService {
-  async createChat(user1Id, user2Id) {
+  async createChat(listingId) {
     try {
       const chat = await prisma.chat.create({
         data: {
-          user1Id: user1Id,
-          user2Id: user2Id,
+          listingId,
         },
       });
       return chat;
@@ -15,29 +14,49 @@ class ChatService {
     }
   }
 
+  async addChatParticipant(chatId, userId) {
+    try {
+      const chatParticipant = await prisma.chatParticipant.create({
+        data: {
+          chatId,
+          userId,
+        },
+      });
+      return chatParticipant;
+    } catch (error) {
+      throw Error("Failed to add chat participant.", error);
+    }
+  }
+
   async findUserChats(userId) {
     try {
-      const chats = await prisma.chat.findMany({
+      const chats = await prisma.chatParticipant.findMany({
         where: {
-          OR: [
-            {
-              user1Id: userId,
-            },
-            {
-              user2Id: userId,
-            },
-          ],
+          userId,
         },
         include: {
-          user1: true, // Include user1 details
-          user2: true, // Include user2 details
+          chat: {
+            include: {
+              ChatParticipant: {
+                include: {
+                  user: true, // Include details of all participants
+                },
+              },
+            },
+          },
         },
       });
 
-      // Transform chats to include recipient info
-      const transformedChats = chats.map((chat) => {
-        const recipient = chat.user1Id === userId ? chat.user2 : chat.user1;
+      // return chats;
 
+      // Transform chats to include recipient info
+      const transformedChats = chats.map((chatParticipant) => {
+        const chat = chatParticipant.chat;
+
+        const participants = chat.ChatParticipant.map((p) => ({
+          id: p.user.id,
+          username: p.user.username,
+        }));
         return {
           id: chat.id,
           user1Id: chat.user1Id,
