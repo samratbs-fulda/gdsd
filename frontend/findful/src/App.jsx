@@ -18,6 +18,7 @@ import { AuthContext } from "./services/authContext";
 import Paragraph from "antd/es/typography/Paragraph";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 import EditProfilePage from './pages/profile/EditProfilePage';
+import Apply from "./pages/Groups/Apply";
 
 
 const App = () => {
@@ -90,6 +91,16 @@ const App = () => {
                 element={
                   <ProtectedRoute requiredRole="LANDLORD" user={user}>
                     <AddListing />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Protected routes to student */}
+              <Route
+                path="/listing/apply/:id"
+                element={
+                  <ProtectedRoute requiredRole="STUDENT" user={user}>
+                    <Apply />
                   </ProtectedRoute>
                 }
               />
