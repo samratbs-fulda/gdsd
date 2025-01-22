@@ -14,7 +14,7 @@ import {
   getMessages,
   getUserChats,
 } from "../../services/chatService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { getEnvironment } from "../../utils/fetchEnvironment";
 
 const environment = getEnvironment();
@@ -27,6 +27,7 @@ const socket = io(`${apiUrl}`, {
 const Chat = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // socket connection
   const [connected, setConnected] = useState(false);
@@ -52,6 +53,17 @@ const Chat = () => {
 
   const username = userQuery.data?.username;
   const chats = chatQuery.data;
+
+  console.log("get the location state", location.state);
+
+  useEffect(() => {
+    if (location.state?.chat && chatQuery.data) {
+      const currentChat = chatQuery.data.find(
+        (c) => c.id === location.state.chat.id
+      );
+      setCurrentChat(currentChat);
+    }
+  }, [location.state, chatQuery.data]);
 
   const updateCurrentChat = (chat) => {
     setCurrentChat(chat);
@@ -170,7 +182,7 @@ const Chat = () => {
           <Content className="chat-content">
             <div className="chat-title">
               <h3 style={{ margin: 0 }}>
-                {user.role === "LANDLORD"
+                {user?.role === "LANDLORD"
                   ? currentChat?.recipientUsername
                   : currentChat?.listing.title}
               </h3>

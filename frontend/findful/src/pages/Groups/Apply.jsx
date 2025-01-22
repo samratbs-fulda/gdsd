@@ -37,9 +37,7 @@ const Apply = () => {
       return createUserChats(listingId, [user.id]);
     },
     onSuccess: (response) => {
-      // You might want to show a success message or redirect to the chat page
-      console.log("Chat created successfully", response);
-      navigate(`/chat/${response.id}`);
+      navigate(`/chat/${response.id}`, { state: { chat: response } });
     },
     onError: (error) => {
       console.error("Error creating chat:", error);
