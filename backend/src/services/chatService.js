@@ -11,7 +11,7 @@ class ChatService {
       });
       return chat;
     } catch (error) {
-      console.error("Error sending message:", error);
+      throw Error("Failed to create chat.", error);
     }
   }
 
@@ -49,7 +49,7 @@ class ChatService {
       });
       return transformedChats;
     } catch (error) {
-      console.error("Error sending message:", error);
+      throw Error("Failed to get userChat.", error);
     }
   }
 
@@ -86,7 +86,7 @@ class ChatService {
       console.log("chat", chat);
       return chat;
     } catch (error) {
-      console.error("Error sending message:", error);
+      throw Error("Failed to find chat by id.", error);
     }
   }
 }
