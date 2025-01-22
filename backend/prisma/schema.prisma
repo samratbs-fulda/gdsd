@@ -38,7 +38,6 @@ model Listing {
   distanceFromUni Float
   amenities       Amenities?
   documents       Documents?
-  Chat Chat[]
 }
 
 model Amenities {
@@ -83,41 +82,24 @@ model User {
   profile   Profile?
 
 
-  // ChatUser1 Chat[] @relation("user1Chats")
+  ChatUser1 Chat[] @relation("user1Chats")
 
-  // ChatUser2 Chat[] @relation("user2Chats")
+  ChatUser2 Chat[] @relation("user2Chats")
 
   Messages Messages[]
-
-  ChatParticipant ChatParticipant[]
 }
+
+
 
 model Chat {
-  id Int @id @default(autoincrement())
-  listingId Int @unique
-  listing Listing @relation(fields: [listingId], references: [id])
-  createdAt DateTime @default(now())
-  ChatParticipant ChatParticipant[]
+  id         Int      @id @default(autoincrement())
+  user1      User     @relation("user1Chats", fields: [user1Id], references: [id])
+  user1Id    Int
+  user2      User     @relation("user2Chats", fields: [user2Id], references: [id])
+  user2Id    Int
+  createdAt  DateTime @default(now())
 
   Messages Messages[]
-}
-
-model ChatParticipant {
-  id Int @id @default(autoincrement())
-  chatId Int
-  chat Chat @relation(fields: [chatId], references: [id])
-  userId Int
-  user User @relation(fields: [userId], references: [id])
-}
-
-model Messages {
-  id         Int      @id @default(autoincrement())
-  chat       Chat     @relation(fields: [chatId], references: [id])
-  chatId     Int
-  sender     User     @relation(fields: [senderId], references: [id])
-  senderId   Int
-  content    String
-  createdAt  DateTime @default(now())
 }
 
 model Profile {
@@ -131,7 +113,15 @@ model Profile {
   userId        Int     @unique
 }
 
-
+model Messages {
+  id         Int      @id @default(autoincrement())
+  chat       Chat     @relation(fields: [chatId], references: [id])
+  chatId     Int
+  sender     User     @relation(fields: [senderId], references: [id])
+  senderId   Int
+  content    String
+  createdAt  DateTime @default(now())
+}
 
 enum ApartmentType {
   SINGLE
