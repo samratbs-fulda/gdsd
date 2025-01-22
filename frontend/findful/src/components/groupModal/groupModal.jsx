@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { Button, Form, Modal, Select } from 'antd';
 import PropTypes from 'prop-types';
+import { createGroup, addGroupMember } from '../../services/groups/groups';
 
-const GroupModal = ({ isVisible, onCancel, onClose }) => {
+const GroupModal = ({ isVisible, onCancel, onClose, userId }) => {
     const [loading, setLoading] = React.useState(true);
     const [usernames, setUsernames] = React.useState([]);
 
@@ -22,10 +23,15 @@ const GroupModal = ({ isVisible, onCancel, onClose }) => {
         }
     }, [isVisible]);
 
-    const createGroup = async () => {
+    const createNewGroup = async () => {
         setLoading(true);
         // Create group service call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await createGroup(userId);
+        // The get usernames should include the users id to call the add member endpoint
+        // const selectedUsernames = form.getFieldValue('groupMembers');
+        // for (const username of selectedUsernames) {
+        //     await addGroupMember(username);
+        // }
         setLoading(false);
         onClose();
     };
@@ -35,7 +41,7 @@ const GroupModal = ({ isVisible, onCancel, onClose }) => {
             <Modal
                 title={<p>Create a new group</p>}
                 footer={
-                    <Button type="primary" onClick={createGroup}>
+                    <Button type="primary" onClick={createNewGroup}>
                         Create
                     </Button>
                 }
@@ -45,7 +51,7 @@ const GroupModal = ({ isVisible, onCancel, onClose }) => {
             >
                 <Form
                     layout="vertical"
-                    onFinish={createGroup}>
+                    onFinish={createNewGroup}>
                     <Form.Item label="Group Members">
                         <Select
                             mode="multiple"
