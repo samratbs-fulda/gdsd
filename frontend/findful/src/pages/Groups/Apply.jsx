@@ -62,6 +62,9 @@ const Apply = () => {
   const showModal = () => {
     setIsModalVisible(true);
   };
+  const hideModal = () => {
+    setIsModalVisible(false);
+  };
   const closeModal = () => {
     setIsModalVisible(false);
     message.success('Group created successfully!');
@@ -122,7 +125,7 @@ const Apply = () => {
                 ))}
               </Select>
               <Button icon={<PlusOutlined />} onClick={showModal}>Create Group</Button>
-              <GroupModal isVisible={isModalVisible} onClose={closeModal} />
+              <GroupModal isVisible={isModalVisible} onCancel={hideModal} onClose={closeModal} />
             </Space>
           </Form.Item>
         )}

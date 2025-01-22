@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Button, Form, Modal, Select } from 'antd';
 import PropTypes from 'prop-types';
 
-const GroupModal = ({ isVisible, onClose }) => {
+const GroupModal = ({ isVisible, onCancel, onClose }) => {
     const [loading, setLoading] = React.useState(true);
     const [usernames, setUsernames] = React.useState([]);
 
@@ -41,7 +41,7 @@ const GroupModal = ({ isVisible, onClose }) => {
                 }
                 loading={loading}
                 open={isVisible}
-                onCancel={onClose}
+                onCancel={onCancel}
             >
                 <Form
                     layout="vertical"
@@ -61,6 +61,7 @@ const GroupModal = ({ isVisible, onClose }) => {
 
 GroupModal.propTypes = {
     isVisible: PropTypes.bool.isRequired,
+    onCancel: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
 };
 
