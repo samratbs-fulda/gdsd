@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
-import { Button, Radio, Card, Space, Select, Form, message, Typography } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import React, { useState } from "react";
+import {
+  Button,
+  Radio,
+  Card,
+  Space,
+  Select,
+  Form,
+  message,
+  Typography,
+} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { createUserChats } from "../../services/chatService";
-import { useAuth } from "../../services/authContext"
+import { useAuth } from "../../services/authContext";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { getListingById } from '../../services/listingService';
@@ -24,25 +33,20 @@ const Apply = () => {
   console.log(listing);
 
   const createChatMutation = useMutation({
-    mutationFn: (landlordId) => {
-      console.log(
-        "Mutation: Creating chat between",
-        landlordId
-      );
-      return createUserChats(user.id, landlordId);
+    mutationFn: (listingId) => {
+      console.log("Mutation: Creating chat between", listingId);
+      return createUserChats(listingId, [user.id]);
     },
     onSuccess: (response) => {
-      // You might want to show a success message or redirect to the chat page
-      console.log("Chat created successfully", response);
-      navigate(`/chat/${response.id}`);
+      navigate(`/chat/${response.id}`, { state: { chat: response } });
     },
     onError: (error) => {
       console.error("Error creating chat:", error);
     },
   });
 
-  const sendMessage = (landlordId) => {
-    if (!user || !landlordId) {
+  const sendMessage = (listingId) => {
+    if (!user || !listingId) {
       console.error("Missing user or landlord information");
       return;
     }
@@ -50,14 +54,18 @@ const Apply = () => {
       "SendMessage: Creating chat between",
       user.id,
       "and",
-      landlordId
+      listingId
     );
-    createChatMutation.mutate(landlordId);
+    createChatMutation.mutate(listingId);
   };
 
-  const [applyType, setApplyType] = useState('group');
+  const [applyType, setApplyType] = useState("group");
   const [selectedGroup, setSelectedGroup] = useState(null);
 
+
+  const createNewGroup = () => {
+    message.success("Group created successfully!");
+  };
   const [isModalVisible, setIsModalVisible] = useState(false);
   const showModal = () => {
     setIsModalVisible(true);
@@ -72,31 +80,38 @@ const Apply = () => {
   };
 
   const handleApply = () => {
-    if (applyType === 'individual') {
-      sendMessage(listing?.landlordId);
+    if (applyType === "individual") {
+      sendMessage(listing?.id);
     }
-    if (applyType === 'group' && !selectedGroup) {
-      message.error('Please select a group to apply as.');
+    if (applyType === "group" && !selectedGroup) {
+      message.error("Please select a group to apply as.");
       return;
     }
     //some call here to create a group
-    message.success('Application submitted successfully!');
+    message.success("Application submitted successfully!");
   };
 
   //needs to be polluted by values from backend if available.
   const groups = [
-    { id: 1, name: 'Example Group A' },
-    { id: 2, name: 'Example Group B' },
-    { id: 3, name: 'Example Group C' },
+    { id: 1, name: "Example Group A" },
+    { id: 2, name: "Example Group B" },
+    { id: 3, name: "Example Group C" },
   ];
 
   return (
     <>
     <Card style={{ maxWidth: 600, margin: '50px auto', padding: '20px' }}>
       <Form layout="vertical">
-      <Typography.Title level={4} style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '20px' }}>
-        Apply for {listing.title}
-      </Typography.Title>
+        <Typography.Title
+          level={4}
+          style={{
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: "20px",
+          }}
+        >
+          Apply for {listing.title}
+        </Typography.Title>
 
         <Form.Item label="Apply Type">
           <Radio.Group
@@ -110,7 +125,7 @@ const Apply = () => {
           </Radio.Group>
         </Form.Item>
 
-        {applyType === 'group' && (
+        {applyType === "group" && (
           <Form.Item label="Select a group">
             <Space>
               <Select

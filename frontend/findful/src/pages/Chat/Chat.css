@@ -58,6 +58,14 @@
   justify-content: flex-end;
 }
 
+.message-username {
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 4px;
+  margin-top: 10px;
+}
+
 .message-bubble-left,
 .message-bubble-right {
   max-width: 70%;
@@ -67,7 +75,7 @@
 }
 
 .message-bubble-left {
-  background-color: #007bff;
+  background-color: #a6d4ff;
 }
 
 .message-bubble-right {
