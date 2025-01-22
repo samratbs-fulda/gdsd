@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Form, Input, Button, message, Typography, Layout, Select, Spin } from "antd";
 import { getUserProfile, updateUserProfile } from "../../services/profile/profileService";
 import { AuthContext } from "../../services/authContext"; 
+import { useNavigate } from "react-router-dom";
 import countryList from "../../utils/countryList";
 import countryCodes from "../../utils/countryCodes";
 
@@ -12,6 +13,7 @@ const { Option } = Select;
 const EditProfilePage = () => {
   const { user } = useContext(AuthContext);
   const { id } = useParams();
+  const navigate = useNavigate();
   const userId = id || user?.id;
 
   const [loading, setLoading] = useState(false);
@@ -51,6 +53,18 @@ const EditProfilePage = () => {
     setPhoneError(value.length < 7 ? "Phone number must have at least seven digits." : "");
   };
 
+  const handleAge = (_, value) => {
+    return new Promise((resolve, reject) => {
+      if (value === undefined || value === null || value === "") {
+        reject("Enter age");
+      } else if (value < 0 || value > 120) {
+        reject("Age must be between 0 and 120."); 
+      } else {
+        resolve(); 
+      }
+    });
+  };
+
   const handleFormSubmit = async (values) => {
     if (!values.phone || values.phone.length < 7) {
       setPhoneError("Phone number must have at least seven digits.");
@@ -65,6 +79,7 @@ const EditProfilePage = () => {
       await updateUserProfile(userId, updatedValues);
       message.success("Profile updated successfully!");
       fetchUserProfile(userId);
+      navigate("/");
     } catch (error) {
       message.error("Failed to update profile.");
     } finally {
@@ -96,8 +111,8 @@ const EditProfilePage = () => {
             <Input />
           </Form.Item>
 
-          <Form.Item label="Age" name="age">
-            <Input type="number" />
+          <Form.Item label="Age" name="age" rules={[{ validator: handleAge }]}>
+            <Input type="number" min={0} max={120} />
           </Form.Item>
 
           <Form.Item label="Gender" name="gender">
