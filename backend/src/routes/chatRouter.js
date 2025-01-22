@@ -8,14 +8,31 @@ const chatService = new ChatService();
 //createchat
 router.post("/", async (req, res) => {
   try {
-    const { user1Id, user2Id } = req.body;
+    const { listingId, studentIds } = req.body;
 
-    const chat = await chatService.createChat(user1Id, user2Id);
+    const chat = await chatService.createChat(listingId, studentIds);
+
     res.json(chat);
+  } catch (error) {
+    console.log(error);
+    return;
+  }
+});
+
+//addchatparticipant
+router.post("/participant", async (req, res) => {
+  try {
+    const { chatId, userId } = req.body;
+
+    const chatParticipant = await chatService.addChatParticipant(
+      chatId,
+      userId
+    );
+    res.json(chatParticipant);
   } catch (error) {
     return res.status(500).json({
       status: "error",
-      message: "Failed to create the listing.",
+      message: "Failed to add chat participant.",
     });
   }
 });
