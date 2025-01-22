@@ -1,6 +1,8 @@
 const prisma = require("../utils/db");
 const { getEnumValue, ApartmentTypeEnum, FurnishedEnum, ListingStatusEnum } = require("../utils/enumUtils");
 
+const zeroDate = new Date(0);
+
 class ListingRepository {
 
   static async createAmenities(data, listingId, prisma) {
@@ -51,7 +53,7 @@ class ListingRepository {
           description: listingData.description,
           type: apartmentType,
           availableFrom: listingData.availableFrom,
-          availableTill: listingData.availableTill,
+          availableTill: listingData.availableTill || zeroDate,
           coldRent: listingData.coldRent,
           deposit: listingData.deposit,
           heatingCost: listingData.heatingCost,

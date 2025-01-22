@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
+const path = require('path');
 const { Server } = require("socket.io");
 const morgan = require("morgan");
 const prisma = require("./src/utils/db");
@@ -37,12 +38,13 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(morgan("dev"));
 app.use(cookieParser());
+app.use('/static', express.static(path.join(__dirname, 'public')));
 
 const server = http.createServer(app);
 const io = initializeSocket(server, allowedOrigins);
 
-app.use(bodyParser.json({ limit: "10mb" }));
-app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
+app.use(bodyParser.json({ limit: "100mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
 
 // helps in validating a successful database connection
 async function startServer() {
