@@ -87,6 +87,10 @@ model User {
   ChatUser2 Chat[] @relation("user2Chats")
 
   Messages Messages[]
+
+  GroupMemberships GroupMember[] @relation("groupMembership")
+
+  CreatorOfGroups Group[] @relation("creatorOfGroup")
 }
 
 
@@ -123,6 +127,26 @@ model Messages {
   createdAt  DateTime @default(now())
 }
 
+model Group {
+  id            Int       @id @default(autoincrement())
+  creator       User      @relation("creatorOfGroup", fields: [creatorId], references: [id])
+  creatorId     Int       
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now())
+
+  members GroupMember[]
+}
+
+model GroupMember {
+  group    Group  @relation(fields: [groupId], references: [id])
+  groupId  Int
+  student         User          @relation("groupMembership", fields: [studentId], references: [id])
+  studentId       Int
+  status          GroupMemberStatus  @default(PENDING)
+
+  @@id([groupId, studentId])
+}
+
 enum ApartmentType {
   SINGLE
   SHARED
@@ -152,4 +176,9 @@ enum Role {
   STUDENT
   LANDLORD
   MODERATOR
+}
+
+enum GroupMemberStatus {
+  PENDING
+  ACCEPTED
 }
