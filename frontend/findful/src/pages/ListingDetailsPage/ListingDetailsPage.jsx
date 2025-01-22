@@ -16,7 +16,7 @@ import {
 } from "antd";
 import { getListingById } from "../../services/listingService";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Title from "antd/es/typography/Title";
 import Text from "antd/es/typography/Text";
 import Paragraph from "antd/es/typography/Paragraph";
@@ -35,7 +35,6 @@ import GeneralInfoCard from "../../components/listingDetails/GeneralInfoCard";
 // import { jwtDecode } from "jwt-decode";
 import { getRoleOfCurrentUser } from "../../services/authRole";
 import { updateListingStatus } from "../../services/reviewContent/reviewListingService";
-import { createUserChats } from "../../services/chatService";
 import { useAuth } from "../../services/authContext";
 
 const { Content } = Layout;
@@ -48,7 +47,6 @@ const ListingDetailsPage = () => {
 
   const { user } = useAuth();
   const userId = !user ? -1 : user.id;
-
 
   let { id } = useParams();
 
@@ -66,38 +64,6 @@ const ListingDetailsPage = () => {
   // TODO: Delete once longitude & latitude is calculated in backend
   listing.longitude = 50.565187;
   listing.latitude = 9.686583;
-
-  const createChatMutation = useMutation({
-    mutationFn: (landlordId) => {
-      console.log(
-        "Mutation: Creating chat between",
-        landlordId
-      );
-      return createUserChats(user.id, landlordId);
-    },
-    onSuccess: (response) => {
-      // You might want to show a success message or redirect to the chat page
-      console.log("Chat created successfully", response);
-      navigate(`/chat/${response.id}`);
-    },
-    onError: (error) => {
-      console.error("Error creating chat:", error);
-    },
-  });
-
-  const sendMessage = (landlordId) => {
-    if (!user || !landlordId) {
-      console.error("Missing user or landlord information");
-      return;
-    }
-    console.log(
-      "SendMessage: Creating chat between",
-      user.id,
-      "and",
-      landlordId
-    );
-    createChatMutation.mutate(landlordId);
-  };
 
   return (
     <Layout
@@ -296,7 +262,7 @@ const ListingDetailsPage = () => {
                       <Button
                         color="primary"
                         style={{ width: "100%" }}
-                        onClick={() => sendMessage(listing?.landlordId)}
+                        onClick={() => navigate("/listing/apply/" + listing?.id)}
                       >
                         Apply
                       </Button>
