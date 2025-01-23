@@ -90,6 +90,10 @@ model User {
   Messages Messages[]
 
   ChatParticipant ChatParticipant[]
+
+  GroupMemberships GroupMember[] @relation("groupMembership")
+
+  CreatorOfGroups Group[] @relation("creatorOfGroup")
 }
 
 model Chat {
@@ -100,10 +104,6 @@ model Chat {
   ChatParticipant ChatParticipant[]
 
   Messages Messages[]
-
-  GroupMemberships GroupMember[] @relation("groupMembership")
-
-  CreatorOfGroups Group[] @relation("creatorOfGroup")
 }
 
 model ChatParticipant {

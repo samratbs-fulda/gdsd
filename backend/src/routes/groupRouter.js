@@ -8,15 +8,15 @@ const groupService = new GroupService();
 
 // Group endpoints
 // Get all groups of a user
-router.get("/", async (req, res) => {
-  const { userId } = req.body;
+router.get("/:userId", async (req, res) => {
+  const { userId } = req.params;
   const groups = await groupService.getGroupsByUserId(userId);
   res.json({ groups });
 });
 
 // Get all groups members
-router.get("/members", async (req, res) => {
-  const { groupId } = req.body;
+router.get("/members/:groupId", async (req, res) => {
+  const { groupId } = req.params;
   const groupMembers = await groupService.getMembersByGroupId(groupId);
   res.json({ groupMembers });
 });
