@@ -10,8 +10,12 @@ const groupService = new GroupService();
 // Get all groups of a user
 router.get("/:userId", async (req, res) => {
   const { userId } = req.params;
-  const groups = await groupService.getGroupsByUserId(userId);
-  res.json({ groups });
+  try {
+    const groups = await groupService.getGroupsByUserId(userId);
+    res.status(200).json({ groups });
+  } catch (error) {
+    res.status(200).json({ groups: [] });    
+  }
 });
 
 // Get all groups members

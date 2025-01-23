@@ -16,11 +16,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { getListingById } from '../../services/listingService';
 import GroupModal from '../../components/groupModal/groupModal';
-
+import { getGroups } from '../../services/groups/groupService';
 
 const Apply = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const userId = user.id;
   let { id } = useParams();
 
   const listingsQuery = useQuery({
@@ -31,7 +32,15 @@ const Apply = () => {
   });
 
   const listing = listingsQuery.data || [];
-  console.log(listing);
+
+  const groupsQuery = useQuery({
+    queryKey: ["groups", userId],
+    queryFn: () => {
+      return getGroups(userId);
+    },
+  });
+
+  const groups = groupsQuery.data || [];
 
   const createChatMutation = useMutation({
     mutationFn: (listingId) => {
@@ -63,10 +72,6 @@ const Apply = () => {
   const [applyType, setApplyType] = useState("group");
   const [selectedGroup, setSelectedGroup] = useState(null);
 
-
-  const createNewGroup = () => {
-    message.success("Group created successfully!");
-  };
   const [isModalVisible, setIsModalVisible] = useState(false);
   const showModal = () => {
     setIsModalVisible(true);
@@ -76,10 +81,10 @@ const Apply = () => {
   };
   const closeModal = () => {
     setIsModalVisible(false);
+    groupsQuery.refetch(); // Refetch the groups data
     message.success('Group created successfully!');
     // navigate to chat or group page
   };
-
 
   const handleApply = () => {
     if (applyType === "individual") {
@@ -92,13 +97,6 @@ const Apply = () => {
     //some call here to create a group
     message.success("Application submitted successfully!");
   };
-
-  //needs to be polluted by values from backend if available.
-  const groups = [
-    { id: 1, name: "Example Group A" },
-    { id: 2, name: "Example Group B" },
-    { id: 3, name: "Example Group C" },
-  ];
 
   return (
     <>
@@ -141,9 +139,8 @@ const Apply = () => {
                   </Select.Option>
                 ))}
               </Select>
-
               <Button icon={<PlusOutlined />} onClick={showModal}>Create Group</Button>
-              <GroupModal isVisible={isModalVisible} onCancel={hideModal} onClose={closeModal} />
+              <GroupModal isVisible={isModalVisible} onCancel={hideModal} onClose={closeModal} userId={userId} />
             </Space>
           </Form.Item>
         )}
