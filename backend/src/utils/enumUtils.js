@@ -31,6 +31,11 @@ const RoleEnum = {
   MODERATOR: "MODERATOR",
 };
 
+const GroupMemberStatusEnum = {
+  PENDING: "PENDING",
+  ACCEPTED: "ACCEPTED",
+};
+
 const isValidEnumValue = (enumObject, value) => {
   return Object.values(enumObject).includes(value);
 };
@@ -53,4 +58,5 @@ module.exports = {
   getEnumValue,
   RoleEnum,
   UserStatusEnum,
+  GroupMemberStatusEnum,
 };
