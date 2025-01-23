@@ -3,6 +3,7 @@ const listingRouter = require("./listingRouter");
 const userRouter = require("./userRouter");
 const chatRouter = require("./chatRouter");
 const messageRouter = require("./messageRouter");
+const groupRouter = require("./groupRouter");
 
 const router = express.Router();
 
@@ -16,6 +17,9 @@ router.use("/messages", messageRouter);
 
 // profile route
 router.use("/profile",userRouter);
+
+// group route
+router.use("/groups", groupRouter);
 
 //Add other routes here. Eg: userRouter
 router.get("/", (req, res) => {

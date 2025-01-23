@@ -4,9 +4,9 @@ const ListingRepository = require("../repo/listingRepository");
 const Calculations = require("../utils/calculationUtils");
 const S3Service = require("../services/s3Service");
 const { compressImageToThumbnail } = require('../utils/imageCompressor');
+const axios = require('axios');
 
 class ListingService {
-
   async getAllListings() {
     try {
       const listings = await prisma.listing.findMany();
@@ -172,6 +172,34 @@ class ListingService {
     try {
       const { images } = listingData;
       const warmRent = Calculations.calculateWarmRent(listingData);
+
+      // Fetch latitude and longitude of listing
+      const queryString = new URLSearchParams({
+        "country": "Germany", 
+        "street": listingData.street + " " + listingData.houseNumber, 
+        "postalcode": listingData.postalCode,
+        format: 'json'
+      }).toString();  
+
+      try {
+        const response = await axios.get(`https://nominatim.openstreetmap.org/search?${queryString}`);
+        const { lat, lon } = response.data[0];
+        listingData.latitude = parseFloat(lat);
+        listingData.longitude = parseFloat(lon);
+      } catch (error) {
+        console.error("Failed to fetch listing position:", error);
+        throw error;
+      }
+
+      // Fetch distance from uni
+      try {
+        const response = await axios.get(`https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${process.env.ORS_KEY}&start=9.687715,50.564695&end=${listingData.longitude},${listingData.latitude}`);
+        listingData.distanceFromUni = parseFloat((response.data.features[0].properties.segments[0].distance / 1000).toFixed(2));
+      } catch (error) {
+        console.error("Failed to fetch distance from uni:", error);
+        throw error;
+      }
+
       const newListing = await ListingRepository.createNewListing(listingData, warmRent);
       const listingId = newListing.id;
       const folderKey = `${process.env.NODE_ENV}/listings/${listingId}`;

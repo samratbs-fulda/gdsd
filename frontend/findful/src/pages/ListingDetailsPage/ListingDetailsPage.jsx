@@ -61,10 +61,6 @@ const ListingDetailsPage = () => {
 
   const role = getRoleOfCurrentUser();
 
-  // TODO: Delete once longitude & latitude is calculated in backend
-  listing.longitude = 50.565187;
-  listing.latitude = 9.686583;
-
   return (
     <Layout
       className="page-content-layout"
@@ -164,8 +160,8 @@ const ListingDetailsPage = () => {
                   {listing?.furnished === "FURNISHED"
                     ? "Furnished"
                     : listing?.furnished === "PARTIALLY"
-                    ? "Partially Furnished"
-                    : "Not Furnished"}
+                      ? "Partially Furnished"
+                      : "Not Furnished"}
                 </Paragraph>
               </GeneralInfoCard>
 
@@ -184,8 +180,8 @@ const ListingDetailsPage = () => {
                   {listing?.type === "SINGLE"
                     ? "Single Apartment"
                     : listing?.type === "SHARED"
-                    ? "Shared Apartment"
-                    : "Sublet"}
+                      ? "Shared Apartment"
+                      : "Sublet"}
                 </Paragraph>
               </GeneralInfoCard>
 
@@ -311,7 +307,7 @@ const ListingDetailsPage = () => {
                           </Button>
                         </Col>
                       </>
-                    ) : listing?.status == "APPROVED"   ? (
+                    ) : listing?.status == "APPROVED" ? (
                       <>
                         <Col lg={2} xs={4}>
                           <Button
@@ -393,17 +389,17 @@ const ListingDetailsPage = () => {
                     )
                   ) : (
                     listing?.landlordId !== userId ? (
-                    <Col lg={2} xs={4}>
-                      <Tooltip title="Only students can apply for listings.">
-                        <Button
-                          color="primary"
-                          disabled={true}
-                          style={{ width: "100%" }}
-                        >
-                          Apply
-                        </Button>
-                      </Tooltip>
-                    </Col>
+                      <Col lg={2} xs={4}>
+                        <Tooltip title="Only students can apply for listings.">
+                          <Button
+                            color="primary"
+                            disabled={true}
+                            style={{ width: "100%" }}
+                          >
+                            Apply
+                          </Button>
+                        </Tooltip>
+                      </Col>
                     ) : (
                       <>
                         <Col lg={2} xs={4}>
@@ -426,7 +422,9 @@ const ListingDetailsPage = () => {
             </Flex>
 
             {/* Map */}
-            <Map longitude={listing.longitude} latitude={listing.latitude} />
+            {listing?.longitude && listing?.latitude && (
+              <Map longitude={listing?.longitude} latitude={listing?.latitude} />
+            )}
           </div>
         </Typography>
       </Content>
