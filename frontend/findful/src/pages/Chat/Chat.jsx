@@ -29,14 +29,12 @@ const Chat = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // socket connection
   const [connected, setConnected] = useState(false);
-
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
-
   const [currentChat, setCurrentChat] = useState(null);
 
+  // Users and chats queries
   const userQuery = useQuery({
     queryKey: ["user"],
     enabled: !!user,
@@ -49,13 +47,10 @@ const Chat = () => {
     queryFn: () => getUserChats(user.id),
   });
 
-  console.log("user", userQuery.data);
-
   const username = userQuery.data?.username;
   const chats = chatQuery.data;
 
-  console.log("get the location state", location.state);
-
+  // Sync current chat from location state
   useEffect(() => {
     if (location.state?.chat && chatQuery.data) {
       const currentChat = chatQuery.data.find(
@@ -65,10 +60,21 @@ const Chat = () => {
     }
   }, [location.state, chatQuery.data]);
 
-  const updateCurrentChat = (chat) => {
-    setCurrentChat(chat);
-    navigate(`/chat/${chat.id}`, { replace: true });
-  };
+  //Messages Query
+  const messagesQuery = useQuery({
+    queryKey: ["messages", { id: currentChat?.id }],
+    enabled: !!currentChat,
+    queryFn: () => getMessages(currentChat.id),
+  });
+
+  const messagesData = messagesQuery.data;
+
+  // update messages on query completion
+  useEffect(() => {
+    if (messagesData) {
+      setMessages(messagesData);
+    }
+  }, [messagesData]);
 
   const connectSocket = () => {
     const token = localStorage.getItem("token");
@@ -106,36 +112,12 @@ const Chat = () => {
     };
   }, [currentChat]);
 
-  const sendMessage = async () => {
-    if (messageInput.trim()) {
-      // Check for non-empty message
-      try {
-        await messageMutation.mutateAsync();
-      } catch (error) {
-        console.error("Error sending message:", error);
-      }
-    }
+  // Update Current Chat
+  const updateCurrentChat = (chat) => {
+    setCurrentChat(chat);
+    navigate(`/chat/${chat.id}`, { replace: true });
   };
-
-  console.log("current chat", currentChat);
-
-  //get all messages in a current chat
-  const messagesQuery = useQuery({
-    queryKey: ["messages", { id: currentChat?.id }],
-    enabled: !!currentChat,
-    queryFn: () => getMessages(currentChat.id),
-  });
-
-  const messagesData = messagesQuery.data;
-  console.log("user messages", messagesData);
-
-  useEffect(() => {
-    if (messagesData) {
-      setMessages(messagesData);
-    }
-  }, [messagesData]);
-
-  // Mutation to create a new message
+  // Send Message Mutation
   const messageMutation = useMutation({
     mutationKey: ["message", { id: currentChat?.id }],
     mutationFn: () => createMessages(currentChat.id, user.id, messageInput),
@@ -153,13 +135,25 @@ const Chat = () => {
     },
   });
 
+  // Send message Handler
+  const sendMessage = async () => {
+    if (messageInput.trim()) {
+      // Check for non-empty message
+      try {
+        await messageMutation.mutateAsync();
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
+    }
+  };
+
   return (
     <div className="container">
       <Layout style={{ height: "100%" }}>
         <Sider className="chat-sider">
           <Menu
             mode="inline"
-            defaultSelectedKeys={["1"]}
+            selectedKeys={[currentChat ? currentChat.id.toString() : ""]}
             style={{
               height: "100%",
               borderRight: 0,
