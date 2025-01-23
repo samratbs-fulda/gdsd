@@ -26,12 +26,25 @@ export const addGroupMember = async (groupId, userId) => {
 
 export const getGroups = async (userId) => {
     try {
-        const response = await axios.get(`${apiUrl}/api/groups/`, {
+        const response = await axios.get(`${apiUrl}/api/groups/${userId}`, {
             params: { userId: userId }
         });
+        console.log("Groups:", response.data.groups);
         return response.data.groups;
     } catch (error) {
         console.error("Error fetching groups:", error);
+        throw error;
+    }
+}
+
+export const getGroupMembers = async (groupId) => {
+    try {
+        const response = await axios.get(`${apiUrl}/api/groups/members/${groupId}`, {
+            params: { groupId: groupId }
+        });
+        return response.data.groupMembers;
+    } catch (error) {
+        console.error("Error fetching members:", error);
         throw error;
     }
 }
