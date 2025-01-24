@@ -24,6 +24,7 @@ const FindFulHeader = () => {
     role === "STUDENT" ?
       [
         { key: "chat", label: <a href="/chat">Messages</a> },
+        { key: "mygroups", label: <a href="/mygroups">My Groups</a> },
         { key: "profile", label: <a href="/profile">Profile</a> },
         { key: "logout", label: "Logout", onClick: logout },
       ]

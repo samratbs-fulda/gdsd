@@ -19,6 +19,7 @@ import Paragraph from "antd/es/typography/Paragraph";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 import EditProfilePage from './pages/profile/EditProfilePage';
 import Apply from "./pages/Groups/Apply";
+import MyGroups from "./pages/Groups/MyGroups";
 
 
 const App = () => {
@@ -121,6 +122,7 @@ const App = () => {
               <Route path="/listing/:id" element={<ListingDetailsPage />} />
               <Route path="/profile/:id" element={<EditProfilePage />} />
               <Route path="/profile" element={<EditProfilePage />} />
+              <Route path="/mygroups" element={<MyGroups />} />
             </Routes>
           </Content>
 
