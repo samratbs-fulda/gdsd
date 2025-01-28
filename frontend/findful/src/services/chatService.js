@@ -28,6 +28,18 @@ export const createUserChats = async (listingId, studentIds) => {
   }
 };
 
+export const getChatParticipants = async (chatId) => {
+  try {
+    const response = await axios.get(
+      `${apiUrl}/api/chats/participants/${chatId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch chat participants:", error);
+    throw error;
+  }
+};
+
 export const getMessages = async (chatId) => {
   try {
     const response = await axios.get(`${apiUrl}/api/messages/${chatId}`);

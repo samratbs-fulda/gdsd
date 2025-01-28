@@ -37,6 +37,22 @@ router.post("/participant", async (req, res) => {
   }
 });
 
+//getChatParticipants
+router.get("/participants/:chatId", async (req, res) => {
+  const { chatId } = req.params;
+  try {
+    const participants = await chatService.findChatParticipants(
+      parseInt(chatId)
+    );
+    res.json(participants);
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to find the participants.",
+    });
+  }
+});
+
 // finduserChats
 router.get("/:userId", async (req, res) => {
   const { userId } = req.params;

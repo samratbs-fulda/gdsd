@@ -58,6 +58,22 @@ class ChatService {
     }
   }
 
+  async findChatParticipants(chatId) {
+    try {
+      const chatParticipants = await prisma.chatParticipant.findMany({
+        where: {
+          chatId,
+        },
+        include: {
+          user: true,
+        },
+      });
+      return chatParticipants;
+    } catch (error) {
+      throw Error("Failed to find chat participants.", error);
+    }
+  }
+
   async findUserChats(userId) {
     const chats = await prisma.chat.findMany({
       where: {
@@ -67,11 +83,24 @@ class ChatService {
           },
         },
       },
-      include: {
-        listing: true,
+      select: {
+        id: true,
+        createdAt: true,
+        listing: {
+          select: {
+            id: true,
+            title: true,
+            landlordId: true,
+          },
+        },
         ChatParticipant: {
-          include: {
-            user: true,
+          select: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+              },
+            },
           },
         },
       },
@@ -79,18 +108,15 @@ class ChatService {
 
     // Transform chats to include recipient info
     const transformedChats = chats.map((chat) => {
-      // Find the other participant (not the current user)
-      const otherParticipant = chat.ChatParticipant.find(
-        (participant) => participant.userId !== userId
+      const participants = chat.ChatParticipant.map(
+        (participant) => participant.user
       );
 
       return {
         id: chat.id,
-        listingId: chat.listingId,
         createdAt: chat.createdAt,
-        recipientId: otherParticipant?.userId,
-        recipientUsername: otherParticipant?.user.username,
         listing: chat.listing,
+        participants,
       };
     });
 
