@@ -18,6 +18,7 @@ import {
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import moment from 'moment';
+import { getSpecialCharacterValidationRule } from "../..//utils/inputValidation";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -74,6 +75,24 @@ const AddListingForm = ({
     );
   };
 
+const validateRooms = (getFieldValue) => ({
+  validator(_, value) {
+    const totalRooms = getFieldValue("totalRooms");
+    const freeRooms = getFieldValue("freeRooms");
+
+    // Validation logic
+    if (value !== undefined && totalRooms !== undefined && freeRooms !== undefined) {
+      if (freeRooms > totalRooms) {
+        return Promise.reject(
+          new Error("Number of available rooms cannot exceed the total number of rooms.")
+        );
+      }
+    }
+    return Promise.resolve();
+  },
+});
+
+
   const handleAvailableFromChange = (date) => {
     setAvailableFrom(date);
   };
@@ -116,7 +135,9 @@ const AddListingForm = ({
           <Form.Item
             label="Title"
             name="title"
-            rules={[{ required: true, message: "Please enter a title." }]}
+            rules={[{ required: true, message: "Please enter a title." },
+              getSpecialCharacterValidationRule("title")
+            ]}
           >
             <Input />
           </Form.Item>
@@ -125,7 +146,9 @@ const AddListingForm = ({
           <Form.Item
             label="Description"
             name="description"
-            rules={[{ required: true, message: "Please enter a description." }]}
+            rules={[{ required: true, message: "Please enter a description." },
+             getSpecialCharacterValidationRule("description")
+            ]}
           >
             <TextArea />
           </Form.Item>
@@ -179,6 +202,7 @@ const AddListingForm = ({
                 required: true,
                 message: "Please enter an amount of free rooms.",
               },
+              ({ getFieldValue }) => validateRooms(getFieldValue),
             ]}
           >
             <InputNumber />
@@ -195,6 +219,7 @@ const AddListingForm = ({
                 required: true,
                 message: "Please enter a total amount of rooms.",
               },
+              ({ getFieldValue }) => validateRooms(getFieldValue),
             ]}
           >
             <InputNumber />
@@ -208,6 +233,7 @@ const AddListingForm = ({
             name="energyRating"
             rules={[
               { required: true, message: "Please enter an energy rating." },
+              getSpecialCharacterValidationRule("energy rating")
             ]}
           >
             <Input />
@@ -286,7 +312,9 @@ const AddListingForm = ({
           <Form.Item
             label="Street"
             name="street"
-            rules={[{ required: true, message: "Please enter a street." }]}
+            rules={[{ required: true, message: "Please enter a street." },
+              getSpecialCharacterValidationRule("street"),
+            ]}
           >
             <Input />
           </Form.Item>
@@ -304,7 +332,9 @@ const AddListingForm = ({
           <Form.Item
             label="Postalcode"
             name="postalCode"
-            rules={[{ required: true, message: "Please enter a postalcode." }]}
+            rules={[{ required: true, message: "Please enter a postalcode." },
+              getSpecialCharacterValidationRule("postal code"),
+            ]}
           >
             <Input />
           </Form.Item>
@@ -442,7 +472,7 @@ const AddListingForm = ({
         <Checkbox />
       </Form.Item>
 
-      <h2>Images (Upto 12)</h2>
+      <h2>Images (Upto 6)</h2>
 
       <Form.Item name="images">
         <Upload
@@ -452,7 +482,7 @@ const AddListingForm = ({
           onChange={handleChange}
           beforeUpload={beforeUpload}
         >
-          {fileList.length >= 12 ? null : uploadButton}
+          {fileList.length >= 6 ? null : uploadButton}
         </Upload>
         {previewImage && (
           <Image
