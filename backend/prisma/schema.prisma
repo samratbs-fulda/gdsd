@@ -126,11 +126,12 @@ model Messages {
 
 model Profile {
   id            Int     @id @default(autoincrement())
-  age           Int
-  gender        String
-  nationality   String
-  phone         String  @unique
-  bio           String
+  dob           DateTime?
+  age           Int?
+  gender        String?
+  nationality   String?
+  phone         String?  @unique
+  bio           String?
   user          User    @relation(fields: [userId], references: [id])
   userId        Int     @unique
 }
