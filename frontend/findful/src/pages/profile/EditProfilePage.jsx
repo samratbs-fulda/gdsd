@@ -95,8 +95,8 @@ const EditProfilePage = () => {
           <Form.Item label="Last Name" name="lastname">
             <Input />
           </Form.Item>
-          
-          <Form.Item label="Age" name="age" rules={[{ validator: handleAge }]}>
+
+          <Form.Item label="Age" name="age">
             <Input type="number" min={0} max={120} />
           </Form.Item>
 
