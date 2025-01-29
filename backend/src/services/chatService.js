@@ -2,59 +2,50 @@ const prisma = require("../utils/db");
 
 class ChatService {
   async createChat(listingId, studentIds) {
-    return await prisma.$transaction(async (prisma) => {
-      // Get the listing with the landlordId
-      const listing = await prisma.listing.findUnique({
-        where: {
-          id: listingId,
-        },
-        select: {
-          landlordId: true,
-        },
-      });
-
-      if (!listing) {
-        throw new Error("Listing not found");
-      }
-
-      //create the chat
-      const newChat = await prisma.chat.create({
-        data: {
-          listingId,
-        },
-      });
-
-      // add landlord as participant
-      await prisma.chatParticipant.create({
-        data: {
-          chatId: newChat.id,
-          userId: listing.landlordId,
-        },
-      });
-
-      // Add all student participants
-      await prisma.chatParticipant.createMany({
-        data: studentIds.map((studentId) => ({
-          chatId: newChat.id,
-          userId: studentId,
-        })),
-      });
-
-      return newChat;
-    });
-  }
-
-  async addChatParticipant(chatId, userId) {
     try {
-      const chatParticipant = await prisma.chatParticipant.create({
-        data: {
-          chatId,
-          userId,
-        },
+      return await prisma.$transaction(async (prisma) => {
+        // Get the listing with the landlordId
+        const listing = await prisma.listing.findUnique({
+          where: {
+            id: listingId,
+          },
+          select: {
+            landlordId: true,
+          },
+        });
+
+        if (!listing) {
+          throw new Error("Listing not found");
+        }
+
+        //create the chat
+        const newChat = await prisma.chat.create({
+          data: {
+            listingId,
+          },
+        });
+
+        // add landlord as participant
+        await prisma.chatParticipant.create({
+          data: {
+            chatId: newChat.id,
+            userId: listing.landlordId,
+          },
+        });
+
+        // Add all student participants
+        await prisma.chatParticipant.createMany({
+          data: studentIds.map((studentId) => ({
+            chatId: newChat.id,
+            userId: studentId,
+          })),
+        });
+
+        return newChat;
       });
-      return chatParticipant;
     } catch (error) {
-      throw Error("Failed to add chat participant.", error);
+      console.error("Error creating chat:", error);
+      throw new Error("Transaction failed: " + error.message);
     }
   }
 

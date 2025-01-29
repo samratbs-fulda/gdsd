@@ -43,30 +43,16 @@ const Apply = () => {
   const groups = groupsQuery.data || [];
 
   const createChatMutation = useMutation({
-    mutationFn: (listingId) => {
-      console.log("Mutation: Creating chat between", listingId);
-      return createUserChats(listingId, [user.id]);
-    },
-    onSuccess: (response) => {
-      navigate(`/chat/${response.id}`, { state: { chat: response } });
-    },
-    onError: (error) => {
-      console.error("Error creating chat:", error);
-    },
-  });
-
-  const createGroupChatMutation = useMutation({
     mutationFn: async (groupName) => {
-      // Get all members of the group
-      const groupMembers = await getGroupMembers(groupName);
-      const memberIds = groupMembers.map((member) => member.studentId);
+      // add current student as a member
+      let memberIds = [user.id];
 
-      console.log(
-        "Creating group chat for listing:",
-        listing.id,
-        "with members:",
-        groupMembers
-      );
+      if (groupName !== null) {
+        // Get all members of the group
+        const groupMembers = await getGroupMembers(groupName);
+        memberIds = groupMembers.map((member) => member.studentId);
+      }
+
       return createUserChats(listing.id, memberIds);
     },
     onSuccess: (response) => {
@@ -76,24 +62,6 @@ const Apply = () => {
       console.error("Error creating chat:", error);
     },
   });
-
-  const sendMessage = (listingId) => {
-    if (!user || !listingId) {
-      console.error("Missing user or landlord information");
-      return;
-    }
-    console.log(
-      "SendMessage: Creating chat between",
-      user.id,
-      "and",
-      listingId
-    );
-    createChatMutation.mutate(listingId);
-  };
-
-  const createGroupChat = (groupName) => {
-    createGroupChatMutation.mutate(groupName);
-  };
 
   const [applyType, setApplyType] = useState("group");
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -113,17 +81,12 @@ const Apply = () => {
   };
 
   const handleApply = () => {
-    if (applyType === "individual") {
-      sendMessage(listing?.id);
-    }
     if (applyType === "group" && !selectedGroup) {
       message.error("Please select a group to apply as.");
       return;
     }
-    //some call here to create a group
-    console.log("Application submitted successfully!", selectedGroup);
-    createGroupChat(selectedGroup);
-    message.success("Application submitted successfully!");
+
+    createChatMutation.mutate(selectedGroup);
   };
 
   return (
