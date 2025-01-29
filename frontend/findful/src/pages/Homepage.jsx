@@ -6,6 +6,7 @@ import { Input, Select, Button, Row, Col, Card, Form, Slider } from "antd";
 import Meta from "antd/es/card/Meta";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
+import { getSpecialCharacterValidationRule } from "../utils/inputValidation";
 
 const Homepage = () => {
   const [filters, setFilters] = useState({
@@ -147,8 +148,9 @@ const Homepage = () => {
             >
               <Row gutter={8} align="middle">
                 <Col flex="auto">
-                  <Form.Item name="searchText" style={{ marginBottom: 0 }}>
-                    <Input type="text" placeholder="Enter address" />
+                  <Form.Item name="searchText" style={{ marginBottom: 0 }}
+                   rules={[getSpecialCharacterValidationRule("search")]}>
+                    <Input type="text" placeholder="Enter address or postal code" />
                   </Form.Item>
                 </Col>
                 <Col flex="none">
