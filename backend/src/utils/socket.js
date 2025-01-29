@@ -50,6 +50,7 @@ const initializeSocket = (server, allowedOrigins) => {
       // Send to recipient if they're connected
       const recipientSocket = connectedUsers.get(message.recipientId);
       if (recipientSocket) {
+        console.log("send message to recipient", message);
         recipientSocket.emit("message", message);
       }
 

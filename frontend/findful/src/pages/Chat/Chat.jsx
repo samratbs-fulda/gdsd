@@ -14,7 +14,7 @@ import {
   getMessages,
   getUserChats,
 } from "../../services/chatService";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getEnvironment } from "../../utils/fetchEnvironment";
 
 const environment = getEnvironment();
@@ -47,8 +47,17 @@ const Chat = () => {
     queryFn: () => getUserChats(user.id),
   });
 
+  // Query for chat participants
+  // const participantsQuery = useQuery({
+  //   queryKey: ["participants", currentChat?.id],
+  //   enabled: !!currentChat,
+  //   queryFn: () => getChatParticipants(currentChat.id),
+  // });
+
   const username = userQuery.data?.username;
   const chats = chatQuery.data;
+
+  console.log("participants", chats, currentChat);
 
   // Sync current chat from location state
   useEffect(() => {
@@ -99,6 +108,7 @@ const Chat = () => {
     });
 
     socket.on("message", (message) => {
+      console.log("HHHHH", message);
       if (currentChat && currentChat.id === message.chatId) {
         setMessages((messages) => [...messages, message]);
       }
@@ -114,6 +124,7 @@ const Chat = () => {
 
   // Update Current Chat
   const updateCurrentChat = (chat) => {
+    console.log("Updating current chat:", chat);
     setCurrentChat(chat);
     navigate(`/chat/${chat.id}`, { replace: true });
   };
@@ -122,11 +133,17 @@ const Chat = () => {
     mutationKey: ["message", { id: currentChat?.id }],
     mutationFn: () => createMessages(currentChat.id, user.id, messageInput),
     onSuccess: () => {
-      socket.emit("message", {
-        chatId: currentChat.id,
-        senderId: user.id,
-        content: messageInput,
-        recipientId: currentChat.recipientId,
+      const recipients = currentChat.participants.filter(
+        (p) => p.id !== user.id
+      );
+      console.log(recipients);
+      recipients.forEach((recipient) => {
+        socket.emit("message", {
+          chatId: currentChat.id,
+          senderId: user.id,
+          content: messageInput,
+          recipientId: recipient.id,
+        });
       });
 
       // Invalidate and refetch messages after successful mutation
@@ -145,6 +162,20 @@ const Chat = () => {
         console.error("Error sending message:", error);
       }
     }
+  };
+
+  const getMessageSenderName = (senderId, participants) => {
+    if (!participants) return "";
+    const sender = participants.find((p) => p.id === senderId);
+    return sender ? sender.username : "";
+  };
+
+  const getLandlordChatTitle = (landlordId, participants) => {
+    const title = participants
+      .filter((p) => p.id !== landlordId)
+      .map((p) => p.username)
+      .join(", ");
+    return title;
   };
 
   return (
@@ -166,7 +197,9 @@ const Chat = () => {
                   key={chat.id}
                   onClick={() => updateCurrentChat(chat)}
                 >
-                  {chat.recipientUsername}
+                  {user?.role === "LANDLORD"
+                    ? getLandlordChatTitle(user.id, chat.participants)
+                    : chat?.listing.title}
                 </Menu.Item>
               ))}
           </Menu>
@@ -174,17 +207,30 @@ const Chat = () => {
 
         <Layout>
           <Content className="chat-content">
-            <div className="chat-title">
-              <h3 style={{ margin: 0 }}>
-                {user?.role === "LANDLORD"
-                  ? currentChat?.recipientUsername
-                  : currentChat?.listing.title}
-              </h3>
-              <div>
-                <p>{connected ? "Connected" : "Disconnected"}</p>
-                <p>{user ? `Logged in: ${username}` : "Not logged in"}</p>
+            {currentChat && (
+              <div className="chat-title">
+                <h3 style={{ margin: 0 }}>
+                  {user?.role === "LANDLORD"
+                    ? getLandlordChatTitle(user.id, currentChat.participants)
+                    : currentChat?.listing.title}
+                </h3>
+                <div>
+                  <p>{connected ? "Connected" : "Disconnected"}</p>
+                  <p>{user ? `Logged in: ${username} ` : "Not logged in"}</p>
+                </div>
               </div>
-            </div>
+            )}
+            {/* Add participants bar */}
+            {currentChat?.participants && (
+              <div className="participants-bar">
+                <span className="participant-title">Participants: </span>
+                {currentChat.participants.map((p) => (
+                  <span key={p.id} className="participant">
+                    {p.username}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="message-box">
               {!currentChat ? (
                 <div className="no-chat-selected">
@@ -206,7 +252,10 @@ const Chat = () => {
                     >
                       {message.content}
                       {message.senderId !== user.id ? (
-                        <div className="message-username">{`sent by ${currentChat?.recipientUsername}`}</div>
+                        <div className="message-username">{`sent by ${getMessageSenderName(
+                          message.senderId,
+                          currentChat.participants
+                        )}`}</div>
                       ) : null}
                     </div>
                   </div>
