@@ -2,59 +2,66 @@ const prisma = require("../utils/db");
 
 class ChatService {
   async createChat(listingId, studentIds) {
-    return await prisma.$transaction(async (prisma) => {
-      // Get the listing with the landlordId
-      const listing = await prisma.listing.findUnique({
-        where: {
-          id: listingId,
-        },
-        select: {
-          landlordId: true,
-        },
+    try {
+      return await prisma.$transaction(async (prisma) => {
+        // Get the listing with the landlordId
+        const listing = await prisma.listing.findUnique({
+          where: {
+            id: listingId,
+          },
+          select: {
+            landlordId: true,
+          },
+        });
+
+        if (!listing) {
+          throw new Error("Listing not found");
+        }
+
+        //create the chat
+        const newChat = await prisma.chat.create({
+          data: {
+            listingId,
+          },
+        });
+
+        // add landlord as participant
+        await prisma.chatParticipant.create({
+          data: {
+            chatId: newChat.id,
+            userId: listing.landlordId,
+          },
+        });
+
+        // Add all student participants
+        await prisma.chatParticipant.createMany({
+          data: studentIds.map((studentId) => ({
+            chatId: newChat.id,
+            userId: studentId,
+          })),
+        });
+
+        return newChat;
       });
-
-      if (!listing) {
-        throw new Error("Listing not found");
-      }
-
-      //create the chat
-      const newChat = await prisma.chat.create({
-        data: {
-          listingId,
-        },
-      });
-
-      // add landlord as participant
-      await prisma.chatParticipant.create({
-        data: {
-          chatId: newChat.id,
-          userId: listing.landlordId,
-        },
-      });
-
-      // Add all student participants
-      await prisma.chatParticipant.createMany({
-        data: studentIds.map((studentId) => ({
-          chatId: newChat.id,
-          userId: studentId,
-        })),
-      });
-
-      return newChat;
-    });
+    } catch (error) {
+      console.error("Error creating chat:", error);
+      throw new Error("Transaction failed: " + error.message);
+    }
   }
 
-  async addChatParticipant(chatId, userId) {
+  async findChatParticipants(chatId) {
     try {
-      const chatParticipant = await prisma.chatParticipant.create({
-        data: {
+      const chatParticipants = await prisma.chatParticipant.findMany({
+        where: {
           chatId,
-          userId,
+        },
+        include: {
+          user: true,
         },
       });
-      return chatParticipant;
+      return chatParticipants;
     } catch (error) {
-      throw Error("Failed to add chat participant.", error);
+      throw Error("Failed to find chat participants.", error);
     }
   }
 
@@ -67,11 +74,24 @@ class ChatService {
           },
         },
       },
-      include: {
-        listing: true,
+      select: {
+        id: true,
+        createdAt: true,
+        listing: {
+          select: {
+            id: true,
+            title: true,
+            landlordId: true,
+          },
+        },
         ChatParticipant: {
-          include: {
-            user: true,
+          select: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+              },
+            },
           },
         },
       },
@@ -79,18 +99,15 @@ class ChatService {
 
     // Transform chats to include recipient info
     const transformedChats = chats.map((chat) => {
-      // Find the other participant (not the current user)
-      const otherParticipant = chat.ChatParticipant.find(
-        (participant) => participant.userId !== userId
+      const participants = chat.ChatParticipant.map(
+        (participant) => participant.user
       );
 
       return {
         id: chat.id,
-        listingId: chat.listingId,
         createdAt: chat.createdAt,
-        recipientId: otherParticipant?.userId,
-        recipientUsername: otherParticipant?.user.username,
         listing: chat.listing,
+        participants,
       };
     });
 

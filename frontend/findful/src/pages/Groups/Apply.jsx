@@ -14,9 +14,9 @@ import { createUserChats } from "../../services/chatService";
 import { useAuth } from "../../services/authContext";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { getListingById } from '../../services/listingService';
-import GroupModal from '../../components/groupModal/groupModal';
-import { getGroups } from '../../services/groups/groupService';
+import { getListingById } from "../../services/listingService";
+import GroupModal from "../../components/groupModal/groupModal";
+import { getGroupMembers, getGroups } from "../../services/groups/groupService";
 
 const Apply = () => {
   const navigate = useNavigate();
@@ -43,9 +43,17 @@ const Apply = () => {
   const groups = groupsQuery.data || [];
 
   const createChatMutation = useMutation({
-    mutationFn: (listingId) => {
-      console.log("Mutation: Creating chat between", listingId);
-      return createUserChats(listingId, [user.id]);
+    mutationFn: async (groupName) => {
+      // add current student as a member
+      let memberIds = [user.id];
+
+      if (groupName !== null) {
+        // Get all members of the group
+        const groupMembers = await getGroupMembers(groupName);
+        memberIds = groupMembers.map((member) => member.studentId);
+      }
+
+      return createUserChats(listing.id, memberIds);
     },
     onSuccess: (response) => {
       navigate(`/chat/${response.id}`, { state: { chat: response } });
@@ -54,20 +62,6 @@ const Apply = () => {
       console.error("Error creating chat:", error);
     },
   });
-
-  const sendMessage = (listingId) => {
-    if (!user || !listingId) {
-      console.error("Missing user or landlord information");
-      return;
-    }
-    console.log(
-      "SendMessage: Creating chat between",
-      user.id,
-      "and",
-      listingId
-    );
-    createChatMutation.mutate(listingId);
-  };
 
   const [applyType, setApplyType] = useState("group");
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -82,75 +76,79 @@ const Apply = () => {
   const closeModal = () => {
     setIsModalVisible(false);
     groupsQuery.refetch(); // Refetch the groups data
-    message.success('Group created successfully!');
+    message.success("Group created successfully!");
     // navigate to chat or group page
   };
 
   const handleApply = () => {
-    if (applyType === "individual") {
-      sendMessage(listing?.id);
-    }
     if (applyType === "group" && !selectedGroup) {
       message.error("Please select a group to apply as.");
       return;
     }
-    //some call here to create a group
-    message.success("Application submitted successfully!");
+
+    createChatMutation.mutate(selectedGroup);
   };
 
   return (
     <>
-    <Card style={{ maxWidth: 600, margin: '50px auto', padding: '20px' }}>
-      <Form layout="vertical">
-        <Typography.Title
-          level={4}
-          style={{
-            fontWeight: "bold",
-            textAlign: "center",
-            marginBottom: "20px",
-          }}
-        >
-          Apply for {listing.title}
-        </Typography.Title>
-
-        <Form.Item label="Apply Type">
-          <Radio.Group
-            onChange={(e) => setApplyType(e.target.value)}
-            value={applyType}
+      <Card style={{ maxWidth: 600, margin: "50px auto", padding: "20px" }}>
+        <Form layout="vertical">
+          <Typography.Title
+            level={4}
+            style={{
+              fontWeight: "bold",
+              textAlign: "center",
+              marginBottom: "20px",
+            }}
           >
-            <Space direction="vertical">
-              <Radio value="individual">Apply as an individual</Radio>
-              <Radio value="group">Apply as a group</Radio>
-            </Space>
-          </Radio.Group>
-        </Form.Item>
+            Apply for {listing.title}
+          </Typography.Title>
 
-        {applyType === "group" && (
-          <Form.Item label="Select a group">
-            <Space>
-              <Select
-                placeholder="Select a group"
-                style={{ width: 200 }}
-                onChange={(value) => setSelectedGroup(value)}
-              >
-                {groups.map((group) => (
-                  <Select.Option key={group.id} value={group.name}>
-                    {group.name}
-                  </Select.Option>
-                ))}
-              </Select>
-              <Button icon={<PlusOutlined />} onClick={showModal}>Create Group</Button>
-              <GroupModal isVisible={isModalVisible} onCancel={hideModal} onClose={closeModal} userId={userId} />
-            </Space>
+          <Form.Item label="Apply Type">
+            <Radio.Group
+              onChange={(e) => setApplyType(e.target.value)}
+              value={applyType}
+            >
+              <Space direction="vertical">
+                <Radio value="individual">Apply as an individual</Radio>
+                <Radio value="group">Apply as a group</Radio>
+              </Space>
+            </Radio.Group>
           </Form.Item>
-        )}
-        <Form.Item>
-          <Button type="primary" onClick={handleApply} block>
-            Apply
-          </Button>
-        </Form.Item>
-      </Form>
-    </Card>
+
+          {applyType === "group" && (
+            <Form.Item label="Select a group">
+              <Space>
+                <Select
+                  placeholder="Select a group"
+                  style={{ width: 200 }}
+                  onChange={(value) => setSelectedGroup(value)}
+                >
+                  {groups.map((group) => (
+                    <Select.Option key={group.id} value={group.name}>
+                      {group.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+                <Button icon={<PlusOutlined />} onClick={showModal}>
+                  Create Group
+                </Button>
+                <GroupModal
+                  isVisible={isModalVisible}
+                  onCancel={hideModal}
+                  onClose={closeModal}
+                  userId={userId}
+                />
+              </Space>
+            </Form.Item>
+          )}
+          <Form.Item>
+            <Button type="primary" onClick={handleApply} block>
+              Apply
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </>
   );
 };
