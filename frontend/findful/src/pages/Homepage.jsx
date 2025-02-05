@@ -187,8 +187,8 @@ const Homepage = () => {
                     ]}
                   >
                     <Meta title={listing.title} description={listing.type} />
-                    <p>Rent: ${listing.warmRent}</p>
-                    <p>Size: {listing.size} sq.m</p>
+                    <p>Rent: {listing.warmRent}€</p>
+                    <p>Size: {listing.size} m²"</p>
                     <p>Rooms Available: {listing.freeRooms}</p>
                     <p>Address: {listing.street} {listing.houseNumber}, {listing.postalCode}</p>
                   </Card>
