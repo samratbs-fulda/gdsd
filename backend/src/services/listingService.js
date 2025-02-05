@@ -41,7 +41,12 @@ class ListingService {
       
       try {
         listing.images = await S3Service.fetchAllImages(folderKey, { multiple: true });
-        listing.images.pop(); // remove thumbnail from response
+        if (listing.id < 21) {
+          listing.images.shift(); // Remove doubled images
+        }
+        
+        listing.images.shift(); // Remove doubled images
+        listing.images.filter(s => !s.includes("/thumbnails/")); // remove thumbnail from response
       } catch (error) {
         console.error(`Error fetching images for listing ${listing.id}:`, error);
         listing.images = await S3Service.fetchImage("image.webp");
