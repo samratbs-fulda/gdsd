@@ -118,15 +118,15 @@ const AddListingForm = ({
     setValidatingAddress(true);
 
     const query = new URLSearchParams({
-      "country": "Germany", 
+      "country": "Germany",
       "city": "Fulda",
-      "street": street + " " + houseNumber, 
+      "street": street + " " + houseNumber,
       "postalcode": postalCode,
       format: 'json'
-    }).toString();  
-    
+    }).toString();
+
     const url = `https://nominatim.openstreetmap.org/search?${query}`;
-    
+
     try {
       const response = await fetch(url);
       const data = await response.json();
@@ -379,9 +379,10 @@ const AddListingForm = ({
           <Form.Item
             label="Housenumber"
             name="houseNumber"
-            rules={[{ required: true, message: "Please enter a housenumber." }]}
+            rules={[{ required: true, message: "Please enter a housenumber." },
+            getSpecialCharacterValidationRule("house number")]}
           >
-            <InputNumber controls={false} />
+            <Input />
           </Form.Item>
         </Col>
         <Col span={4}>

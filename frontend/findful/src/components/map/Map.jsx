@@ -6,7 +6,7 @@ import 'leaflet/dist/images/marker-shadow.png'
 import React from 'react'
 
 const Map = ({longitude, latitude}) => {
-    const position = [longitude, latitude];
+    const position = [latitude, longitude];
     return (
         <MapContainer center={position} zoom={13} >
             <TileLayer
