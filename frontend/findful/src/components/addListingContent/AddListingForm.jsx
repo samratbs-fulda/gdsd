@@ -217,7 +217,7 @@ const AddListingForm = ({
             name="size"
             rules={[{ required: true, message: "Please enter a size." }]}
           >
-            <InputNumber suffix="²m" controls={false} min={0} />
+            <InputNumber suffix="m²" controls={false} min={0} />
           </Form.Item>
         </Col>
         <Col span={6}>
