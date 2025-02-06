@@ -47,6 +47,13 @@ const Chat = () => {
     queryFn: () => getUserChats(user.id),
   });
 
+  // Query for chat participants
+  // const participantsQuery = useQuery({
+  //   queryKey: ["participants", currentChat?.id],
+  //   enabled: !!currentChat,
+  //   queryFn: () => getChatParticipants(currentChat.id),
+  // });
+
   const username = userQuery.data?.username;
   const chats = chatQuery.data;
 
@@ -175,9 +182,6 @@ const Chat = () => {
     <div className="container">
       <Layout style={{ height: "100%" }}>
         <Sider className="chat-sider">
-          <div className="chat-title">
-            <h3 style={{ margin: 0 }}>Conversations</h3>
-          </div>
           <Menu
             mode="inline"
             selectedKeys={[currentChat ? currentChat.id.toString() : ""]}
