@@ -22,6 +22,24 @@ class ListingService {
     }
   }
 
+  async getListingImgs(listingId){
+    const folderKey = `${process.env.NODE_ENV}/listings/${listingId}/`;
+      
+    try {
+      images = await S3Service.fetchAllImages(folderKey, { multiple: true });
+      if (listingId < 21) {
+        images.shift(); // Remove doubled images
+      }
+      
+      images.shift(); // Remove doubled images
+      images.filter(s => !s.includes("/thumbnails/")); // remove thumbnail from response
+    } catch (error) {
+      console.error(`Error fetching images for listing ${listingId}:`, error);
+      images = await S3Service.fetchImage("image.webp");
+    }
+    return images;
+  }
+
   async getListingById(id) {
     try {
       const listing = await prisma.listing.findUnique({
@@ -186,6 +204,16 @@ class ListingService {
       return updatedListing;
     } catch (error) {
       console.error("Error updating listing status:", error);
+      throw error;
+    }
+  }
+
+  async updateListing(newData, listingId){
+    try {
+      const warmRent = Calculations.calculateWarmRent(newData);
+      const updatedListing = await ListingRepository.updateListing(newData, warmRent, listingId);
+      return updatedListing;
+    }catch (error){
       throw error;
     }
   }
