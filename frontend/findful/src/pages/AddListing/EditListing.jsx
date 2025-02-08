@@ -3,7 +3,7 @@ import { message, Layout, theme } from "antd";
 import { Content } from "antd/es/layout/layout";
 import EditListingForm from "../../components/editListingContent/EditListingForm";
 import AddListingSuccessful from "../../components/addListingContent/AddListingSuccessful";
-import { addListing, getListingById } from "../../services/listingService";
+import { updateListing, getListingById } from "../../services/listingService";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
@@ -78,7 +78,7 @@ const EditListing = () => {
 
   const submitListing = (values) => {
     setPendingSubmission(true);
-    addListing(values)
+    updateListing(values, id)
       .then(() => {
         setPendingSubmission(false);
         setSubmissionDone(true);
