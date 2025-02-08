@@ -32,7 +32,7 @@ model Listing {
   furnished       Furnished
   street          String
   postalCode      String
-  houseNumber     Int
+  houseNumber     String
   latitude        Float
   longitude       Float
   distanceFromUni Float

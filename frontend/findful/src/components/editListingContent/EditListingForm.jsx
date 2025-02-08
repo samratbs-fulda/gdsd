@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   Alert,
   Button,
@@ -18,7 +18,7 @@ import {
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import moment from 'moment';
-import { getSpecialCharacterValidationRule } from "../..//utils/inputValidation";
+import { getSpecialCharacterValidationRule } from "../../utils/inputValidation";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -40,7 +40,7 @@ const beforeUpload = (file) => {
   return false;
 };
 
-const AddListingForm = ({
+const EditListingForm = ({
   onFinish,
   onFinishFailed,
   incompleteSubmission,
@@ -53,13 +53,8 @@ const AddListingForm = ({
   //for image upload and preview
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
-  const [availableFrom, setAvailableFrom] = useState(null);
+  const [availableFrom, setAvailableFrom] = useState(null); 
   const [fileList, setFileList] = useState([]);
-  const [addressValid, setAddressValid] = useState(true);
-  const [validatingAddress, setValidatingAddress] = useState(false);
-
-  const previousValues = useRef({ street: "", houseNumber: "", postalCode: "" });
-
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
@@ -80,72 +75,22 @@ const AddListingForm = ({
     );
   };
 
-  const validateRooms = (getFieldValue) => ({
-    validator(_, value) {
-      const totalRooms = getFieldValue("totalRooms");
-      const freeRooms = getFieldValue("freeRooms");
+const validateRooms = (getFieldValue) => ({
+  validator(_, value) {
+    const totalRooms = getFieldValue("totalRooms");
+    const freeRooms = getFieldValue("freeRooms");
 
-      // Validation logic
-      if (value !== undefined && totalRooms !== undefined && freeRooms !== undefined) {
-        if (freeRooms > totalRooms) {
-          return Promise.reject(
-            new Error("Number of available rooms cannot exceed the total number of rooms.")
-          );
-        }
+    // Validation logic
+    if (value !== undefined && totalRooms !== undefined && freeRooms !== undefined) {
+      if (freeRooms > totalRooms) {
+        return Promise.reject(
+          new Error("Number of available rooms cannot exceed the total number of rooms.")
+        );
       }
-      return Promise.resolve();
-    },
-  });
-
-  // Validate Address on user input
-  const validateAddress = async () => {
-    const { street, houseNumber, postalCode } = form.getFieldsValue([
-      "street",
-      "houseNumber",
-      "postalCode",
-    ]);
-    if (
-      street === previousValues.current.street &&
-      houseNumber === previousValues.current.houseNumber &&
-      postalCode === previousValues.current.postalCode
-    ) {
-      return;
     }
-
-    previousValues.current = { street, houseNumber, postalCode };
-    if (!(street && houseNumber && postalCode)) return;
-
-    setValidatingAddress(true);
-
-    const query = new URLSearchParams({
-      "country": "Germany",
-      "city": "Fulda",
-      "street": street + " " + houseNumber,
-      "postalcode": postalCode,
-      format: 'json'
-    }).toString();
-
-    const url = `https://nominatim.openstreetmap.org/search?${query}`;
-
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.length === 0) {
-        setAddressValid(false);
-        message.error("Address not found.");
-      } else {
-        if (addressValid === false) {
-          message.success("Address found.");
-        }
-        setAddressValid(true);
-      }
-    } catch (error) {
-      console.error("Error validating address:", error);
-      message.error("Address validation failed.");
-    }
-    setValidatingAddress(false);
-  };
+    return Promise.resolve();
+  },
+});
 
 
   const handleAvailableFromChange = (date) => {
@@ -180,7 +125,6 @@ const AddListingForm = ({
     <Form
       form={form}
       onFinish={handleSubmit}
-      onValuesChange={validateAddress}
       onFinishFailed={onFinishFailed}
       initialValues={initialValues}
       requiredMark={true}
@@ -192,7 +136,7 @@ const AddListingForm = ({
             label="Title"
             name="title"
             rules={[{ required: true, message: "Please enter a title." },
-            getSpecialCharacterValidationRule("title")
+              getSpecialCharacterValidationRule("title")
             ]}
           >
             <Input />
@@ -203,7 +147,7 @@ const AddListingForm = ({
             label="Description"
             name="description"
             rules={[{ required: true, message: "Please enter a description." },
-            getSpecialCharacterValidationRule("description")
+             getSpecialCharacterValidationRule("description")
             ]}
           >
             <TextArea />
@@ -234,7 +178,6 @@ const AddListingForm = ({
         <Col span={8}>
           <Form.Item
             label="Apartment type"
-            initialValue="SINGLE"
             name="type"
             rules={[
               { required: true, message: "Please select an apartment type." },
@@ -308,10 +251,10 @@ const AddListingForm = ({
             ]}
           >
             <DatePicker
-              placeholder="Select a date"
-              disabledDate={(current) => current && current.isBefore(moment(), 'day')}
-              onChange={handleAvailableFromChange}
-            />
+            placeholder="Select a date"
+            disabledDate={(current) => current && current.isBefore(moment(), 'day')}
+            onChange={handleAvailableFromChange}
+          />
           </Form.Item>
         </Col>
         <Col span={4}>
@@ -319,13 +262,13 @@ const AddListingForm = ({
             label="Available till"
             name="availableTill"
           >
-            <DatePicker
-              format="YYYY-MM-DD"
-              placeholder="Select a date"
-              disabledDate={(current) =>
-                current && current.isBefore(availableFrom, 'day')  // Disable dates before 'Available from'
-              }
-            />
+             <DatePicker
+            format="YYYY-MM-DD"
+            placeholder="Select a date"
+            disabledDate={(current) => 
+              current && current.isBefore(availableFrom, 'day')  // Disable dates before 'Available from'
+            }
+          />
           </Form.Item>
         </Col>
       </Row>
@@ -362,14 +305,14 @@ const AddListingForm = ({
         <InputNumber suffix="€" controls={false} min={0} />
       </Form.Item>
 
-      <h2>Address {validatingAddress && <Spin />}</h2>
+      <h2>Address</h2>
       <Row gutter={16}>
         <Col span={8}>
           <Form.Item
             label="Street"
             name="street"
             rules={[{ required: true, message: "Please enter a street." },
-            getSpecialCharacterValidationRule("street"),
+              getSpecialCharacterValidationRule("street"),
             ]}
           >
             <Input />
@@ -379,10 +322,9 @@ const AddListingForm = ({
           <Form.Item
             label="Housenumber"
             name="houseNumber"
-            rules={[{ required: true, message: "Please enter a housenumber." },
-            getSpecialCharacterValidationRule("house number")]}
+            rules={[{ required: true, message: "Please enter a housenumber." }]}
           >
-            <Input />
+            <InputNumber controls={false} />
           </Form.Item>
         </Col>
         <Col span={4}>
@@ -390,9 +332,7 @@ const AddListingForm = ({
             label="Postalcode"
             name="postalCode"
             rules={[{ required: true, message: "Please enter a postalcode." },
-            getSpecialCharacterValidationRule("postal code"),
-            { min: 5, message: 'Postalcode must contain 5 numbers.' },
-            { max: 5, message: 'Postalcode must contain 5 numbers.' },
+              getSpecialCharacterValidationRule("postal code"),
             ]}
           >
             <Input />
@@ -405,7 +345,6 @@ const AddListingForm = ({
           <Form.Item
             label="Furniture"
             name="furnished"
-            initialValue="FURNISHED"
             rules={[{ required: true, message: "Please choose if your room is furnished or not." }]}
           >
             <Select>
@@ -577,4 +516,4 @@ const AddListingForm = ({
   );
 };
 
-export default AddListingForm;
+export default EditListingForm;

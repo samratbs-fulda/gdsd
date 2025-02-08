@@ -4,6 +4,7 @@ const { execSync } = require('child_process');
 const {
   PrismaClient,
   Role,
+  GroupMemberStatus,
   Furnished,
   ListingStatus,
   ApartmentType,
@@ -22,10 +23,32 @@ async function main() {
   const student = await prisma.user.create({
     data: {
       username: "student_user",
-      email: "student@example.com",
-      password: "password123",
+      email: "student@hs-fulda.de",
+      password: "$2b$10$Mq9sRJlv8tUvgQrrH9EmY.8wcUmXMmNtXEfe.ffAqoUvwiodJ2AVO", // Password1!
       firstname: "Student",
       lastname: "User",
+      role: Role.STUDENT,
+    },
+  });
+
+  const student2 = await prisma.user.create({
+    data: {
+      username: "student_user2",
+      email: "student2@hs-fulda.de",
+      password: "$2b$10$Mq9sRJlv8tUvgQrrH9EmY.8wcUmXMmNtXEfe.ffAqoUvwiodJ2AVO", // Password1!
+      firstname: "Student",
+      lastname: "User2",
+      role: Role.STUDENT,
+    },
+  });
+
+  const student3 = await prisma.user.create({
+    data: {
+      username: "student_user3",
+      email: "student3@hs-fulda.de",
+      password: "$2b$10$Mq9sRJlv8tUvgQrrH9EmY.8wcUmXMmNtXEfe.ffAqoUvwiodJ2AVO", // Password1!
+      firstname: "Student",
+      lastname: "User3",
       role: Role.STUDENT,
     },
   });
@@ -34,7 +57,7 @@ async function main() {
     data: {
       username: "landlord_user",
       email: "landlord@example.com",
-      password: "password123",
+      password: "$2b$10$Mq9sRJlv8tUvgQrrH9EmY.8wcUmXMmNtXEfe.ffAqoUvwiodJ2AVO", // Password1!
       firstname: "Landlord",
       lastname: "User",
       role: Role.LANDLORD,
@@ -45,7 +68,7 @@ async function main() {
     data: {
       username: "moderator_user",
       email: "moderator@example.com",
-      password: "password123",
+      password: "$2b$10$Mq9sRJlv8tUvgQrrH9EmY.8wcUmXMmNtXEfe.ffAqoUvwiodJ2AVO", // Password1!
       firstname: "Moderator",
       lastname: "User",
       role: Role.MODERATOR,
@@ -63,6 +86,28 @@ async function main() {
       bio: "Student at Hochschule Fulda, looking for a shared apartment.",
     },
   });
+
+  const student2Profile = await prisma.profile.create({
+    data: {
+      userId: student2.id,
+      age: 24,
+      gender: "Female",
+      nationality: "German",
+      phone: "+4915123456788",
+      bio: "Student at Hochschule Fulda, looking for a shared apartment.",
+    },
+  });
+
+  const student3Profile = await prisma.profile.create({
+    data: {
+      userId: student3.id,
+      age: 24,
+      gender: "Female",
+      nationality: "German",
+      phone: "+4915123456787",
+      bio: "Student at Hochschule Fulda, looking for a shared apartment. Not accepted to a gorup yet.",
+    },
+  });
   
   const landlordProfile = await prisma.profile.create({
     data: {
@@ -76,10 +121,70 @@ async function main() {
   });
 
   console.log(`Created Profile for Student: ${studentProfile.phone}`);
+  console.log(`Created Profile for Student: ${student2Profile.phone}`);
+  console.log(`Created Profile for Student: ${student3Profile.phone}`);
   console.log(`Created Profile for Landlord: ${landlordProfile.phone}`);
 
+
+  // Seed groups
+  const group = await prisma.group.create({
+    data: {
+      creator: {
+        connect: { id: student.id },
+      }
+    },
+  });
+
+  const groupMember1 = await prisma.groupMember.create({
+    data: {
+      studentId: student.id,
+      groupId: group.id,
+      status: GroupMemberStatus.ACCEPTED,
+    },
+  });
+
+  const groupMember2 = await prisma.groupMember.create({
+    data: {
+      studentId: student2.id,
+      groupId: group.id,
+      status: GroupMemberStatus.ACCEPTED,
+    },
+  });
+
+  const groupMember3 = await prisma.groupMember.create({
+    data: {
+      studentId: student3.id,
+      groupId: group.id,
+      status: GroupMemberStatus.PENDING,
+    },
+  });
+
+  // Addresses
+  const addresses = [
+    {street: "Leipziger Straße", postalCode: "36037", houseNumber: "12", latitude: 50.55797, longitude: 9.677550252183902, distanceFromUni: 1.2},
+    {street: "Lindenstraße", postalCode: "36037", houseNumber: "20", latitude: 50.551987249999996, longitude: 9.681748944536894, distanceFromUni: 2.0},
+    {street: "Magdeburger Straße", postalCode: "36037", houseNumber: "85", latitude: 50.55720305, longitude: 9.691745000000003, distanceFromUni: 0.5},
+    {street: "Haimbacher Straße", postalCode: "36041", houseNumber: "13", latitude: 50.55390375, longitude: 9.6595057515278, distanceFromUni: 2.6},
+    {street: "Leipziger Straße", postalCode: "36039", houseNumber: "170", latitude: 50.57041505, longitude: 9.69783598204605, distanceFromUni: 0.9},
+    {street: "Marienstraße", postalCode: "36039", houseNumber: "49", latitude: 50.5620484, longitude: 9.664035812969663, distanceFromUni: 2.4},
+    {street: "Königstraße", postalCode: "36037", houseNumber: "42", latitude: 50.5505402, longitude: 9.6733727, distanceFromUni: 2.4},
+    {street: "Kanalstraße", postalCode: "36037", houseNumber: "51", latitude: 50.549918149999996, longitude: 9.675501708522724, distanceFromUni: 2.4},
+    {street: "Heinrichstraße", postalCode: "36037", houseNumber: "61", latitude: 50.5511663, longitude: 9.68554596221869, distanceFromUni: 2.0},
+    {street: "Rhönstraße", postalCode: "36037", houseNumber: "19A", latitude: 50.5521851, longitude: 9.68557202070096, distanceFromUni: 1.9},
+    {street: "Am Ziegelberg", postalCode: "36100", houseNumber: "8", latitude: 50.5578612, longitude: 9.7087642, distanceFromUni: 2.3},
+    {street: "Am Waldschlösschen", postalCode: "36037", houseNumber: "83A", latitude: 50.56189315, longitude: 9.68855627215045, distanceFromUni: 0.5},
+    {street: "Tannenweg", postalCode: "36039", houseNumber: "4", latitude: 50.56870525, longitude: 9.7033554, distanceFromUni: 1.5},
+    {street: "Richard-Müller-Straße", postalCode: "36039", houseNumber: "7", latitude: 50.56879255, longitude: 9.690949829882456, distanceFromUni: 0.6},
+    {street: "Donaustraße", postalCode: "36043", houseNumber: "5", latitude: 50.539889099999996, longitude: 9.68467490610464, distanceFromUni: 3.5},
+    {street: "Neißerstraße", postalCode: "36100", houseNumber: "14", latitude: 50.562087000000005, longitude: 9.698007518317974, distanceFromUni: 1.3},
+    {street: "Leipziger Straße", postalCode: "36037", houseNumber: "108C", latitude: 50.5631885, longitude: 9.687901400149116, distanceFromUni: 0.2},
+    {street: "Marquardstraße", postalCode: "36039", houseNumber: "30", latitude: 50.5625794, longitude: 9.683479174166543, distanceFromUni: 0.4},
+    {street: "Birkenallee", postalCode: "36037", houseNumber: "31", latitude: 50.560891600000005, longitude: 9.690567961640207, distanceFromUni: 0.5},
+    {street: "Am Rasen", postalCode: "36041", houseNumber: "15", latitude: 50.5488696, longitude: 9.663510580394087, distanceFromUni: 3.0},
+  ]
+
   // Seed Listings
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= addresses.length; i++) {
     const listing = await prisma.listing.create({
       data: {
         landlordId: landlord.id,
@@ -88,16 +193,16 @@ async function main() {
         type: i % 2 === 0 ? ApartmentType.SUBLET : ApartmentType.SINGLE,
         availableFrom: new Date(),
         availableTill: new Date(new Date().setMonth(new Date().getMonth() + 6)),
-        status: i % 2 === 0 ? ListingStatus.APPROVED : ListingStatus.PENDING,
-        coldRent: 500 + i * 50,
+        status: i % 4 === 0 ? ListingStatus.PENDING : ListingStatus.APPROVED,
+        coldRent: 50 + (i % 10) * 75,
         deposit: 1000,
-        heatingCost: 50,
-        additionalCosts: 75,
-        warmRent: 675 + i * 50,
-        size: 50 + i * 10,
+        heatingCost: 50 + (i % 10) * 5,
+        additionalCosts: 75 + (i % 4) * 5,
+        warmRent: 50 + (i % 10) * 75 + 50 + (i % 10) * 5 + 75 + (i % 4) * 5,
+        size: 10 + (i % 10) * 10,
         floor: i % 5,
-        totalRooms: 4 + (i % 3),
-        freeRooms: 1,
+        totalRooms: 1 + (i % 8),
+        freeRooms: 1 + (i % 4),
         energyRating: "A",
         furnished:
           i % 3 === 0
@@ -105,12 +210,12 @@ async function main() {
             : i % 3 === 1
             ? Furnished.PARTIALLY
             : Furnished.NONFURNISHED,
-        street: `Street ${i}`,
-        postalCode: `1000${i}`,
-        houseNumber: i,
-        latitude: 52.5 + i * 0.01,
-        longitude: 13.4 + i * 0.01,
-        distanceFromUni: i * 0.5,
+        street: addresses[i-1].street,
+        postalCode: addresses[i-1].postalCode,
+        houseNumber: addresses[i-1].houseNumber,
+        latitude: addresses[i-1].latitude,
+        longitude: addresses[i-1].longitude,
+        distanceFromUni: addresses[i-1].distanceFromUni,
         amenities: {
           create: {
             kitchenFitted: true,

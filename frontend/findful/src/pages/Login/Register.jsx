@@ -45,7 +45,8 @@ const Register = () => {
         name="password"
         rules={[
           { required: true, message: 'Please enter your password!' },
-          { min: 6, message: 'Password must be at least 6 characters long!' },
+          { min: 12, message: 'Password must be at least 12 characters long!' },
+          { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[1-9])(?=.*\W).*$/, message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character!' },
         ]}
         hasFeedback
       >
