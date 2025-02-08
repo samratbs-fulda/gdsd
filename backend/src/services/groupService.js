@@ -41,8 +41,7 @@ class GroupService {
 
   async acceptGroupInvitation(groupId, userId){
     try {
-      const groupMember = await GroupRepository.updateMemberStatus(parseInt(groupId), parseInt(userId), "ACCEPTED");
-      return groupMember;
+      return await GroupRepository.updateMemberStatus(parseInt(groupId),parseInt(userId),"ACCEPTED");
     } catch (error) {
       throw Error("Error student accepting group invitation:", error);
     }
@@ -50,8 +49,7 @@ class GroupService {
 
   async removeStudentFromGroup(groupId, userId){
     try {
-      const groupMember = await GroupRepository.removeStudentFromGroup(parseInt(groupId), parseInt(userId));
-      return groupMember;
+      return await GroupRepository.removeStudentFromGroup(parseInt(groupId),parseInt(userId));
     } catch (error) {
       throw Error("Error student accepting group invitation:", error);
     }

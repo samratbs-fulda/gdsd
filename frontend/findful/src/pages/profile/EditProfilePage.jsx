@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { Form, Input, Button, message, Typography, Layout, Select, Spin } from "antd";
 import { getUserProfile, updateUserProfile } from "../../services/profile/profileService";
-import { AuthContext } from "../../services/authContext"; 
+import { AuthContext } from "../../services/authContext";
 import countryList from "../../utils/countryList";
 import countryCodes from "../../utils/countryCodes";
 
@@ -45,7 +45,7 @@ const EditProfilePage = () => {
   };
 
   const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/\D/g, ""); 
+    const value = e.target.value.replace(/\D/g, "");
     form.setFieldsValue({ phone: value });
 
     setPhoneError(value.length < 7 ? "Phone number must have at least seven digits." : "");
@@ -97,16 +97,16 @@ const EditProfilePage = () => {
           </Form.Item>
 
           <Form.Item label="Age" name="age">
-            <Input type="number" />
+            <Input type="number" min={0} max={120} />
           </Form.Item>
 
           <Form.Item label="Gender" name="gender">
-            <Select>{["Male", "Female", "Others"].map((g) => <Option key={g} value={g}>{g}</Option>)}</Select>
+          <Select>{["Male", "Female", "Others"].map((g) => <Option key={g} value={g}>{g}</Option>)}</Select>
           </Form.Item>
 
           <Form.Item label="Nationality" name="nationality">
             <Select showSearch>
-              {countryList.map((country) => <Option key={country} value={country}>{country}</Option>)}
+            {countryList.map((country) => <Option key={country} value={country}>{country}</Option>)}
             </Select>
           </Form.Item>
 
@@ -117,7 +117,7 @@ const EditProfilePage = () => {
             <Input.Group compact>
               <Form.Item name="countryCode" noStyle>
                 <Select style={{ width: "30%" }} onChange={handleCountryCodeChange}>
-                  {countryCodes.map(({ code, country }) => <Option key={code} value={code}>{`${country} (${code})`}</Option>)}
+                {countryCodes.map(({ code, country }) => <Option key={code} value={code}>{`${country} (${code})`}</Option>)}
                 </Select>
               </Form.Item>
               <Form.Item name="phone" noStyle>

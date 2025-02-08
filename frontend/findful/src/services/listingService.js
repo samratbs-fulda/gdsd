@@ -67,7 +67,6 @@ export const addListing = async (listingValues) => {
 
     listingValues = {
       ...listingValues,
-      distanceFromUni: 0.2, // TODO: Calculate distance
       landlordId: landlordId,
     }
     const response = await axios.post(`${apiUrl}/api/listings/add`, listingValues);

@@ -3,8 +3,10 @@ import "./FindFulHeader.css";
 import { Avatar, Col, Dropdown, Row, Image, Button, theme } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { getRoleOfCurrentUser } from "../../services/authRole";
+import { useNavigate } from "react-router-dom";
 
 const FindFulHeader = () => {
+  const navigate = useNavigate();
   const {
     token: { colorBgBase, colorText },
   } = theme.useToken();
@@ -12,6 +14,7 @@ const FindFulHeader = () => {
   // Logout user
   const logout = () => {
     localStorage.removeItem("token");
+    navigate("/");
     window.location.reload();
   }
 
@@ -21,6 +24,7 @@ const FindFulHeader = () => {
     role === "STUDENT" ?
       [
         { key: "chat", label: <a href="/chat">Messages</a> },
+        { key: "mygroups", label: <a href="/mygroups">My Groups</a> },
         { key: "profile", label: <a href="/profile">Profile</a> },
         { key: "logout", label: "Logout", onClick: logout },
       ]
