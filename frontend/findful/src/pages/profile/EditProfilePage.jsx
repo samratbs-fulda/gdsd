@@ -5,6 +5,9 @@ import { getUserProfile, updateUserProfile } from "../../services/profile/profil
 import { AuthContext } from "../../services/authContext";
 import countryList from "../../utils/countryList";
 import countryCodes from "../../utils/countryCodes";
+import dayjs from "dayjs";
+import ProfilePicture from "./ProfilePicture";
+
 
 const { Content } = Layout;
 const { Option } = Select;
@@ -15,6 +18,7 @@ const EditProfilePage = () => {
   const userId = id || user?.id;
 
   const [loading, setLoading] = useState(false);
+  const [isEditingDOB, setIsEditingDOB] = useState(false); 
   const [form] = Form.useForm();
   const [phoneError, setPhoneError] = useState("");
 
@@ -26,12 +30,15 @@ const EditProfilePage = () => {
     try {
       setLoading(true);
       const userData = await getUserProfile(userId);
+
+      const dob = userData.dob ? dayjs(userData.dob).format("YYYY-MM-DD") : ""; 
       const { countryCode, phoneNumber } = splitPhoneNumber(userData.phone || "+49 1234567");
 
       form.setFieldsValue({
         ...userData,
+        dob,
         phone: phoneNumber,
-        countryCode,
+        countryCode: countryCode || "+49",
       });
     } catch (error) {
       message.error("Failed to fetch profile information.");
@@ -40,15 +47,26 @@ const EditProfilePage = () => {
     }
   };
 
-  const handleCountryCodeChange = (value) => {
-    form.setFieldsValue({ countryCode: value });
+  const handleDOBChange = async (e) => {
+    const dob = e.target.value;
+    const calculatedAge = calculateAge(dob);
+
+    form.setFieldsValue({ dob, age: calculatedAge });
+
+    try {
+      await updateUserProfile(userId, { dob, age: calculatedAge });
+      message.success("Date of Birth updated successfully!");
+      setIsEditingDOB(false); 
+    } catch (error) {
+      message.error("Failed to update Date of Birth.");
+    }
   };
 
-  const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "");
-    form.setFieldsValue({ phone: value });
-
-    setPhoneError(value.length < 7 ? "Phone number must have at least seven digits." : "");
+  const calculateAge = (dob) => {
+    if (!dob) return "";
+    const birthDate = dayjs(dob);
+    const today = dayjs();
+    return today.diff(birthDate, "year"); 
   };
 
   const handleFormSubmit = async (values) => {
@@ -57,10 +75,13 @@ const EditProfilePage = () => {
       return;
     }
 
+    const dob = values.dob ? dayjs(values.dob) : null;
+    const calculatedAge = calculateAge(values.dob);
+
     setLoading(true);
     try {
       const formattedPhone = formatPhoneNumber(values.countryCode, values.phone);
-      const updatedValues = { ...values, phone: formattedPhone };
+      const updatedValues = { ...values, phone: formattedPhone, age: calculatedAge };
 
       await updateUserProfile(userId, updatedValues);
       message.success("Profile updated successfully!");
@@ -72,6 +93,10 @@ const EditProfilePage = () => {
     }
   };
 
+  const toggleDOBEdit = () => {
+    setIsEditingDOB(!isEditingDOB); 
+  };
+
   if (!userId) return <Spin tip="Waiting for user ID..." />;
   if (loading) return <Spin tip="Fetching profile data..." />;
 
@@ -80,10 +105,9 @@ const EditProfilePage = () => {
   return (
     <Layout className="page-content-layout" style={layoutStyle}>
       <Content style={contentStyle}>
-        <Typography.Title level={2} style={headingStyle}>
-          Edit Profile
-        </Typography.Title>
 
+        <ProfilePicture userId={userId} />
+        
         <Form form={form} layout="vertical" onFinish={handleFormSubmit}>
           <Typography.Title level={4}>Personal Information</Typography.Title>
           {renderDisabledField("Username", "username", disabledStyle)}
@@ -97,8 +121,21 @@ const EditProfilePage = () => {
           </Form.Item>
 
           <Form.Item label="Age" name="age">
-            <Input type="number" min={0} max={120} />
+            {!isEditingDOB ? (
+              <>
+                <Input disabled style={disabledStyle} value={form.getFieldValue("age")} />
+                <Button type="link" onClick={toggleDOBEdit}>Edit Age</Button>
+              </>
+            ) : (
+              <input
+                type="date"
+                onBlur={handleDOBChange}
+                value={form.getFieldValue("dob") || ""}
+                style={{ width: "100%", padding: "8px" }}
+              />
+            )}
           </Form.Item>
+
 
           <Form.Item label="Gender" name="gender">
           <Select>{["Male", "Female", "Others"].map((g) => <Option key={g} value={g}>{g}</Option>)}</Select>
@@ -115,16 +152,15 @@ const EditProfilePage = () => {
 
           <Form.Item label="Phone Number">
             <Input.Group compact>
-              <Form.Item name="countryCode" noStyle>
-                <Select style={{ width: "30%" }} onChange={handleCountryCodeChange}>
-                {countryCodes.map(({ code, country }) => <Option key={code} value={code}>{`${country} (${code})`}</Option>)}
+              <Form.Item name="countryCode" initialValue="+49" noStyle>
+                <Select style={{ width: "30%" }} value={form.getFieldValue("countryCode") || "+49"} onChange={(value) => form.setFieldsValue({ countryCode: value })}>
+                  {countryCodes.map(({ code, country }) => (<Option key={code} value={code}>{`${country} (${code})`}</Option>))}
                 </Select>
               </Form.Item>
               <Form.Item name="phone" noStyle>
-                <Input style={{ width: "70%" }} placeholder="12345678901" onChange={handlePhoneChange} />
+                <Input style={{ width: "70%" }} placeholder="12345678901" />
               </Form.Item>
             </Input.Group>
-            {phoneError && <span style={{ color: "red" }}>{phoneError}</span>}
           </Form.Item>
 
           <Typography.Title level={4}>Bio</Typography.Title>
@@ -145,13 +181,15 @@ const EditProfilePage = () => {
 
 export default EditProfilePage;
 
-const splitPhoneNumber = (phone) => {
+const splitPhoneNumber = (phone = "+49") => {
   const splitPhone = phone.split(" ");
   return {
     countryCode: splitPhone[0] || "+49",
-    phoneNumber: splitPhone.slice(1).join(" ") || "",
+    phoneNumber: splitPhone[1] || "",
   };
 };
+
+
 
 const formatPhoneNumber = (countryCode, phone) => `${countryCode} ${phone.replace(/^\+\d+\s*/, "")}`;
 

@@ -4,6 +4,7 @@ const { UserService } = require("../services");
 
 const express = require("express");
 const { parse } = require("dotenv-flow");
+const S3Service = require("../services/s3Service");
 const router = express.Router();
 const userService = new UserService();
 
@@ -103,4 +104,36 @@ router.get("/:id", async (req, res) => {
   res.json({ user });
 });
 
+// Fetch profile picture
+router.get("/profile-picture/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+      const folderKey = `${process.env.NODE_ENV}/profiles/${userId}/profile.jpg`;
+      const imageUrl = await S3Service.fetchImage(folderKey, 3600);
+
+      console.log(`Fetched profile picture for user ${userId}: ${imageUrl}`);
+      res.json({ imageUrl });
+  } catch (error) {
+      console.error(`Error fetching profile picture for user ${userId}:`, error);
+      res.status(500).json({ message: "Error fetching profile picture" });
+  }
+});
+
+// Upload profile picture
+router.post("/profile-picture/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const { imageBase64 } = req.body;
+
+  try {
+      const folderKey = `${process.env.NODE_ENV}/profiles/${userId}`;
+      const imageUrl = await S3Service.uploadImage(imageBase64, "image/jpeg", folderKey, "profile.jpg");
+
+      console.log(`Profile picture uploaded for user ${userId}: ${imageUrl}`);
+      res.json({ success: true, imageUrl });
+  } catch (error) {
+      console.error(`Error uploading profile picture for user ${userId}:`, error);
+      res.status(500).json({ success: false, message: "Upload failed" });
+  }
+});
 module.exports = router;

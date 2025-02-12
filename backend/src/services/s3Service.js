@@ -1,5 +1,5 @@
 const AWS = require("aws-sdk");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 const BACKEND_URL = `${process.env.FINDFUL_URL}:${process.env.PORT}`;
 
 const s3 = new AWS.S3({
@@ -10,7 +10,8 @@ const s3 = new AWS.S3({
 
 class S3Service {
 
-    async fetchImage(key, expiresIn = 30) {
+    // Fetch an image (signed URL) for both listings and profile pictures
+    async fetchImage(key, expiresIn = 3600) {
         const params = {
             Bucket: process.env.BUCKET_NAME,
             Key: key,
@@ -18,66 +19,40 @@ class S3Service {
         };
 
         try {
-            // Check if the object exists
-            await s3.headObject({ Bucket: params.Bucket, Key: params.Key }).promise();  
-            const signedUrl = await s3.getSignedUrlPromise("getObject", params);
-            return signedUrl;
+            await s3.headObject({ Bucket: params.Bucket, Key: params.Key }).promise();
+            return await s3.getSignedUrlPromise("getObject", params);
         } catch (error) {
-            return `${BACKEND_URL}/static/image.webp`;
-        }
-    }
-
-    async fetchAllImages(folderKey, options = { multiple: true, expiresIn: 30 }) {
-        const { multiple, expiresIn } = options;
-    
-        try {
-            // List objects in the folder
-            const params = {
-                Bucket: process.env.BUCKET_NAME,
-                Prefix: folderKey, // Folder key
-            };
-    
-            const data = await s3.listObjectsV2(params).promise();
-    
-            // Check if there are any objects in the folder
-            if (data.Contents.length === 0) {
-                console.log(`No files found. Returning default image from ${BACKEND_URL}`);
-                const defaultImageUrl = `${BACKEND_URL}/static/image.webp`;
-                return multiple ? [defaultImageUrl] : defaultImageUrl;
+            console.warn(`⚠️ No image found for key: ${key}. Returning default.`);
+            if (key.includes("/profiles/")) {
+                return `${BACKEND_URL}/default_pfp.png`; // Default profile picture
             }
-            const signedUrls = await Promise.all(
-                data.Contents.map((file) =>
-                    s3.getSignedUrlPromise("getObject", {
-                        Bucket: process.env.BUCKET_NAME,
-                        Key: file.Key,
-                        Expires: expiresIn,
-                    })
-                )
-            );
-            return multiple ? signedUrls : signedUrls[0];
-        } catch (error) {
-            console.error(`Error fetching file(s) from folder ${folderKey}:`, error);
-            throw error;
+            return `${BACKEND_URL}/static/image.webp`; // Default listing image
         }
     }
 
-    async uploadImage(imageBase64, imageMimeType, folderKey) {
+    // Upload image (reused for profile pictures and listing images)
+    async uploadImage(imageBase64, imageMimeType, folderKey, fileName = uuidv4()) {
         try {
-            const imageBuffer = Buffer.from(imageBase64, 'base64');
-            const guidName = uuidv4();
-            const s3Key = `${folderKey}/${guidName}`;
+            const imageBuffer = Buffer.from(imageBase64, "base64");
+            const s3Key = `${folderKey}/${fileName}`;
+
             const uploadParams = {
                 Bucket: process.env.BUCKET_NAME,
                 Key: s3Key,
                 Body: imageBuffer,
-                ContentType: imageMimeType
+                ContentType: imageMimeType,
             };
 
-            const uploadResult = await s3.upload(uploadParams).promise();
-            return uploadResult.Location;
-        }
-        catch (error) {
-            console.error("Error adding listing pictures to s3", error);
+            console.log(`📤 Uploading image to S3: ${s3Key}`);
+            await s3.upload(uploadParams).promise();
+
+            return await s3.getSignedUrlPromise("getObject", {
+                Bucket: process.env.BUCKET_NAME,
+                Key: s3Key,
+                Expires: 3600, // URL expires in 1 hour
+            });
+        } catch (error) {
+            console.error(`❌ Error uploading image to S3:`, error);
             throw error;
         }
     }
