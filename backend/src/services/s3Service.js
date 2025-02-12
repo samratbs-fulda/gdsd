@@ -81,6 +81,24 @@ class S3Service {
             throw error;
         }
     }
+
+    async removeImages(imagesToDelete){
+        try {
+            const deleteParams = {
+                Bucket: process.env.BUCKET_NAME,
+                Delete: {
+                    Objects: imagesToDelete.map(key => ({ Key: key })),
+                    Quiet: false
+                }
+            };
+
+            const deleteResult = await s3.deleteObjects(deleteParams).promise();
+            return deleteResult;
+        } catch (error) {
+            console.error("Error removing listing pictures to s3", error);
+            throw error;
+        }
+    }
 }
 
 module.exports = new S3Service();
