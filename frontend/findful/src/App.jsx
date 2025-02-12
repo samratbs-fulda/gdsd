@@ -19,6 +19,8 @@ import Paragraph from "antd/es/typography/Paragraph";
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 import EditProfilePage from './pages/profile/EditProfilePage';
 import Apply from "./pages/Groups/Apply";
+import EditListing from "./pages/AddListing/EditListing";
+import MyGroups from "./pages/Groups/MyGroups";
 
 
 const App = () => {
@@ -95,21 +97,30 @@ const App = () => {
                 }
               />
 
+              <Route
+                path="/dashboard/landlord"
+                element={
+                  <ProtectedRoute requiredRole="LANDLORD" user={user}>
+                    <LandlordDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/listing/edit/:id"
+                element={
+                  <ProtectedRoute requiredRole="LANDLORD" user={user}>
+                    <EditListing />;
+                  </ProtectedRoute>
+                }
+              />
+
               {/* Protected routes to student */}
               <Route
                 path="/listing/apply/:id"
                 element={
                   <ProtectedRoute requiredRole="STUDENT" user={user}>
                     <Apply />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/dashboard/landlord"
-                element={
-                  <ProtectedRoute requiredRole="LANDLORD" user={user}>
-                    <LandlordDashboard />
                   </ProtectedRoute>
                 }
               />
@@ -121,6 +132,7 @@ const App = () => {
               <Route path="/listing/:id" element={<ListingDetailsPage />} />
               <Route path="/profile/:id" element={<EditProfilePage />} />
               <Route path="/profile" element={<EditProfilePage />} />
+              <Route path="/mygroups" element={<MyGroups />} />
             </Routes>
           </Content>
 

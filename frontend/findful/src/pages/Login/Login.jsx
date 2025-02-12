@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, Button, Checkbox, message, Layout } from "antd";
+import { Form, Input, Button, message, Layout } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { loginUser } from "../../services/login/loginService";
 import { jwtDecode } from "jwt-decode";
@@ -69,15 +69,6 @@ const Login = () => {
             rules={[{ required: true, message: "Please enter your password!" }]}
           >
             <Input.Password prefix={<LockOutlined />} placeholder="Password" />
-          </Form.Item>
-
-          <Form.Item>
-            <Form.Item name="remember" valuePropName="checked" noStyle>
-              <Checkbox>Remember me</Checkbox>
-            </Form.Item>
-            <a className="login-form-forgot" href="/forgot-password">
-              Forgot password?
-            </a>
           </Form.Item>
 
           <Form.Item>

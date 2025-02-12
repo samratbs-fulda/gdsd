@@ -126,12 +126,20 @@ class ListingService {
           status: status,
         },
       });
-      const image = await S3Service.fetchImage("image.webp");
-      const img = { img: image };
-      const newListing = listings.map((listing) => {
-        return { ...listing, ...img };
-      });
-      return newListing;
+      const listingsWithImages = await Promise.all(
+        listings.map(async (listing) => {
+          const folderKey = `${process.env.NODE_ENV}/listings/${listing.id}/thumbnails`;
+          let image;
+          try {
+            image = await S3Service.fetchAllImages(folderKey, { multiple: false });
+          } catch (error) {
+            console.error(`Error fetching image for listing ${listing.id}:`, error);
+            image = await S3Service.fetchImage("image.webp");
+          }
+          return { ...listing, img: image };
+        })
+      );
+      return listingsWithImages;
     } catch (error) {
       console.error("Error fetching listings:", error);
     }
@@ -145,12 +153,20 @@ class ListingService {
           landlordId: landlordId,
         },
       });
-      const image = await S3Service.fetchImage("image.webp");
-      const img = { img: image };
-      const newListings = listings.map((listing) => {
-        return { ...listing, ...img };
-      });
-      return newListings;
+      const listingsWithImages = await Promise.all(
+        listings.map(async (listing) => {
+          const folderKey = `${process.env.NODE_ENV}/listings/${listing.id}/thumbnails`;
+          let image;
+          try {
+            image = await S3Service.fetchAllImages(folderKey, { multiple: false });
+          } catch (error) {
+            console.error(`Error fetching image for listing ${listing.id}:`, error);
+            image = await S3Service.fetchImage("image.webp");
+          }
+          return { ...listing, img: image };
+        })
+      );
+      return listingsWithImages;
     } catch (error) {
       console.error("Error fetching listings:", error);
     }
