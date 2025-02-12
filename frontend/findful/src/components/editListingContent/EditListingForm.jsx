@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState } from "react";
 import {
   Alert,
@@ -22,6 +23,10 @@ import { getSpecialCharacterValidationRule } from "../../utils/inputValidation";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
+    if (!(file instanceof Blob)) {
+      resolve(file.url); // If it's a remote image, return the URL directly
+      return;
+    }
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => resolve(reader.result);
@@ -45,6 +50,7 @@ const EditListingForm = ({
   onFinishFailed,
   incompleteSubmission,
   initialValues,
+  initialImages,
   pendingSubmission,
 }) => {
   const [form] = Form.useForm();
@@ -54,7 +60,25 @@ const EditListingForm = ({
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [availableFrom, setAvailableFrom] = useState(null); 
-  const [fileList, setFileList] = useState([]);
+
+  const [removedImages, setRemovedImages] = useState([]);
+  const [fileList, setFileList] = useState(
+    initialImages.map((url, index) => ({
+      uid: `-${index}`, // Unique identifier
+      name: `image-${index}.jpg`,
+      status: "done", // Indicates the file is already uploaded
+      url, // Pre-signed URL from S3
+    }))
+  );
+
+  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+  const handleRemove = (file) => {
+    if (file.url) {
+      setRemovedImages((prev) => [...prev, file.url]);
+    }
+    setFileList(fileList.filter((item) => item.uid !== file.uid));
+  };
+
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
@@ -64,8 +88,9 @@ const EditListingForm = ({
   };
 
   const transformImages = async () => {
+    const newImages = fileList.filter((file) => file.originFileObj);
     return Promise.all(
-      fileList.map(async (file) => {
+      newImages.map(async (file) => {
         const base64 = await getBase64(file.originFileObj);
         return {
           imageBase64: base64.split(",")[1], // Remove the `data:image/ prefix
@@ -97,7 +122,6 @@ const validateRooms = (getFieldValue) => ({
     setAvailableFrom(date);
   };
 
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
   const uploadButton = (
     <button
       style={{
@@ -117,8 +141,10 @@ const validateRooms = (getFieldValue) => ({
     </button>
   );
   const handleSubmit = async (values) => {
+    // new images from local
     const images = await transformImages();
-    onFinish({ ...values, images });
+
+    onFinish({ ...values, images, removedImages });
   };
 
   return (
@@ -252,6 +278,7 @@ const validateRooms = (getFieldValue) => ({
           >
             <DatePicker
             placeholder="Select a date"
+            // @ts-ignore
             disabledDate={(current) => current && current.isBefore(moment(), 'day')}
             onChange={handleAvailableFromChange}
           />
@@ -478,7 +505,9 @@ const validateRooms = (getFieldValue) => ({
           fileList={fileList}
           onPreview={handlePreview}
           onChange={handleChange}
+          onRemove={handleRemove}
           beforeUpload={beforeUpload}
+          showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
         >
           {fileList.length >= 6 ? null : uploadButton}
         </Upload>
