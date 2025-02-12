@@ -77,6 +77,16 @@ export const addListing = async (listingValues) => {
   }
 };
 
+export const getListingImages = async (listingId) => {
+  try {
+    const response = await axios.get(`${apiUrl}/api/listings/imgs/${listingId}`);
+    return response.data.images;
+  } catch (error) {
+    console.error("API Request Failed:", error);
+    throw error;
+  }
+}
+
 export const updateListing = async (listingValues, listingId) => {
   try {
     const token = localStorage.getItem('token');

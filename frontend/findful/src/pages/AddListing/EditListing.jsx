@@ -3,7 +3,7 @@ import { message, Layout, theme } from "antd";
 import { Content } from "antd/es/layout/layout";
 import EditListingForm from "../../components/editListingContent/EditListingForm";
 import AddListingSuccessful from "../../components/addListingContent/AddListingSuccessful";
-import { updateListing, getListingById } from "../../services/listingService";
+import { updateListing, getListingImages, getListingById } from "../../services/listingService";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
@@ -68,6 +68,13 @@ const EditListing = () => {
     }
   }, [listingQuery.data]); // Update only when data changes
 
+  const imagesQuery = useQuery({
+    queryKey: ["listingId", {id}],
+    queryFn: async () => getListingImages(id),
+  });
+
+  const listingImages = imagesQuery.data || [];
+
   const [incompleteSubmission, setIncompleteSubmission] = useState(false);
   const [pendingSubmission, setPendingSubmission] = useState(false);
   const [submissionDone, setSubmissionDone] = useState(false);
@@ -112,6 +119,7 @@ const EditListing = () => {
             onFinishFailed={submitFailed}
             incompleteSubmission={incompleteSubmission}
             initialValues={initialValues}
+            initialImages={listingImages}
             pendingSubmission={pendingSubmission}
           />
         ) : (
