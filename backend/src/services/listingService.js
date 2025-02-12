@@ -23,21 +23,20 @@ class ListingService {
   }
 
   async getListingImgs(listingId){
-    const folderKey = `${process.env.NODE_ENV}/listings/${listingId}/`;
-      
+    const folderKey = `${process.env.NODE_ENV}/listings/${listingId}/`;  
     try {
-      images = await S3Service.fetchAllImages(folderKey, { multiple: true });
+      const images = await S3Service.fetchAllImages(folderKey, { multiple: true });
       if (listingId < 21) {
         images.shift(); // Remove doubled images
       }
       
       images.shift(); // Remove doubled images
       images.filter(s => !s.includes("/thumbnails/")); // remove thumbnail from response
+      return images;
     } catch (error) {
       console.error(`Error fetching images for listing ${listingId}:`, error);
-      images = await S3Service.fetchImage("image.webp");
+      return [];
     }
-    return images;
   }
 
   async getListingById(id) {
@@ -208,10 +207,43 @@ class ListingService {
     }
   }
 
-  async updateListing(newData, listingId){
+  async updateListing(listingData, listingId){
     try {
+      const { images, removedImages, ...newData } = listingData;
       const warmRent = Calculations.calculateWarmRent(newData);
       const updatedListing = await ListingRepository.updateListing(newData, warmRent, listingId);
+
+      const folderKey = `${process.env.NODE_ENV}/listings/${listingId}`;
+      const thumbnailFolderKey = `${folderKey}/thumbnails`;
+      let s3Warning = false;
+
+      // Remove Images
+      if (removedImages.length > 0){
+        const imagesToRemove = removedImages.map((img)=>{
+          return img.split(".amazonaws.com/")[1].split("?")[0];
+        });
+        console.log("Removing: ", imagesToRemove)
+        await S3Service.removeImages(imagesToRemove);
+      }
+
+      // Add new images
+      if (images && images.length > 0) {
+        const firstImage = images[0];
+        const { imageBase64 } = firstImage;
+        if (firstImage) {
+          const compressedBase64 = await compressImageToThumbnail(imageBase64, 1024, 768);
+          await S3Service.uploadImage(compressedBase64, 'image/jpeg', thumbnailFolderKey);
+        }
+        for (const image of images) {
+          try {
+            const { imageBase64, imageMimeType } = image;
+            await S3Service.uploadImage(imageBase64, imageMimeType, folderKey);
+          } catch (error) {
+            console.error(`Error uploading image to S3 for listing ${listingId}:`, error);
+            s3Warning = true;
+          }
+        }
+      }
       return updatedListing;
     }catch (error){
       throw error;
