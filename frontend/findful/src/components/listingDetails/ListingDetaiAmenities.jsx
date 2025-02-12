@@ -14,7 +14,7 @@ const ListingDetailAmenities = ({ amenities }) => {
   return (
     <div className="listingIcons">
       <h3>Amenities:</h3>
-      <Row justify={"space-between"} gutter={[16,16]}>
+      <Row justify={"start"} gutter={[16,16]}>
         <AmenityIcon amenityBool={amenities?.kitchenFitted} iconName={"kitchen-set"} displayTrueOnly={true} tooltipTrue={"Fitted kitchen"} tooltipFalse={""} />
         <AmenityIcon amenityBool={amenities?.petsAllowed} iconName={"dog"} displayTrueOnly={false} tooltipTrue={"Pets allowed"} tooltipFalse={"No pets allowed"} />
         <AmenityIcon amenityBool={amenities?.parkingAvailable} iconName={"car"} displayTrueOnly={true} tooltipTrue={"Parking available"} tooltipFalse={""} />
