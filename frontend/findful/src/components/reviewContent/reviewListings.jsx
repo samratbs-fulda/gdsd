@@ -44,6 +44,9 @@ const ReviewListings = ({ status }) => {
                       />
                     }
                     actions={[
+                        <Button key="edit-listing" type="primary" href={"/listing/edit/" + listing.id}>
+                          Edit
+                        </Button>,
                         <Button key="view-details" type="primary" href={"/listing/" + listing.id}>
                           View Details
                         </Button>,

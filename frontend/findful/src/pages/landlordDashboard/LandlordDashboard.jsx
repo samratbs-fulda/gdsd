@@ -25,7 +25,7 @@ const items = [UnorderedListOutlined, UnorderedListOutlined].map((icon, index) =
       key: `sub${index + 1}`,
       icon: React.createElement(icon),
       label: `Manage listing`,
-      children: ['Add', 'Edit'].map((label, j) => {
+      children: ['Add'].map((label, j) => {
         return {
           key: j + 5,
           label: label,

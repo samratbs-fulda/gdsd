@@ -82,6 +82,44 @@ class ListingRepository {
 
     return result;
   }
+
+  static async updateListing(newData, warmRent, listingId){
+    const { amenities, documents, type, furnished, ...listingData } = newData;
+    const status = "PENDING";
+    const apartmentType = getEnumValue(ApartmentTypeEnum, type);
+    const furnishedStatus = getEnumValue(FurnishedEnum, furnished);
+    const listingStatus = getEnumValue(ListingStatusEnum, status);
+
+    listingData["status"] = listingStatus;
+    listingData["type"] = apartmentType;
+    listingData["furnished"] = furnishedStatus;
+    listingData["warmRent"] = warmRent;
+
+    const updatedListing = await prisma.$transaction(async (prisma) => {
+      const updatedListing = await prisma.listing.update({
+        where: { id: listingId },
+        data: listingData,
+      });
+
+      if (amenities) {
+        await prisma.amenities.update({
+          where: { listingId: listingId },
+          data: amenities,
+        });
+      }
+
+      if (documents) {
+        await prisma.documents.update({
+          where: { listingId: listingId },
+          data: documents,
+        });
+      }
+
+      return updatedListing;
+    });
+
+    return updatedListing;
+  }
 }
 
 module.exports = ListingRepository;
