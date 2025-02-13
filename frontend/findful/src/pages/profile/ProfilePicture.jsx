@@ -89,7 +89,7 @@ const ProfilePicture = ({ userId }) => {
                 </Button>
             )}
 
-            <Modal title="Edit Profile Picture" open={isEditing} onCancel={() => setIsEditing(false)} onOk={handleUpload}>
+            <Modal title="Edit Profile Picture" open={isEditing} onCancel={() => setIsEditing(false)} onOk={handleUpload} okText="Upload">
                 <div style={{ textAlign: "center" }}>
                     {selectedFile ? (
                         <AvatarEditor
@@ -105,7 +105,7 @@ const ProfilePicture = ({ userId }) => {
                     )}
                     <div style={{ marginTop: "10px" }}>
                         <Upload beforeUpload={(file) => { setSelectedFile(file); return false; }} showUploadList={false}>
-                            <Button>Select Image</Button>
+                            <Button>Choose Image</Button>
                         </Upload>
                     </div>
                 </div>

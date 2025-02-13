@@ -104,7 +104,7 @@ router.get("/:id", async (req, res) => {
   res.json({ user });
 });
 
-// Fetch profile picture
+// Profile picture
 router.get("/profile-picture/:userId", async (req, res) => {
   const { userId } = req.params;
 
@@ -120,7 +120,6 @@ router.get("/profile-picture/:userId", async (req, res) => {
   }
 });
 
-// Upload profile picture
 router.post("/profile-picture/:userId", async (req, res) => {
   const { userId } = req.params;
   const { imageBase64 } = req.body;
