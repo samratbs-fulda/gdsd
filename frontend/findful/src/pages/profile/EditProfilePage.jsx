@@ -19,6 +19,7 @@ const EditProfilePage = () => {
 
   const [loading, setLoading] = useState(false);
   const [isEditingDOB, setIsEditingDOB] = useState(false); 
+  const [loadingAge, setLoadingAge] = useState(false);
   const [form] = Form.useForm();
   const [phoneError, setPhoneError] = useState("");
 
@@ -49,17 +50,23 @@ const EditProfilePage = () => {
 
   const handleDOBChange = async (e) => {
     const dob = e.target.value;
-    const calculatedAge = calculateAge(dob);
+    setLoadingAge(true);
 
-    form.setFieldsValue({ dob, age: calculatedAge });
+    setTimeout(async () => {
+      const calculatedAge = calculateAge(dob);
 
-    try {
-      await updateUserProfile(userId, { dob, age: calculatedAge });
-      message.success("Date of Birth updated successfully!");
-      setIsEditingDOB(false); 
-    } catch (error) {
-      message.error("Failed to update Date of Birth.");
-    }
+      form.setFieldsValue({ dob, age: calculatedAge });
+
+      try {
+        await updateUserProfile(userId, { dob, age: calculatedAge });
+        message.success("Date of Birth updated successfully!");
+        setIsEditingDOB(false); 
+      } catch (error) {
+        message.error("Failed to update Date of Birth.");
+      } finally {
+        setLoadingAge(false); 
+      }
+    }, 500);
   };
 
   const calculateAge = (dob) => {
@@ -123,7 +130,11 @@ const EditProfilePage = () => {
           <Form.Item label="Age" name="age">
             {!isEditingDOB ? (
               <>
-                <Input disabled style={disabledStyle} value={form.getFieldValue("age")} />
+                {loadingAge ? (
+                  <Spin /> 
+                ) : (
+                  <Input disabled style={disabledStyle} value={form.getFieldValue("age")} />
+                )}
                 <Button type="link" onClick={toggleDOBEdit}>Edit Age</Button>
               </>
             ) : (

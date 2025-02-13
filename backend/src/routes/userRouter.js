@@ -4,7 +4,7 @@ const { UserService } = require("../services");
 
 const express = require("express");
 const { parse } = require("dotenv-flow");
-const S3Service = require("../services/s3Service");
+const S3Service = require("../services/s3ProfileService");
 const router = express.Router();
 const userService = new UserService();
 

@@ -1,4 +1,5 @@
 const AWS = require("aws-sdk");
+const { v4: uuidv4 } = require("uuid");
 const BACKEND_URL = `${process.env.FINDFUL_URL}:${process.env.PORT}`;
 
 const s3 = new AWS.S3({
@@ -7,52 +8,54 @@ const s3 = new AWS.S3({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
-class S3ProfileService {
+class S3Service {
 
-    getProfilePictureKey(userId) {
-        return `${process.env.NODE_ENV}/profiles/${userId}/profile.jpg`;
-    }
+    // Fetch an image 
+    async fetchImage(key, expiresIn = 3600) {
+        const params = {
+            Bucket: process.env.BUCKET_NAME,
+            Key: key,
+            Expires: expiresIn,
+        };
 
-    // Fetch a signed URL for profile picture
-    async fetchProfileImage(userId, expiresIn = 3600) {
-        const s3Key = `users/${userId}/profile.jpg`;
         try {
-            await s3.headObject({ Bucket: process.env.BUCKET_NAME, Key: s3Key }).promise();
-
-            return await s3.getSignedUrlPromise("getObject", {
-                Bucket: process.env.BUCKET_NAME,
-                Key: s3Key,
-                Expires: expiresIn,
-            });
+            await s3.headObject({ Bucket: params.Bucket, Key: params.Key }).promise();
+            return await s3.getSignedUrlPromise("getObject", params);
         } catch (error) {
-            console.warn(`⚠️ No profile picture found for user ${userId}. Returning default.`);
-            return `${BACKEND_URL}/default_pfp.png`; 
+            console.warn(`No image found for key: ${key}. Returning default.`);
+            if (key.includes("/profiles/")) {
+                return `${BACKEND_URL}/default_pfp.png`; 
+            }
+            return `${BACKEND_URL}/static/image.webp`; 
         }
     }
 
-    // Upload a new profile picture
-    async uploadProfileImage(userId, imageBase64, imageMimeType) {
+    // Upload image
+    async uploadImage(imageBase64, imageMimeType, folderKey, fileName = uuidv4()) {
         try {
             const imageBuffer = Buffer.from(imageBase64, "base64");
-            const s3Key = this.getProfilePictureKey(userId);
+            const s3Key = `${folderKey}/${fileName}`;
+
             const uploadParams = {
                 Bucket: process.env.BUCKET_NAME,
                 Key: s3Key,
                 Body: imageBuffer,
                 ContentType: imageMimeType,
             };
-            console.log(`Uploading profile picture for user ${userId}...`);
+
+            console.log(`Uploading image to S3: ${s3Key}`);
             await s3.upload(uploadParams).promise();
+
             return await s3.getSignedUrlPromise("getObject", {
                 Bucket: process.env.BUCKET_NAME,
                 Key: s3Key,
                 Expires: 3600, 
             });
         } catch (error) {
-            console.error(`Error uploading profile picture for user ${userId}:`, error);
+            console.error(`Error uploading image to S3:`, error);
             throw error;
         }
     }
 }
 
-module.exports = new S3ProfileService();
+module.exports = new S3Service();
