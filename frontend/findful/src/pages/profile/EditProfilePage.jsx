@@ -32,7 +32,7 @@ const EditProfilePage = () => {
       setLoading(true);
       const userData = await getUserProfile(userId);
 
-      const dob = userData.dob ? dayjs(userData.dob).format("YYYY-MM-DD") : "";
+      const dob = userData.dob ? dayjs(userData.dob).format("YYYY-MM-DD") : ""; 
       const { countryCode, phoneNumber } = splitPhoneNumber(userData.phone || "+49 1234567");
 
       form.setFieldsValue({
@@ -55,7 +55,7 @@ const EditProfilePage = () => {
   };
 
   const calculateAge = (dob) => {
-    if (!dob) return "";
+    if (!dob) return 0;
     const birthDate = dayjs(dob);
     const today = dayjs();
     return today.diff(birthDate, "year");
@@ -67,12 +67,18 @@ const EditProfilePage = () => {
       return;
     }
 
-    let updatedValues = { ...values };
-
-    if (selectedDOB) {
-      updatedValues.dob = selectedDOB;
-      updatedValues.age = calculateAge(selectedDOB);
+    const dobValue = selectedDOB || form.getFieldValue("dob");
+    if (!dobValue) {
+      message.error("Please enter your Date of Birth");
+      return;
     }
+    const ageCalculated = calculateAge(dobValue);
+    if (ageCalculated < 15 || ageCalculated > 120) {
+      message.error("Age must be between 15 and 120");
+      return;
+    }
+
+    let updatedValues = { ...values, dob: dobValue, age: ageCalculated };
 
     setLoading(true);
     try {
@@ -91,7 +97,7 @@ const EditProfilePage = () => {
   };
 
   const toggleDOBEdit = () => {
-    setIsEditingDOB(!isEditingDOB);
+    setIsEditingDOB(!isEditingDOB); 
   };
 
   if (!userId) return <Spin tip="Waiting for user ID..." />;
@@ -102,7 +108,7 @@ const EditProfilePage = () => {
   return (
     <Layout className="page-content-layout" style={layoutStyle}>
       <Content style={contentStyle}>
-        
+
         <ProfilePicture userId={userId} />
 
         <Form form={form} layout="vertical" onFinish={handleFormSubmit}>
@@ -197,4 +203,3 @@ const renderDisabledField = (label, name, style) => (
 
 const layoutStyle = { minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" };
 const contentStyle = { width: "50%", minWidth: "400px", maxWidth: "800px", padding: "20px", background: "#fff", borderRadius: "10px", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" };
-const headingStyle = { textAlign: "center", marginBottom: "20px" };
