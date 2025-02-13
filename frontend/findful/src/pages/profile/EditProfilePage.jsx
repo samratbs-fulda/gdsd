@@ -18,8 +18,8 @@ const EditProfilePage = () => {
   const userId = id || user?.id;
 
   const [loading, setLoading] = useState(false);
-  const [isEditingDOB, setIsEditingDOB] = useState(false); 
-  const [loadingAge, setLoadingAge] = useState(false);
+  const [isEditingDOB, setIsEditingDOB] = useState(false);
+  const [selectedDOB, setSelectedDOB] = useState(null); 
   const [form] = Form.useForm();
   const [phoneError, setPhoneError] = useState("");
 
@@ -32,7 +32,7 @@ const EditProfilePage = () => {
       setLoading(true);
       const userData = await getUserProfile(userId);
 
-      const dob = userData.dob ? dayjs(userData.dob).format("YYYY-MM-DD") : ""; 
+      const dob = userData.dob ? dayjs(userData.dob).format("YYYY-MM-DD") : "";
       const { countryCode, phoneNumber } = splitPhoneNumber(userData.phone || "+49 1234567");
 
       form.setFieldsValue({
@@ -41,6 +41,8 @@ const EditProfilePage = () => {
         phone: phoneNumber,
         countryCode: countryCode || "+49",
       });
+
+      setSelectedDOB(null); 
     } catch (error) {
       message.error("Failed to fetch profile information.");
     } finally {
@@ -48,32 +50,15 @@ const EditProfilePage = () => {
     }
   };
 
-  const handleDOBChange = async (e) => {
-    const dob = e.target.value;
-    setLoadingAge(true);
-
-    setTimeout(async () => {
-      const calculatedAge = calculateAge(dob);
-
-      form.setFieldsValue({ dob, age: calculatedAge });
-
-      try {
-        await updateUserProfile(userId, { dob, age: calculatedAge });
-        message.success("Date of Birth updated successfully!");
-        setIsEditingDOB(false); 
-      } catch (error) {
-        message.error("Failed to update Date of Birth.");
-      } finally {
-        setLoadingAge(false); 
-      }
-    }, 500);
+  const handleDOBChange = (e) => {
+    setSelectedDOB(e.target.value);
   };
 
   const calculateAge = (dob) => {
     if (!dob) return "";
     const birthDate = dayjs(dob);
     const today = dayjs();
-    return today.diff(birthDate, "year"); 
+    return today.diff(birthDate, "year");
   };
 
   const handleFormSubmit = async (values) => {
@@ -82,13 +67,17 @@ const EditProfilePage = () => {
       return;
     }
 
-    const dob = values.dob ? dayjs(values.dob) : null;
-    const calculatedAge = calculateAge(values.dob);
+    let updatedValues = { ...values };
+
+    if (selectedDOB) {
+      updatedValues.dob = selectedDOB;
+      updatedValues.age = calculateAge(selectedDOB);
+    }
 
     setLoading(true);
     try {
       const formattedPhone = formatPhoneNumber(values.countryCode, values.phone);
-      const updatedValues = { ...values, phone: formattedPhone, age: calculatedAge };
+      updatedValues.phone = formattedPhone;
 
       await updateUserProfile(userId, updatedValues);
       message.success("Profile updated successfully!");
@@ -97,11 +86,12 @@ const EditProfilePage = () => {
       message.error("Failed to update profile.");
     } finally {
       setLoading(false);
+      setIsEditingDOB(false);
     }
   };
 
   const toggleDOBEdit = () => {
-    setIsEditingDOB(!isEditingDOB); 
+    setIsEditingDOB(!isEditingDOB);
   };
 
   if (!userId) return <Spin tip="Waiting for user ID..." />;
@@ -112,9 +102,9 @@ const EditProfilePage = () => {
   return (
     <Layout className="page-content-layout" style={layoutStyle}>
       <Content style={contentStyle}>
-
-        <ProfilePicture userId={userId} />
         
+        <ProfilePicture userId={userId} />
+
         <Form form={form} layout="vertical" onFinish={handleFormSubmit}>
           <Typography.Title level={4}>Personal Information</Typography.Title>
           {renderDisabledField("Username", "username", disabledStyle)}
@@ -130,31 +120,26 @@ const EditProfilePage = () => {
           <Form.Item label="Age" name="age">
             {!isEditingDOB ? (
               <>
-                {loadingAge ? (
-                  <Spin /> 
-                ) : (
-                  <Input disabled style={disabledStyle} value={form.getFieldValue("age")} />
-                )}
+                <Input disabled style={disabledStyle} value={selectedDOB ? calculateAge(selectedDOB) : form.getFieldValue("age")} />
                 <Button type="link" onClick={toggleDOBEdit}>Edit Age</Button>
               </>
             ) : (
               <input
                 type="date"
-                onBlur={handleDOBChange}
-                value={form.getFieldValue("dob") || ""}
+                onChange={handleDOBChange}
+                value={selectedDOB || form.getFieldValue("dob") || ""}
                 style={{ width: "100%", padding: "8px" }}
               />
             )}
           </Form.Item>
 
-
           <Form.Item label="Gender" name="gender">
-          <Select>{["Male", "Female", "Others"].map((g) => <Option key={g} value={g}>{g}</Option>)}</Select>
+            <Select>{["Male", "Female", "Others"].map((g) => <Option key={g} value={g}>{g}</Option>)}</Select>
           </Form.Item>
 
           <Form.Item label="Nationality" name="nationality">
             <Select showSearch>
-            {countryList.map((country) => <Option key={country} value={country}>{country}</Option>)}
+              {countryList.map((country) => <Option key={country} value={country}>{country}</Option>)}
             </Select>
           </Form.Item>
 

@@ -16,7 +16,7 @@ const ProfilePicture = ({ userId }) => {
     useEffect(() => {
         fetchProfilePicture(userId)
             .then((url) => {if (url) {setImageUrl(url);} 
-            else {setImageError(true);}})
+                else {setImageError(true);}})
             .catch(() => setImageError(true))
             .finally(() => setLoading(false));
     }, [userId]);
@@ -28,7 +28,7 @@ const ProfilePicture = ({ userId }) => {
 
             try {
                 const response = await uploadProfilePicture(userId, imageBase64);
-                if (response?.imageUrl){ 
+                if (response?.imageUrl){
                     setImageUrl(`${response.imageUrl}?t=${new Date().getTime()}`);
                     setImageError(false);
                 }
@@ -36,6 +36,12 @@ const ProfilePicture = ({ userId }) => {
                 setIsEditing(false);
 
                 message.success("Profile picture successfully updated.");
+
+                setLoading(true);
+                fetchProfilePicture(userId)
+                    .then((url) => setImageUrl(url || DEFAULT_IMAGE))
+                    .catch(() => setImageError(true))
+                    .finally(() => setLoading(false));
 
             } catch (error) {
                 console.error("Error uploading image:", error);
@@ -49,28 +55,28 @@ const ProfilePicture = ({ userId }) => {
                 <Spin size="large" />
             ) : (
                 <div style={{ position: "relative", width: "150px", height: "150px" }}>
-                    {/* Profile Picture */}
-                    <Image 
-                        width={150} 
-                        height={150} 
-                        style={{ borderRadius: "50%", display: imageError ? "none" : "block" }} 
-                        src={imageUrl} 
-                        onError={() => setImageError(true)} 
-                        preview={{ mask: false, toolbarRender: () => null }} 
+                                        {/* Profile Picture */}
+                    <Image
+                        width={150}
+                        height={150}
+                        style={{ borderRadius: "50%", display: imageError ? "none" : "block" }}
+                        src={imageUrl}
+                        onError={() => setImageError(true)}
+                        preview={{ mask: false, toolbarRender: () => null }}
                     />
 
                     {/* Fallback Image (Overlay on Failure) */}
                     {imageError && (
-                        <img 
-                            src={DEFAULT_IMAGE} 
-                            width={150} 
-                            height={150} 
-                            style={{ 
-                                borderRadius: "50%", 
-                                position: "absolute", 
-                                top: 0, 
-                                left: 0 
-                            }} 
+                        <img
+                            src={DEFAULT_IMAGE}
+                            width={150}
+                            height={150}
+                            style={{
+                                borderRadius: "50%",
+                                position: "absolute",
+                                top: 0,
+                                left: 0
+                            }}
                             alt="Default Profile"
                         />
                     )}
@@ -84,22 +90,25 @@ const ProfilePicture = ({ userId }) => {
             )}
 
             <Modal title="Edit Profile Picture" open={isEditing} onCancel={() => setIsEditing(false)} onOk={handleUpload}>
-                {selectedFile ? (
-                    <AvatarEditor
-                        ref={editorRef}
-                        image={URL.createObjectURL(selectedFile)}
-                        width={200}
-                        height={200}
-                        border={50}
-                        scale={1.2}
-                    />
-                ) : (
-                    <p>Select an image to upload</p>
-                )}
-
-                <Upload beforeUpload={(file) => { setSelectedFile(file); return false; }} showUploadList={false}>
-                    <Button>Select Image</Button>
-                </Upload>
+                <div style={{ textAlign: "center" }}>
+                    {selectedFile ? (
+                        <AvatarEditor
+                            ref={editorRef}
+                            image={URL.createObjectURL(selectedFile)}
+                            width={200}
+                            height={200}
+                            border={50}
+                            scale={1.2}
+                        />
+                    ) : (
+                        <p>Select an image to upload</p>
+                    )}
+                    <div style={{ marginTop: "10px" }}>
+                        <Upload beforeUpload={(file) => { setSelectedFile(file); return false; }} showUploadList={false}>
+                            <Button>Select Image</Button>
+                        </Upload>
+                    </div>
+                </div>
             </Modal>
         </div>
     );
