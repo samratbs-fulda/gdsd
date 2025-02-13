@@ -9,7 +9,7 @@ import markerIcon from '../../../public/marker-icon-2x.png';
 import shadowMarkerIcon from '../../../public/marker-shadow.png';
 
 const Map = ({longitude, latitude}) => {
-    const position = [longitude, latitude];
+    const position = [latitude, longitude];
 
     const customMarker = new L.Icon({
         iconUrl: markerIcon,
