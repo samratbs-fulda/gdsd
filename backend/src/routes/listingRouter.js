@@ -208,4 +208,30 @@ router.patch("/status", async (req, res) => {
   }
 });
 
+router.get("/imgs/:listingId", async (req, res) => {
+  const listingId = parseInt(req.params.listingId);
+  try {
+    const imgs = await listingService.getListingImgs(listingId);
+    res.status(200).json({images: imgs})
+  }catch (error){
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
+router.patch("/update/:listingId", async (req, res) => {
+  const listingId = parseInt(req.params.listingId);
+  try {
+    const updatedListing = listingService.updateListing(req.body, listingId);
+    res.status(201).json({ updatedListing });
+  }catch (error){
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
 module.exports = router;

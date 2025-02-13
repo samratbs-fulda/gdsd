@@ -77,21 +77,30 @@ export const addListing = async (listingValues) => {
   }
 };
 
-// export const updateListing = async (listingValues) => {
-//   try {
-//     const token = localStorage.getItem('token');
-//     const decodedToken = jwtDecode(token);
-//     const landlordId = decodedToken.id;
+export const getListingImages = async (listingId) => {
+  try {
+    const response = await axios.get(`${apiUrl}/api/listings/imgs/${listingId}`);
+    return response.data.images;
+  } catch (error) {
+    console.error("API Request Failed:", error);
+    throw error;
+  }
+}
 
-//     listingValues = {
-//       ...listingValues,
-//       distanceFromUni: 0.2, // TODO: Calculate distance
-//       landlordId: landlordId,
-//     }
-//     const response = await axios.post(`${apiUrl}/api/listings/add`, listingValues);
-//     return response.status;
-//   } catch (error) {
-//     console.error("API Request Failed:", error);
-//     throw error;
-//   }
-// };
+export const updateListing = async (listingValues, listingId) => {
+  try {
+    const token = localStorage.getItem('token');
+    const decodedToken = jwtDecode(token);
+    const landlordId = decodedToken.id;
+
+    listingValues = {
+      ...listingValues,
+      landlordId: landlordId,
+    }
+    const response = await axios.patch(`${apiUrl}/api/listings/update/${listingId}`, listingValues);
+    return response.status;
+  } catch (error) {
+    console.error("API Request Failed:", error);
+    throw error;
+  }
+};
