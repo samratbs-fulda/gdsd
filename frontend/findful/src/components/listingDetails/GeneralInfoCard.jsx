@@ -12,7 +12,7 @@ const GeneralInfoCard = ({children}) => {
 
   return (
     <Col xs={12} xl={8}>
-      <Card>
+      <Card style={{height: "100%"}}>
         {children}
       </Card>
     </Col>
