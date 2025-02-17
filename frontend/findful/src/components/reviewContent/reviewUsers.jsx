@@ -26,13 +26,6 @@ const ReviewUsers = ({ status }) => {
                 >
                   <Card
                     hoverable
-                    // cover={
-                    //   <img
-                    //     alt="listing"
-                    //     src={user.img}
-                    //     className="listing-image"
-                    //   />
-                    // }
                     actions={[
                         <Button key="view-details" type="primary" href={"profile/" + user.id}>
                           View Profile
