@@ -117,7 +117,7 @@ const MyGroups = () => {
   return (
     <Layout className="page-content-layout">
       <Content className="page-inner-content" style={{ maxWidth: 900, margin: "0 auto" }}>
-        <Row justify="end" style={{ marginBottom: 20 }}>
+        <Row justify="center" style={{ marginBottom: 20 }}>
           <Col>
             <Button
               icon={<PlusOutlined />}
@@ -201,14 +201,14 @@ const MyGroups = () => {
                     <Text>Creator: {creatorUsername}</Text>
                   </Col>
                   <Col>
-                    <Button
+                  {/*<Button
                       type="primary"
                       icon={<MessageOutlined />}
                       style={{ marginRight: 8 }}
                       onClick={() => navigate("/chat")}
                     >
                       Chat
-                    </Button>
+                    </Button> */}
                     <Button danger onClick={() => handleLeave(group)}>
                       Leave
                     </Button>

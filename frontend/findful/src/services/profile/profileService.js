@@ -25,3 +25,28 @@ export const updateUserProfile = async (userId, profileData) => {
     throw error;
   }
 };
+
+// Fetch Profile Picture
+export const fetchProfilePicture = async (userId) => {
+  try {
+      const response = await axios.get(`${apiUrl}/api/users/profile-picture/${userId}`);
+      return response.data.imageUrl || "/default_pfp.png";
+  } catch (error) {
+      console.error("Error fetching profile picture:", error.response?.data || error.message);
+      return "/default_pfp.png";
+  }
+};
+
+// Upload Profile Picture
+export const uploadProfilePicture = async (userId, imageBase64) => {
+  try {
+      console.log("Uploading new profile picture...");
+      const response = await axios.post(`${apiUrl}/api/users/profile-picture/${userId}`, { imageBase64 });
+
+      console.log(`Profile picture uploaded: ${response.data.imageUrl}`);
+      return response.data.imageUrl;
+  } catch (error) {
+      console.error("Error uploading profile picture:", error.response?.data || error.message);
+      throw error;
+  }
+};
