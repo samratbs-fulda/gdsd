@@ -126,7 +126,7 @@ const Apply = () => {
                 >
                   {groups.map((group) => (
                     <Select.Option key={group.id} value={group.name}>
-                      {group.name}
+                      {`Group #${group.id}`}
                     </Select.Option>
                   ))}
                 </Select>
