@@ -417,14 +417,28 @@ const ListingDetailsPage = () => {
                             <>
                               <Col lg={2} xs={4}>
                                 <Button
-                                  key="manage"
+                                  key="delete"
                                   type="primary"
                                   style={{ width: "100%" }}
                                   onClick={async () => {
+                                    await updateListingStatus(listing.id, "DELETED");
+                                    message.success("Listing deleted successfully");
                                     navigate("/dashboard/landlord");
                                   }}
                                 >
-                                  Manage
+                                  Delete
+                                </Button>
+                              </Col>
+                              <Col lg={2} xs={4} offset={1}>
+                                <Button
+                                  key="edit"
+                                  type="primary"
+                                  style={{ width: "100%" }}
+                                  onClick={() => {
+                                    navigate("/listing/edit/"+listing?.id);
+                                  }}
+                                >
+                                  Edit
                                 </Button>
                               </Col>
                             </>
