@@ -22,16 +22,13 @@ class ListingService {
     }
   }
 
-  async getListingImgs(listingId){
-    const folderKey = `${process.env.NODE_ENV}/listings/${listingId}/`;  
+  async getListingImgs(listingId, multiple) {
+    const folderKey = `${process.env.NODE_ENV}/listings/${listingId}/`;
     try {
-      const images = await S3Service.fetchAllImages(folderKey, { multiple: true });
-      if (listingId < 21) {
-        images.shift(); // Remove doubled images
+      const images = await S3Service.fetchAllImages(folderKey, { multiple: multiple });
+      if (multiple && listingId < 21) {
+        images.shift(); // Remove first image from seed S3 images
       }
-      
-      images.shift(); // Remove doubled images
-      images.filter(s => !s.includes("/thumbnails/")); // remove thumbnail from response
       return images;
     } catch (error) {
       console.error(`Error fetching images for listing ${listingId}:`, error);
@@ -53,20 +50,12 @@ class ListingService {
       ]);
       listing.amenities = amenities;
       listing.documents = documents;
-      
-      const folderKey = `${process.env.NODE_ENV}/listings/${id}/`;
-      
+
+      // Fetch images for the listing
       try {
-        listing.images = await S3Service.fetchAllImages(folderKey, { multiple: true });
-        if (listing.id < 21) {
-          listing.images.shift(); // Remove doubled images
-        }
-        
-        listing.images.shift(); // Remove doubled images
-        listing.images.filter(s => !s.includes("/thumbnails/")); // remove thumbnail from response
+        listing.images = await this.getListingImgs(id, true);
       } catch (error) {
-        console.error(`Error fetching images for listing ${listing.id}:`, error);
-        listing.images = await S3Service.fetchImage("image.webp");
+        console.error(`Error fetching images for listing ${id}:`, error);
       }
       return listing;
     } catch (error) {
@@ -116,15 +105,15 @@ class ListingService {
           amenities: true, // Include the amenities data in the result
         },
       });
+
       const listingsWithImages = await Promise.all(
         listings.map(async (listing) => {
-          const folderKey = `${process.env.NODE_ENV}/listings/${listing.id}/thumbnails`;
+          // Fetch thumbnails for the listings
           let image;
           try {
-            image = await S3Service.fetchAllImages(folderKey, { multiple: false });
+            image = await this.getListingImgs(listing.id, false);
           } catch (error) {
-            console.error(`Error fetching image for listing ${listing.id}:`, error);
-            image = await S3Service.fetchImage("image.webp");
+            console.error(`Error fetching images for listing ${listing.id}:`, error);
           }
           return { ...listing, img: image };
         })
@@ -207,7 +196,7 @@ class ListingService {
     }
   }
 
-  async updateListing(listingData, listingId){
+  async updateListing(listingData, listingId) {
     try {
       const { images, removedImages, ...newData } = listingData;
       const warmRent = Calculations.calculateWarmRent(newData);
@@ -218,8 +207,8 @@ class ListingService {
       let s3Warning = false;
 
       // Remove Images
-      if (removedImages.length > 0){
-        const imagesToRemove = removedImages.map((img)=>{
+      if (removedImages.length > 0) {
+        const imagesToRemove = removedImages.map((img) => {
           return img.split(".amazonaws.com/")[1].split("?")[0];
         });
         console.log("Removing: ", imagesToRemove)
@@ -245,7 +234,7 @@ class ListingService {
         }
       }
       return updatedListing;
-    }catch (error){
+    } catch (error) {
       throw error;
     }
   }

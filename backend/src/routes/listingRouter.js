@@ -211,7 +211,7 @@ router.patch("/status", async (req, res) => {
 router.get("/imgs/:listingId", async (req, res) => {
   const listingId = parseInt(req.params.listingId);
   try {
-    const imgs = await listingService.getListingImgs(listingId);
+    const imgs = await listingService.getListingImgs(listingId, true);
     res.status(200).json({images: imgs})
   }catch (error){
     res.status(500).json({
