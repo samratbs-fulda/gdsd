@@ -1,21 +1,26 @@
-import React, { useEffect, useState, useContext } from "react";
-import { useParams } from "react-router-dom";
-import { Form, Input, Button, message, Typography, Layout, Select, Spin } from "antd";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Form, Input, Button, message, Typography, Layout, Select, Spin, Col, Row, Flex } from "antd";
 import { getUserProfile, updateUserProfile } from "../../services/profile/profileService";
-import { AuthContext } from "../../services/authContext";
+import { useAuth } from "../../services/authContext";
 import countryList from "../../utils/countryList";
 import countryCodes from "../../utils/countryCodes";
 import dayjs from "dayjs";
 import ProfilePicture from "./ProfilePicture";
+import { updateUserStatus } from "../../services/reviewContent/reviewUserService";
+import Paragraph from "antd/es/typography/Paragraph";
 
 
 const { Content } = Layout;
 const { Option } = Select;
 
 const EditProfilePage = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
+  const role = user.role;
   const { id } = useParams();
   const userId = id || user?.id;
+
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [isEditingDOB, setIsEditingDOB] = useState(false);
@@ -171,9 +176,47 @@ const EditProfilePage = () => {
           </Form.Item>
 
           <Form.Item style={{ textAlign: "center" }}>
-            <Button type="primary" htmlType="submit" loading={loading} style={{ width: "50%" }}>
-              Save Changes
-            </Button>
+            <Flex justify="center">
+              <Paragraph style={{ width: "100%" }}>
+                <Row justify={"center"}>
+                  {role === "MODERATOR" && (
+                    <>
+                    <Col lg={2} xs={4}>
+                      <Button
+                        key="ban"
+                        type="primary"
+                        style={{ width: "100%", marginTop: "20px" }}
+                        onClick={async () => {
+                          await updateUserStatus(parseInt(id), "BANNED");
+                          message.success("User deleted successfully");
+                          navigate("/dashboard");
+                        }}
+                      >
+                        Ban
+                      </Button>
+                    </Col>
+                    <Col lg={2} xs={4} offset={1}>
+                      <Button
+                        key="delete"
+                        type="primary"
+                        style={{ width: "100%", marginTop: "20px" }}
+                        onClick={async () => {
+                          await updateUserStatus(parseInt(id), "DELETED");
+                          message.success("User deleted successfully");
+                          navigate("/dashboard");
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </Col>
+                  </>
+            )}
+                </Row>
+              </Paragraph>
+            </Flex>
+              <Button type="primary" htmlType="submit" loading={loading} style={{ width: "50%" }}>
+                Save Changes
+              </Button>
           </Form.Item>
         </Form>
       </Content>

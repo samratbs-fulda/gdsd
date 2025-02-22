@@ -134,7 +134,6 @@ const Register = () => {
         allowClear>
             <Option value='STUDENT'>Student</Option>
             <Option value='LANDLORD'>Landlord</Option>
-            <Option value='MODERATOR'>Admin</Option>
         </Select>
       </Form.Item>
 
