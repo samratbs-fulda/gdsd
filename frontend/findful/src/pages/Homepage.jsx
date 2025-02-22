@@ -293,6 +293,7 @@ const Homepage = () => {
                         Address: {listing.street} {listing.houseNumber},{" "}
                         {listing.postalCode}
                       </p>
+                      <p>Distance from University: {listing.distanceFromUni} km</p>
                     </div>
                   </Card>
                 </Col>
