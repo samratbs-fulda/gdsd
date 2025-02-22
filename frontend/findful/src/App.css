@@ -39,3 +39,9 @@ h3 {
   padding: 0 24px;
   background-color: var(--ant-layout-body-background);
 }
+
+@media (max-width: 550px) {
+  .route-content {
+    padding: 0;
+  }
+}

@@ -43,8 +43,8 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
 const server = http.createServer(app);
 const io = initializeSocket(server, allowedOrigins);
 
-app.use(bodyParser.json({ limit: "100mb" }));
-app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
+app.use(bodyParser.json({ limit: "200mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "200mb" }));
 
 // helps in validating a successful database connection
 async function startServer() {

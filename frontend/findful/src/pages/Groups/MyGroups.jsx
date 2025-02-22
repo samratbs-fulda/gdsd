@@ -189,8 +189,8 @@ const MyGroups = () => {
 
             return (
               <List.Item style={{ justifyContent: "space-between" }}>
-                <Row style={{ width: "100%" }} justify="space-between">
-                  <Col>
+                <Row style={{ width: "100%" }} justify="space-between" align="middle">
+                  <Col span={18}>
                     <Text strong>
                       <TeamOutlined style={{ marginRight: 8 }} />
                       Group #{group.id}
@@ -200,7 +200,7 @@ const MyGroups = () => {
                     <br/>
                     <Text>Creator: {creatorUsername}</Text>
                   </Col>
-                  <Col>
+                  <Col span={6} style={{ textAlign: "right" }}>
                   {/*<Button
                       type="primary"
                       icon={<MessageOutlined />}
