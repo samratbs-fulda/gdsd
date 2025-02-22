@@ -78,7 +78,7 @@ const ListingDetailsPage = () => {
           :
           (<>
             {/* Check if user is allowed to see current listing */}
-            {listing?.status != "APPROVED" && userId != listing?.landlordId || role == "MODERATOR" ?
+            {listing?.status != "APPROVED" && userId != listing?.landlordId && role != "MODERATOR" ?
               <Paragraph>The listing is currently unavailable. Please revisit at a later time.</Paragraph>
               :
               <Typography>

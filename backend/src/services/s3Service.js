@@ -19,7 +19,7 @@ class S3Service {
 
         try {
             // Check if the object exists
-            await s3.headObject({ Bucket: params.Bucket, Key: params.Key }).promise();  
+            await s3.headObject({ Bucket: params.Bucket, Key: params.Key }).promise();
             const signedUrl = await s3.getSignedUrlPromise("getObject", params);
             return signedUrl;
         } catch (error) {
@@ -29,16 +29,16 @@ class S3Service {
 
     async fetchAllImages(folderKey, options = { multiple: true, expiresIn: 30 }) {
         const { multiple, expiresIn } = options;
-    
+
         try {
             // List objects in the folder
             const params = {
                 Bucket: process.env.BUCKET_NAME,
                 Prefix: folderKey, // Folder key
             };
-    
+
             const data = await s3.listObjectsV2(params).promise();
-    
+
             // Check if there are any objects in the folder
             if (data.Contents.length === 0) {
                 console.log(`No files found. Returning default image from ${BACKEND_URL}`);
@@ -54,7 +54,18 @@ class S3Service {
                     })
                 )
             );
-            return multiple ? signedUrls : signedUrls[0];
+
+            // Get thumbnail
+            let thumbnail = signedUrls.filter(image => image.includes("/thumbnails/"))[0];
+            if (thumbnail == undefined && !multiple) {
+                console.log(`No thumbnail found. Returning default image from ${BACKEND_URL}`);
+                thumbnail = `${BACKEND_URL}/static/image.webp`;
+            }
+
+            // Images without thumbnail
+            const filteredImages = signedUrls.filter(image => !image.includes("/thumbnails/"));
+
+            return multiple ? filteredImages : thumbnail;
         } catch (error) {
             console.error(`Error fetching file(s) from folder ${folderKey}:`, error);
             throw error;

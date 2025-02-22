@@ -4,7 +4,6 @@ import { Button, Drawer, Layout, Menu, theme } from 'antd';
 
 const { Content, Sider } = Layout;
 import ReviewListings from '../../components/reviewContent/reviewListings';
-import AddListing from '../AddListing/AddListing';
 import { useNavigate } from 'react-router-dom';
 
 const items = [UnorderedListOutlined, UnorderedListOutlined].map((icon, index) => {
@@ -73,12 +72,7 @@ const LandlordDashboard = () => {
       case '4':
         return <ReviewListings status={"deleted"} />;
       case '5':
-        if(isMobile){
-          navigate("/listing/add");
-          break;
-        }else{
-          return <AddListing />;
-        }
+        navigate("/listing/add");
     }
   };
   return (

@@ -291,12 +291,24 @@ async function main() {
 
   // Seed Listings
   for (let i = 1; i <= addresses.length; i++) {
+    const apartmentType =
+      i % 2 === 0 ? ApartmentType.SUBLET : ApartmentType.SINGLE;
+    const furnishedType =
+      i % 3 === 0
+        ? "Furnished"
+        : i % 3 === 1
+        ? "Partially Furnished"
+        : "Unfurnished";
+    const floorInfo = i % 5 === 0 ? "Ground Floor" : `Floor ${i % 5}`;
+    const location = addresses[i - 1].street;
+    const size = 10 + (i % 10) * 10;
+
     const listing = await prisma.listing.create({
       data: {
         landlordId: landlord.id,
-        title: `Listing Title ${i}`,
-        description: `This is the description for listing ${i}.`,
-        type: i % 2 === 0 ? ApartmentType.SUBLET : ApartmentType.SINGLE,
+        title: `${apartmentType} in ${location} - ${size} sqm, ${floorInfo}`,
+        description: `A ${furnishedType} ${apartmentType} located at ${location}. This ${size} sqm unit is situated on ${floorInfo}, offering a comfortable living space with modern amenities.`,
+        type: apartmentType,
         availableFrom: new Date(),
         availableTill: new Date(new Date().setMonth(new Date().getMonth() + 6)),
         status: i % 4 === 0 ? ListingStatus.PENDING : ListingStatus.APPROVED,

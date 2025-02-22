@@ -181,7 +181,7 @@ const validateRooms = (getFieldValue) => ({
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col span={6}>
+        <Col>
           <Form.Item
             label="Size"
             name="size"
@@ -190,7 +190,7 @@ const validateRooms = (getFieldValue) => ({
             <InputNumber suffix="m²" controls={false} min={0} />
           </Form.Item>
         </Col>
-        <Col span={6}>
+        <Col>
           <Form.Item
             label="Floor"
             name="floor"
@@ -201,7 +201,7 @@ const validateRooms = (getFieldValue) => ({
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col span={8}>
+        <Col>
           <Form.Item
             label="Apartment type"
             name="type"
@@ -252,7 +252,7 @@ const validateRooms = (getFieldValue) => ({
         </span>
       </Tooltip>
       <Row gutter={16}>
-        <Col span={8}>
+        <Col>
           <Form.Item
             label="Energy rating"
             name="energyRating"
@@ -264,7 +264,9 @@ const validateRooms = (getFieldValue) => ({
             <Input />
           </Form.Item>
         </Col>
-        <Col span={4}>
+        </Row>
+        <Row>
+        <Col>
           <Form.Item
             label="Available from"
             name="availableFrom"
@@ -275,6 +277,7 @@ const validateRooms = (getFieldValue) => ({
                   "Please enter a date for the beginning of the availability.",
               },
             ]}
+            style={{ paddingRight: "0.75em" }}
           >
             <DatePicker
             placeholder="Select a date"
@@ -284,7 +287,7 @@ const validateRooms = (getFieldValue) => ({
           />
           </Form.Item>
         </Col>
-        <Col span={4}>
+        <Col>
           <Form.Item
             label="Available till"
             name="availableTill"
@@ -334,7 +337,7 @@ const validateRooms = (getFieldValue) => ({
 
       <h2>Address</h2>
       <Row gutter={16}>
-        <Col span={8}>
+        <Col sm={10} xs={18}>
           <Form.Item
             label="Street"
             name="street"
@@ -345,7 +348,7 @@ const validateRooms = (getFieldValue) => ({
             <Input />
           </Form.Item>
         </Col>
-        <Col span={4}>
+        <Col>
           <Form.Item
             label="Housenumber"
             name="houseNumber"
@@ -354,7 +357,7 @@ const validateRooms = (getFieldValue) => ({
             <InputNumber controls={false} />
           </Form.Item>
         </Col>
-        <Col span={4}>
+        <Col>
           <Form.Item
             label="Postalcode"
             name="postalCode"
@@ -368,7 +371,7 @@ const validateRooms = (getFieldValue) => ({
       </Row>
       <h2>Amenities</h2>
       <Row gutter={16}>
-        <Col span={8}>
+        <Col>
           <Form.Item
             label="Furniture"
             name="furnished"
@@ -385,7 +388,7 @@ const validateRooms = (getFieldValue) => ({
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col span={8}>
+        <Col style={{ marginRight: "2em" }}>
           <Form.Item
             label="Fitted kitchen available"
             valuePropName="checked"
@@ -497,7 +500,7 @@ const validateRooms = (getFieldValue) => ({
         <Checkbox />
       </Form.Item>
 
-      <h2>Images (Upto 6)</h2>
+      <h2>Images (Upto 4)</h2>
 
       <Form.Item name="images">
         <Upload
@@ -509,7 +512,7 @@ const validateRooms = (getFieldValue) => ({
           beforeUpload={beforeUpload}
           showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
         >
-          {fileList.length >= 6 ? null : uploadButton}
+          {fileList.length >= 4 ? null : uploadButton}
         </Upload>
         {previewImage && (
           <Image
