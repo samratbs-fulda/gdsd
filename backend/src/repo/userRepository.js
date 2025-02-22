@@ -54,6 +54,17 @@ class UserRepository {
         });
         return result;
     }
+
+    static async updatePassword(value){
+        const result = await prisma.user.update({
+            where:{
+                id: id,
+            },
+            data: {
+                password: value,
+            }
+        });
+    }
 }
 
 module.exports = UserRepository;

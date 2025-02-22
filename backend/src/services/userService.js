@@ -180,6 +180,10 @@ class UserService {
       console.log("Received Data:", data);
       
       const formattedPhone = `${data.phone}`;
+
+      const hashedPassword = await this.hashPassword(data.password);
+      const result = await UserRepository.updatePassword(hashedPassword);
+
       const updatedUser = await prisma.user.update({
         where: { id: parseInt(id) },
         data: {
