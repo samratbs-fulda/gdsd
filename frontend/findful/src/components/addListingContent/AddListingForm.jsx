@@ -210,8 +210,8 @@ const AddListingForm = ({
           </Form.Item>
         </Col>
       </Row>
-      <Row gutter={16}>
-        <Col span={6}>
+      <Row gutter={16} justify={"start"}>
+        <Col>
           <Form.Item
             label="Size"
             name="size"
@@ -220,7 +220,7 @@ const AddListingForm = ({
             <InputNumber suffix="m²" controls={false} min={0} />
           </Form.Item>
         </Col>
-        <Col span={6}>
+        <Col>
           <Form.Item
             label="Floor"
             name="floor"
@@ -231,7 +231,7 @@ const AddListingForm = ({
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col span={8}>
+        <Col>
           <Form.Item
             label="Apartment type"
             initialValue="SINGLE"
@@ -283,7 +283,7 @@ const AddListingForm = ({
         </span>
       </Tooltip>
       <Row gutter={16}>
-        <Col span={8}>
+        <Col>
           <Form.Item
             label="Energy rating"
             name="energyRating"
@@ -295,7 +295,9 @@ const AddListingForm = ({
             <Input />
           </Form.Item>
         </Col>
-        <Col span={4}>
+      </Row>
+      <Row>
+        <Col>
           <Form.Item
             label="Available from"
             name="availableFrom"
@@ -306,6 +308,7 @@ const AddListingForm = ({
                   "Please enter a date for the beginning of the availability.",
               },
             ]}
+            style={{ paddingRight: "0.75em" }}
           >
             <DatePicker
               placeholder="Select a date"
@@ -314,7 +317,7 @@ const AddListingForm = ({
             />
           </Form.Item>
         </Col>
-        <Col span={4}>
+        <Col>
           <Form.Item
             label="Available till"
             name="availableTill"
@@ -364,7 +367,7 @@ const AddListingForm = ({
 
       <h2>Address {validatingAddress && <Spin />}</h2>
       <Row gutter={16}>
-        <Col span={8}>
+        <Col sm={10} xs={18}>
           <Form.Item
             label="Street"
             name="street"
@@ -375,7 +378,7 @@ const AddListingForm = ({
             <Input />
           </Form.Item>
         </Col>
-        <Col span={4}>
+        <Col>
           <Form.Item
             label="Housenumber"
             name="houseNumber"
@@ -385,7 +388,7 @@ const AddListingForm = ({
             <Input />
           </Form.Item>
         </Col>
-        <Col span={4}>
+        <Col>
           <Form.Item
             label="Postalcode"
             name="postalCode"
@@ -401,7 +404,7 @@ const AddListingForm = ({
       </Row>
       <h2>Amenities</h2>
       <Row gutter={16}>
-        <Col span={8}>
+        <Col>
           <Form.Item
             label="Furniture"
             name="furnished"
@@ -419,7 +422,7 @@ const AddListingForm = ({
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col span={8}>
+        <Col style={{ marginRight: "2em" }}>
           <Form.Item
             label="Fitted kitchen available"
             valuePropName="checked"
@@ -463,7 +466,7 @@ const AddListingForm = ({
             <Checkbox />
           </Form.Item>
         </Col>
-        <Col span={8}>
+        <Col>
           <Form.Item
             label="Washing machine available"
             valuePropName="checked"
