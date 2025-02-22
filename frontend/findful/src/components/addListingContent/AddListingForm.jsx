@@ -534,7 +534,7 @@ const AddListingForm = ({
         <Checkbox />
       </Form.Item>
 
-      <h2>Images (Upto 6)</h2>
+      <h2>Images (Upto 4)</h2>
 
       <Form.Item name="images">
         <Upload
@@ -544,7 +544,7 @@ const AddListingForm = ({
           onChange={handleChange}
           beforeUpload={beforeUpload}
         >
-          {fileList.length >= 6 ? null : uploadButton}
+          {fileList.length >= 4 ? null : uploadButton}
         </Upload>
         {previewImage && (
           <Image
