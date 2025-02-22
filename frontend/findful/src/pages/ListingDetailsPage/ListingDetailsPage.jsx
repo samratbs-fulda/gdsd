@@ -100,7 +100,7 @@ const ListingDetailsPage = () => {
                   )}
                 </Title>
 
-                {/* {listing?.images && <ImageCarousel image={listing?.images} />} */}
+                {listing?.images && <ImageCarousel image={listing?.images} />}
                 <Divider />
 
                 {/* Important details section */}
