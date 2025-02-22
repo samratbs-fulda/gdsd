@@ -13,7 +13,7 @@ const items = [UnorderedListOutlined, UserOutlined].map((icon, index) => {
       key: `sub${index + 1}`,
       icon: React.createElement(icon),
       label: `Listings`,
-      children: ['Review', 'Approved', 'Rejected', 'Deleted'].map((label, j) => ({
+      children: ['Pending', 'Approved', 'Rejected', 'Deleted'].map((label, j) => ({
         key: j + 1,
         label: label,
       })),
@@ -23,7 +23,7 @@ const items = [UnorderedListOutlined, UserOutlined].map((icon, index) => {
       key: `sub${index + 1}`,
       icon: React.createElement(icon),
       label: `Users`,
-      children: ['All', 'Banned', 'Deleted'].map((label, j) => ({
+      children: ['Active', 'Banned', 'Deleted'].map((label, j) => ({
         key: j + 5,
         label: label,
       })),
