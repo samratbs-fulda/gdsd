@@ -4,7 +4,7 @@ import { Button, Input, Layout, Menu } from "antd";
 import Sider from "antd/es/layout/Sider";
 import { Content } from "antd/es/layout/layout";
 import "./Chat.css"; // Import the CSS file
-import { SendOutlined } from "@ant-design/icons";
+import { MenuOutlined, SendOutlined } from "@ant-design/icons";
 import io from "socket.io-client";
 import { useAuth } from "../../services/authContext";
 import { getUserById } from "../../services/login/loginService";
@@ -24,11 +24,182 @@ const socket = io(`${apiUrl}`, {
   autoConnect: false,
 });
 
+const ChatSider = ({
+  chats,
+  currentChat,
+  updateCurrentChat,
+  isMobileView,
+  showChat,
+}) => {
+  return !showChat || !isMobileView ? (
+    <Sider className="chat-sider" width={isMobileView ? "100%" : "200px"}>
+      <div className="chat-title">
+        <h3>Conversations</h3>
+      </div>
+      <Menu mode="inline" selectedKeys={[currentChat?.id?.toString() || ""]}>
+        {chats?.map((chat) => (
+          <Menu.Item key={chat.id} onClick={() => updateCurrentChat(chat)}>
+            {chat?.listing?.title || "Chat"}
+          </Menu.Item>
+        ))}
+      </Menu>
+    </Sider>
+  ) : null;
+};
+
+const ChatTitle = ({
+  currentChat,
+  isMobileView,
+  setShowChat,
+  connected,
+  username,
+  user,
+  getLandlordChatTitle,
+}) => {
+  return (
+    <div className="chat-title">
+      <div className="title-toggle">
+        {isMobileView && (
+          <Button
+            className="mobile-menu-button"
+            icon={<MenuOutlined />}
+            onClick={() => setShowChat(false)}
+          />
+        )}
+
+        <h3
+          style={{
+            margin: 0,
+            marginLeft: isMobileView ? "10px" : "0",
+            fontSize: isMobileView ? "0.8rem" : "1rem",
+          }}
+        >
+          {user?.role === "LANDLORD"
+            ? getLandlordChatTitle(user.id, currentChat.participants)
+            : currentChat?.listing.title}
+        </h3>
+      </div>
+
+      <div>
+        <span
+          className="socket"
+          style={{ display: "flex", alignItems: "center" }}
+        >
+          {connected && (
+            <span
+              style={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "50%",
+                backgroundColor: "green",
+                marginRight: "5px",
+              }}
+            />
+          )}
+          <p className="user-login">
+            {user ? `Logged in: ${username} ` : "Not logged in"}
+          </p>
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const ChatContent = ({
+  currentChat,
+  messages,
+  sendMessage,
+  messageInput,
+  setMessageInput,
+  isMobileView,
+  setShowChat,
+  connected,
+  username,
+  user,
+  getLandlordChatTitle,
+  getMessageSenderName,
+}) => {
+  return (
+    <Content className="chat-content">
+      {currentChat && (
+        <ChatTitle
+          currentChat={currentChat}
+          isMobileView={isMobileView}
+          setShowChat={setShowChat}
+          connected={connected}
+          username={username}
+          user={user}
+          getLandlordChatTitle={getLandlordChatTitle}
+        />
+      )}
+      {/* Add participants bar */}
+      {currentChat?.participants && (
+        <div className="participants-bar">
+          <span className="participant-title">Participants: </span>
+          {currentChat.participants.map((p) => (
+            <span key={p.id} className="participant">
+              {p.username}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="message-box">
+        {!currentChat ? (
+          <div className="no-chat-selected">
+            Select a chat to start messaging
+          </div>
+        ) : (
+          messages &&
+          messages.map((message, idx) => (
+            <div
+              className={`message-${
+                message.senderId === user.id ? "right" : "left"
+              }`}
+              key={idx}
+            >
+              <div
+                className={`message-bubble-${
+                  message.senderId === user.id ? "right" : "left"
+                }`}
+              >
+                {message.content}
+                {message.senderId !== user.id ? (
+                  <div className="message-username">{`sent by ${getMessageSenderName(
+                    message.senderId,
+                    currentChat.participants
+                  )}`}</div>
+                ) : null}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      {currentChat ? (
+        <div className="input-area">
+          <Input
+            placeholder="Type a message..."
+            className="input-field"
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
+          />
+          <Button
+            type="primary"
+            icon={<SendOutlined />}
+            onClick={sendMessage}
+          />
+        </div>
+      ) : null}
+    </Content>
+  );
+};
+
 const Chat = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
+  const [showChat, setShowChat] = useState(false);
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
@@ -51,6 +222,15 @@ const Chat = () => {
   const chats = chatQuery.data;
 
   console.log("participants", chats, currentChat);
+
+  // Handle resizing
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Sync current chat from location state
   useEffect(() => {
@@ -119,6 +299,7 @@ const Chat = () => {
   const updateCurrentChat = (chat) => {
     console.log("Updating current chat:", chat);
     setCurrentChat(chat);
+    setShowChat(true);
     navigate(`/chat/${chat.id}`, { replace: true });
   };
   // Send Message Mutation
@@ -174,107 +355,30 @@ const Chat = () => {
   return (
     <div className="container">
       <Layout style={{ height: "100%" }}>
-        <Sider className="chat-sider">
-          <div className="chat-title">
-            <h3 style={{ margin: 0 }}>Conversations</h3>
-          </div>
-          <Menu
-            mode="inline"
-            selectedKeys={[currentChat ? currentChat.id.toString() : ""]}
-            style={{
-              height: "100%",
-              borderRight: 0,
-            }}
-          >
-            {chats &&
-              chats?.map((chat) => (
-                <Menu.Item
-                  className="chat-menu-item"
-                  key={chat.id}
-                  onClick={() => updateCurrentChat(chat)}
-                >
-                  {user?.role === "LANDLORD"
-                    ? getLandlordChatTitle(user.id, chat.participants)
-                    : chat?.listing.title}
-                </Menu.Item>
-              ))}
-          </Menu>
-        </Sider>
+        <ChatSider
+          chats={chatQuery.data}
+          currentChat={currentChat}
+          updateCurrentChat={updateCurrentChat}
+          isMobileView={isMobileView}
+          showChat={showChat}
+        />
 
-        <Layout>
-          <Content className="chat-content">
-            {currentChat && (
-              <div className="chat-title">
-                <h3 style={{ margin: 0 }}>
-                  {user?.role === "LANDLORD"
-                    ? getLandlordChatTitle(user.id, currentChat.participants)
-                    : currentChat?.listing.title}
-                </h3>
-                <div>
-                  <p>{connected ? "Connected" : "Disconnected"}</p>
-                  <p>{user ? `Logged in: ${username} ` : "Not logged in"}</p>
-                </div>
-              </div>
-            )}
-            {/* Add participants bar */}
-            {currentChat?.participants && (
-              <div className="participants-bar">
-                <span className="participant-title">Participants: </span>
-                {currentChat.participants.map((p) => (
-                  <span key={p.id} className="participant">
-                    {p.username}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className="message-box">
-              {!currentChat ? (
-                <div className="no-chat-selected">
-                  Select a chat to start messaging
-                </div>
-              ) : (
-                messages &&
-                messages.map((message, idx) => (
-                  <div
-                    className={`message-${
-                      message.senderId === user.id ? "right" : "left"
-                    }`}
-                    key={idx}
-                  >
-                    <div
-                      className={`message-bubble-${
-                        message.senderId === user.id ? "right" : "left"
-                      }`}
-                    >
-                      {message.content}
-                      {message.senderId !== user.id ? (
-                        <div className="message-username">{`sent by ${getMessageSenderName(
-                          message.senderId,
-                          currentChat.participants
-                        )}`}</div>
-                      ) : null}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            {currentChat ? (
-              <div className="input-area">
-                <Input
-                  placeholder="Type a message..."
-                  className="input-field"
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
-                />
-                <Button
-                  type="primary"
-                  icon={<SendOutlined />}
-                  onClick={sendMessage}
-                />
-              </div>
-            ) : null}
-          </Content>
-        </Layout>
+        {showChat && (
+          <ChatContent
+            currentChat={currentChat}
+            messages={messages}
+            sendMessage={sendMessage}
+            messageInput={messageInput}
+            setMessageInput={setMessageInput}
+            isMobileView={isMobileView}
+            setShowChat={setShowChat}
+            connected={connected}
+            username={userQuery.data?.username}
+            user={user}
+            getLandlordChatTitle={getLandlordChatTitle}
+            getMessageSenderName={getMessageSenderName}
+          />
+        )}
       </Layout>
     </div>
   );
