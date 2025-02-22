@@ -1,8 +1,8 @@
 const Sharp = require('sharp');
 
-async function compressImageToThumbnail(imageBase64, width = 500, height = 500) {
+async function compressImageToThumbnail(imageBuffer, width = 500, height = 500) {
     try {
-      const thumbnailBuffer = await Sharp(Buffer.from(imageBase64, 'base64'))
+      const thumbnailBuffer = await Sharp(imageBuffer)
         .resize(width, height, { fit: 'cover', position: 'center' })
         .toFormat('jpeg')
         .jpeg({ quality: 80 })
