@@ -73,12 +73,7 @@ const LandlordDashboard = () => {
       case '4':
         return <ReviewListings status={"deleted"} />;
       case '5':
-        if(isMobile){
-          navigate("/listing/add");
-          break;
-        }else{
-          return <AddListing />;
-        }
+        navigate("/listing/add");
     }
   };
   return (
