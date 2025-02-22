@@ -500,7 +500,7 @@ const validateRooms = (getFieldValue) => ({
         <Checkbox />
       </Form.Item>
 
-      <h2>Images (Upto 6)</h2>
+      <h2>Images (Upto 4)</h2>
 
       <Form.Item name="images">
         <Upload
@@ -512,7 +512,7 @@ const validateRooms = (getFieldValue) => ({
           beforeUpload={beforeUpload}
           showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
         >
-          {fileList.length >= 6 ? null : uploadButton}
+          {fileList.length >= 4 ? null : uploadButton}
         </Upload>
         {previewImage && (
           <Image
