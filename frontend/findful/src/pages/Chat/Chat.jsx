@@ -14,7 +14,7 @@ import {
   getMessages,
   getUserChats,
 } from "../../services/chatService";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { getEnvironment } from "../../utils/fetchEnvironment";
 
 const environment = getEnvironment();
@@ -50,12 +50,12 @@ const ChatSider = ({
 const ChatTitle = ({
   currentChat,
   isMobileView,
-  setShowChat,
   connected,
   username,
   user,
   getLandlordChatTitle,
 }) => {
+  const navigate = useNavigate();
   return (
     <div className="chat-title">
       <div className="title-toggle">
@@ -63,7 +63,7 @@ const ChatTitle = ({
           <Button
             className="mobile-menu-button"
             icon={<MenuOutlined />}
-            onClick={() => setShowChat(false)}
+            onClick={() => navigate("/chat")}
           />
         )}
 
@@ -112,7 +112,6 @@ const ChatContent = ({
   messageInput,
   setMessageInput,
   isMobileView,
-  setShowChat,
   connected,
   username,
   user,
@@ -125,7 +124,6 @@ const ChatContent = ({
         <ChatTitle
           currentChat={currentChat}
           isMobileView={isMobileView}
-          setShowChat={setShowChat}
           connected={connected}
           username={username}
           user={user}
@@ -197,9 +195,11 @@ const Chat = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { id } = useParams();
+  const showChat = !!id;
 
   const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
-  const [showChat, setShowChat] = useState(false);
+  // const [showChat, setShowChat] = useState(false);
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
@@ -217,8 +217,6 @@ const Chat = () => {
     enabled: !!user,
     queryFn: () => getUserChats(user.id),
   });
-
-  const username = userQuery.data?.username;
   const chats = chatQuery.data;
 
   console.log("participants", chats, currentChat);
@@ -299,7 +297,7 @@ const Chat = () => {
   const updateCurrentChat = (chat) => {
     console.log("Updating current chat:", chat);
     setCurrentChat(chat);
-    setShowChat(true);
+    // setShowChat(true);
     navigate(`/chat/${chat.id}`, { replace: true });
   };
   // Send Message Mutation
@@ -363,22 +361,19 @@ const Chat = () => {
           showChat={showChat}
         />
 
-        {showChat && (
-          <ChatContent
-            currentChat={currentChat}
-            messages={messages}
-            sendMessage={sendMessage}
-            messageInput={messageInput}
-            setMessageInput={setMessageInput}
-            isMobileView={isMobileView}
-            setShowChat={setShowChat}
-            connected={connected}
-            username={userQuery.data?.username}
-            user={user}
-            getLandlordChatTitle={getLandlordChatTitle}
-            getMessageSenderName={getMessageSenderName}
-          />
-        )}
+        <ChatContent
+          currentChat={currentChat}
+          messages={messages}
+          sendMessage={sendMessage}
+          messageInput={messageInput}
+          setMessageInput={setMessageInput}
+          isMobileView={isMobileView}
+          connected={connected}
+          username={userQuery.data?.username}
+          user={user}
+          getLandlordChatTitle={getLandlordChatTitle}
+          getMessageSenderName={getMessageSenderName}
+        />
       </Layout>
     </div>
   );
