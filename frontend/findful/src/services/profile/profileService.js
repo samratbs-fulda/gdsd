@@ -50,3 +50,15 @@ export const uploadProfilePicture = async (userId, imageBase64) => {
       throw error;
   }
 };
+
+export const updateUserPassword = async (userId, newPassword) => {
+  try {
+      console.log(`Updating password for user ${userId}`);
+      const response = await axios.patch(`${apiUrl}/api/users/change-password/${userId}`, { newPassword });
+      console.log("Password updated successfully:", response.data);
+      return response.data;
+  } catch (error) {
+      console.error("Failed to update password:", error.response?.data || error.message);
+      throw error;
+  }
+};
