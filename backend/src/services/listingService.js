@@ -314,6 +314,34 @@ class ListingService {
       throw Error(error.message);
     }
   }
+
+  async getRouteForMap(start, end) {
+    try {
+      const route = await axios.get(`https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${process.env.ORS_KEY}&start=${start[1]},${start[0]}&end=${end[1]},${end[0]}`);
+      return route.data;
+    } catch (error) {
+      console.log(error.message);
+      throw Error(error.message);
+    }
+  }
+
+  async getIsochronesForMap(locations, range) {
+    try {
+      const isochrones = await axios.post("https://api.openrouteservice.org/v2/isochrones/foot-walking",
+        {
+          locations: locations,
+          range: range,
+        },
+        {
+          headers: { Authorization: `Bearer ${process.env.ORS_KEY}` },
+        }
+      );
+      return isochrones.data;
+    } catch (error) {
+      console.log(error.message);
+      throw Error(error.message);
+    }
+  }
 }
 
 module.exports = ListingService;

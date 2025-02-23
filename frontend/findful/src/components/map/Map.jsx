@@ -10,7 +10,7 @@ import { Button, Col, Row, Select, Slider, Spin, Switch } from 'antd'
 import { getEnvironment } from '../../utils/fetchEnvironment'
 import Paragraph from 'antd/es/typography/Paragraph'
 import * as turf from "@turf/turf";
-import { createListingMarker, getLandmarkIcon, getUniversityIcon } from '../../services/map/mapService'
+import { createListingMarker, getIsochrones, getLandmarkIcon, getRoute, getUniversityIcon } from '../../services/map/mapService'
 
 const Map = ({ longitude, latitude, distanceFromUni, title }) => {
     const [activeUniNavigation, setActiveUniNavigation] = useState(false);
@@ -30,9 +30,6 @@ const Map = ({ longitude, latitude, distanceFromUni, title }) => {
 
     // Marker for listing position
     const listingMarker = createListingMarker();
-
-    const environment = getEnvironment();
-    const ors_key = environment.ORS_KEY;
 
     // Handle change of switch to navigate to university
     function navigationToUniChanged(checked) {
@@ -64,15 +61,12 @@ const Map = ({ longitude, latitude, distanceFromUni, title }) => {
     }
 
 
-    // Fetch route from listing position to university or landmark
+    // Fetch route from listing position to university or landmark (with openrouteservice)
     const fetchRoute = async (start, end) => {
-        const orsUrl = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${ors_key}&start=${start[1]},${start[0]}&end=${end[1]},${end[0]}`;
-
         try {
-            const orsResponse = await fetch(orsUrl);
-            const orsData = await orsResponse.json();
-
-            if (orsData.features[0]) {
+            const orsData = await getRoute(start, end);
+  
+            if (orsData && orsData.features[0]) {
                 setRoute({
                     coordinates: orsData.features[0].geometry.coordinates.map(([lon, lat]) => [lat, lon]),
                     duration: Math.round(orsData.features[0].properties.summary.duration / 60),
@@ -106,18 +100,9 @@ const Map = ({ longitude, latitude, distanceFromUni, title }) => {
     // Fetch isochrones for walking distance (all polygons for the travel times)
     const fetchIsochrones = async () => {
         try {
-            const response = await axios.post(
-                "https://api.openrouteservice.org/v2/isochrones/foot-walking",
-                {
-                    locations: [[position[1], position[0]]],
-                    range: calculateTravelTimes(),
-                },
-                {
-                    headers: { Authorization: `Bearer ${ors_key}` },
-                }
-            );
+            const isochrones = await getIsochrones([[position[1], position[0]]], calculateTravelTimes());
 
-            const polygons = response.data.features.map((feature, index) => ({
+            const polygons = isochrones.features.map((feature, index) => ({
                 coordinates: feature.geometry.coordinates[0],
                 color: getIsochroneColors((index + 1) * 5),
             }));

@@ -4,6 +4,11 @@ import { divIcon } from 'leaflet';
 import React from 'react';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
+import { getEnvironment } from '../../utils/fetchEnvironment';
+import axios from 'axios';
+
+const environment = getEnvironment();
+const apiUrl = environment.VITE_BACKEND;
 
 library.add(fas)
 
@@ -60,3 +65,24 @@ export const getLandmarkIcon = (landmark) => {
 export const getUniversityIcon = () => {
   return universityIcon;
 }
+
+
+export const getRoute = async (start, end) => {
+  try {
+    const response = await axios.post(`${apiUrl}/api/listings/route`, {start, end});
+    return response.data.route;
+  } catch (error) {
+    console.error("Failed to fetch listing:", error);
+    throw error;
+  }
+};
+
+export const getIsochrones = async (locations, range) => {
+  try {
+    const isochrones = await axios.post(`${apiUrl}/api/listings/isochrones`, {locations, range});
+    return isochrones.data.isochrones;
+  } catch (error) {
+    console.error("Failed to fetch listing:", error);
+    throw error;
+  }
+};

@@ -234,4 +234,32 @@ router.patch("/update/:listingId", async (req, res) => {
   }
 });
 
+router.post("/route", async (req, res) => {
+  try {
+    const { start, end } = req.body;
+
+    const route = await listingService.getRouteForMap(start, end);
+    res.status(200).json({route});
+  }catch (error){
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
+router.post("/isochrones", async (req, res) => {
+  try {
+    const { locations, range } = req.body;
+
+    const isochrones = await listingService.getIsochronesForMap(locations, range);
+    res.status(200).json({isochrones});
+  }catch (error){
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
 module.exports = router;
