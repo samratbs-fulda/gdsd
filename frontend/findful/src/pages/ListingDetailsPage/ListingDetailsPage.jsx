@@ -1,22 +1,9 @@
 import React from "react";
 import Map from "../../components/map/Map";
 import ListingDetailAmenities from "../../components/listingDetails/ListingDetaiAmenities";
-import {
-  Button,
-  Col,
-  Row,
-  Layout,
-  theme,
-  Divider,
-  Typography,
-  Flex,
-  Tooltip,
-  message,
-  Spin,
-  // Space,
-} from "antd";
+import { Col, Row, Layout, theme, Divider, Typography, Spin } from "antd";
 import { getListingById } from "../../services/listingService";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Title from "antd/es/typography/Title";
 import Text from "antd/es/typography/Text";
@@ -24,24 +11,15 @@ import Paragraph from "antd/es/typography/Paragraph";
 import ImageCarousel from "../../components/imageCarousel/ImageCarousel";
 import "./ListingDetailsPage.css";
 import ListingDetailCosts from "../../components/listingDetails/ListingDetailCosts";
-import {
-  AppstoreOutlined,
-  BulbOutlined,
-  CalendarOutlined,
-  EnvironmentOutlined,
-  HomeOutlined,
-  TeamOutlined,
-} from "@ant-design/icons";
+import { AppstoreOutlined, BulbOutlined, CalendarOutlined, EnvironmentOutlined, HomeOutlined, TeamOutlined } from "@ant-design/icons";
 import GeneralInfoCard from "../../components/listingDetails/GeneralInfoCard";
-// import { jwtDecode } from "jwt-decode";
 import { getRoleOfCurrentUser } from "../../services/authRole";
-import { updateListingStatus } from "../../services/reviewContent/reviewListingService";
 import { useAuth } from "../../services/authContext";
+import ButtonsBottom from "../../components/listingDetails/ButtonsBottom";
 
 const { Content } = Layout;
 
 const ListingDetailsPage = () => {
-  const navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -78,20 +56,20 @@ const ListingDetailsPage = () => {
           :
           (<>
             {/* Check if user is allowed to see current listing */}
-            {listing?.status != "APPROVED" && userId != listing?.landlordId && role != "MODERATOR" ?
+            {listing.status != "APPROVED" && userId != listing.landlordId && role != "MODERATOR" ?
               <Paragraph>The listing is currently unavailable. Please revisit at a later time.</Paragraph>
               :
               <Typography>
                 <Title level={1}>
-                  {listing?.title}
+                  {listing.title}
                   {role == "MODERATOR" && (
                     <Paragraph>
                       Status:{" "}
-                      {listing?.status == "APPROVED" ? (
+                      {listing.status == "APPROVED" ? (
                         <Text type="success">Approved</Text>
-                      ) : listing?.status == "PENDING" ? (
+                      ) : listing.status == "PENDING" ? (
                         <Text type="warning">Pending</Text>
-                      ) : listing?.status == "REJECTED" ? (
+                      ) : listing.status == "REJECTED" ? (
                         <Text type="danger">Rejected</Text>
                       ) : (
                         <Text type="danger">Deleted</Text>
@@ -100,7 +78,8 @@ const ListingDetailsPage = () => {
                   )}
                 </Title>
 
-                {listing?.images && <ImageCarousel image={listing?.images} />}
+                {/* Images */}
+                {listing.images && <ImageCarousel image={listing.images} />}
                 <Divider />
 
                 {/* Important details section */}
@@ -109,7 +88,7 @@ const ListingDetailsPage = () => {
                     <Row justify={"space-around"}>
                       <Col xs={12} sm={8}>
                         <Row justify={"center"}>
-                          <Title level={4}>{listing?.warmRent}€ (warm)</Title>
+                          <Title level={4}>{listing.warmRent}€ (warm)</Title>
                         </Row>
                         <Row justify={"center"}>
                           <Paragraph type="secondary">Rent</Paragraph>
@@ -117,7 +96,7 @@ const ListingDetailsPage = () => {
                       </Col>
                       <Col xs={12} sm={8}>
                         <Row justify={"center"}>
-                          <Title level={4}>{listing?.size}²m</Title>
+                          <Title level={4}>{listing.size}²m</Title>
                         </Row>
                         <Row justify={"center"}>
                           <Paragraph type="secondary">Size</Paragraph>
@@ -125,10 +104,10 @@ const ListingDetailsPage = () => {
                       </Col>
                       <Col xs={12} sm={8}>
                         <Row justify={"center"}>
-                          <Title level={4}>{listing?.freeRooms}</Title>
+                          <Title level={4}>{listing.freeRooms}</Title>
                         </Row>
                         <Row justify={"center"}>
-                          {listing?.freeRooms <= 1 ? (
+                          {listing.freeRooms <= 1 ? (
                             <Paragraph type="secondary">Room</Paragraph>
                           ) : (
                             <Paragraph type="secondary">Rooms</Paragraph>
@@ -147,8 +126,8 @@ const ListingDetailsPage = () => {
                       />
                       <Title level={5}>Address</Title>
                       <Paragraph>
-                        {listing?.street} {listing?.houseNumber},<br />
-                        {listing?.postalCode} Fulda
+                        {listing.street} {listing.houseNumber},<br />
+                        {listing.postalCode} Fulda
                       </Paragraph>
                     </GeneralInfoCard>
 
@@ -158,11 +137,11 @@ const ListingDetailsPage = () => {
                       />
                       <Title level={5}>Availability</Title>
                       <Paragraph>
-                        From: {listing?.availableFrom?.substring(0, 10)} <br />
-                        {listing?.availableTill &&
-                        `Till: ${listing?.availableTill?.substring(0, 10)}`
+                        From: {listing.availableFrom?.substring(0, 10)} <br />
+                        {listing.availableTill &&
+                          `Till: ${listing.availableTill?.substring(0, 10)}`
                         }
-                        
+
                       </Paragraph>
                     </GeneralInfoCard>
 
@@ -170,9 +149,9 @@ const ListingDetailsPage = () => {
                       <HomeOutlined style={{ fontSize: "24px", color: "#faad14" }} />
                       <Title level={5}>Furnishing</Title>
                       <Paragraph>
-                        {listing?.furnished === "FURNISHED"
+                        {listing.furnished === "FURNISHED"
                           ? "Furnished"
-                          : listing?.furnished === "PARTIALLY"
+                          : listing.furnished === "PARTIALLY"
                             ? "Partially Furnished"
                             : "Not Furnished"}
                       </Paragraph>
@@ -181,7 +160,7 @@ const ListingDetailsPage = () => {
                     <GeneralInfoCard>
                       <BulbOutlined style={{ fontSize: "24px", color: "#fadb14" }} />
                       <Title level={5}>Energy Rating</Title>
-                      <Paragraph>{listing?.energyRating || "N/A"}</Paragraph>
+                      <Paragraph>{listing.energyRating || "N/A"}</Paragraph>
                     </GeneralInfoCard>
 
                     <GeneralInfoCard>
@@ -190,9 +169,9 @@ const ListingDetailsPage = () => {
                       />
                       <Title level={5}>Type</Title>
                       <Paragraph>
-                        {listing?.type === "SINGLE"
+                        {listing.type === "SINGLE"
                           ? "Single Apartment"
-                          : listing?.type === "SHARED"
+                          : listing.type === "SHARED"
                             ? "Shared Apartment"
                             : "Sublet"}
                       </Paragraph>
@@ -202,9 +181,9 @@ const ListingDetailsPage = () => {
                       <TeamOutlined style={{ fontSize: "24px", color: "#722ed1" }} />
                       <Title level={5}>Rooms</Title>
                       <Paragraph>
-                        Total: {listing?.totalRooms || "N/A"}
+                        Total: {listing.totalRooms || "N/A"}
                         <br />
-                        Available: {listing?.freeRooms || "N/A"}
+                        Available: {listing.freeRooms || "N/A"}
                       </Paragraph>
                     </GeneralInfoCard>
                   </Row>
@@ -213,24 +192,24 @@ const ListingDetailsPage = () => {
                   {/* Description */}
                   <div className="description">
                     <Title level={3}>Description</Title>
-                    <Paragraph>{listing?.description}</Paragraph>
+                    <Paragraph>{listing.description}</Paragraph>
                   </div>
                   <Divider />
 
                   {/* Costs */}
                   <ListingDetailCosts
                     costs={{
-                      coldRent: listing?.coldRent,
-                      heatingCost: listing?.heatingCost,
-                      additionalCosts: listing?.additionalCosts,
-                      warmRent: listing?.warmRent,
-                      deposit: listing?.deposit,
+                      coldRent: listing.coldRent,
+                      heatingCost: listing.heatingCost,
+                      additionalCosts: listing.additionalCosts,
+                      warmRent: listing.warmRent,
+                      deposit: listing.deposit,
                     }}
                   />
                   <Divider />
 
                   {/* Amenities */}
-                  <ListingDetailAmenities amenities={listing?.amenities} />
+                  <ListingDetailAmenities amenities={listing.amenities} />
                   <Divider />
 
                   {/* Documents */}
@@ -238,22 +217,22 @@ const ListingDetailsPage = () => {
                     <div className="listingDocuments">
                       <Title level={3}>Documents needed to apply: </Title>
                       <ul style={{ listStyleType: "disc" }}>
-                        {listing?.documents?.proofOfIncome && (
+                        {listing.documents?.proofOfIncome && (
                           <li>
                             <Paragraph>Proof of Income</Paragraph>
                           </li>
                         )}
-                        {listing?.documents?.proofOfIdentity && (
+                        {listing.documents?.proofOfIdentity && (
                           <li>
                             <Paragraph>Proof of Identidy</Paragraph>
                           </li>
                         )}
-                        {listing?.documents?.shufaCreditReport && (
+                        {listing.documents?.shufaCreditReport && (
                           <li>
                             <Paragraph>Schufa credit report</Paragraph>
                           </li>
                         )}
-                        {listing?.documents?.parentalGuarantee && (
+                        {listing.documents?.parentalGuarantee && (
                           <li>
                             <Paragraph>Parental guarantee</Paragraph>
                           </li>
@@ -263,190 +242,7 @@ const ListingDetailsPage = () => {
                   )}
 
                   {/* Apply or Reject/Approve button - dependent on role */}
-                  <Flex justify="center">
-                    <Paragraph style={{ width: "100%" }}>
-                      <Row justify={"center"}>
-                        {role == "STUDENT" ? (
-                          <Col lg={2} xs={4}>
-                            <Button
-                              color="primary"
-                              style={{ width: "100%" }}
-                              onClick={() => navigate("/listing/apply/" + listing?.id)}
-                            >
-                              Apply
-                            </Button>
-                          </Col>
-                        ) : role == "GUEST" ? (
-                          <Col lg={2} xs={4}>
-                            <Tooltip title="Please login to apply for listings.">
-                              <Button
-                                color="primary"
-                                disabled={true}
-                                style={{ width: "100%" }}
-                              >
-                                Apply
-                              </Button>
-                            </Tooltip>
-                          </Col>
-                        ) : role == "MODERATOR" ? (
-                          listing?.status == "PENDING" ? (
-                            <>
-                              <Col lg={2} xs={4}>
-                                <Button
-                                  key="approve"
-                                  type="primary"
-                                  style={{ width: "100%" }}
-                                  onClick={async () => {
-                                    await updateListingStatus(listing.id, "APPROVED");
-                                    message.success("Listing approved successfully");
-                                    navigate("/dashboard");
-                                  }}
-                                >
-                                  Approve
-                                </Button>
-                              </Col>
-                              <Col lg={2} xs={4} offset={1}>
-                                <Button
-                                  key="reject"
-                                  type="primary"
-                                  style={{ width: "100%" }}
-                                  onClick={async () => {
-                                    await updateListingStatus(listing.id, "REJECTED");
-                                    message.success("Listing rejected successfully");
-                                    navigate("/dashboard");
-                                  }}
-                                >
-                                  Reject
-                                </Button>
-                              </Col>
-                            </>
-                          ) : listing?.status == "APPROVED" ? (
-                            <>
-                              <Col lg={2} xs={4}>
-                                <Button
-                                  key="reject"
-                                  type="primary"
-                                  style={{ width: "100%" }}
-                                  onClick={async () => {
-                                    await updateListingStatus(listing.id, "REJECTED");
-                                    message.success("Listing rejected successfully");
-                                    navigate("/dashboard");
-                                  }}
-                                >
-                                  Reject
-                                </Button>
-                              </Col>
-                              <Col lg={2} xs={4} offset={1}>
-                                <Button
-                                  key="delete"
-                                  type="primary"
-                                  style={{ width: "100%" }}
-                                  onClick={async () => {
-                                    await updateListingStatus(listing.id, "DELETED");
-                                    message.success("Listing deleted successfully");
-                                    navigate("/dashboard");
-                                  }}
-                                >
-                                  Delete
-                                </Button>
-                              </Col>
-                            </>
-                          ) : listing?.status == "REJECTED" ? (
-                            <>
-                              <Col lg={2} xs={4}>
-                                <Button
-                                  key="approve"
-                                  type="primary"
-                                  style={{ width: "100%" }}
-                                  onClick={async () => {
-                                    await updateListingStatus(listing.id, "APPROVED");
-                                    message.success("Listing approved successfully");
-                                    navigate("/dashboard");
-                                  }}
-                                >
-                                  Approve
-                                </Button>
-                              </Col>
-                              <Col lg={2} xs={4} offset={1}>
-                                <Button
-                                  key="delete"
-                                  type="primary"
-                                  style={{ width: "100%" }}
-                                  onClick={async () => {
-                                    await updateListingStatus(listing.id, "DELETED");
-                                    message.success("Listing deleted successfully");
-                                    navigate("/dashboard");
-                                  }}
-                                >
-                                  Delete
-                                </Button>
-                              </Col>
-                            </>
-                          ) : (
-                            <>
-                              <Col lg={2} xs={4}>
-                                <Button
-                                  key="restore"
-                                  type="primary"
-                                  style={{ width: "100%" }}
-                                  onClick={async () => {
-                                    await updateListingStatus(listing.id, "PENDING");
-                                    message.success("Listing restore successfully");
-                                    navigate("/dashboard");
-                                  }}
-                                >
-                                  Restore
-                                </Button>
-                              </Col>
-                            </>
-                          )
-                        ) : (
-                          listing?.landlordId !== userId ? (
-                            <Col lg={2} xs={4}>
-                              <Tooltip title="Only students can apply for listings.">
-                                <Button
-                                  color="primary"
-                                  disabled={true}
-                                  style={{ width: "100%" }}
-                                >
-                                  Apply
-                                </Button>
-                              </Tooltip>
-                            </Col>
-                          ) : (
-                            <>
-                              <Col lg={2} xs={4}>
-                                <Button
-                                  key="delete"
-                                  type="primary"
-                                  style={{ width: "100%" }}
-                                  onClick={async () => {
-                                    await updateListingStatus(listing.id, "DELETED");
-                                    message.success("Listing deleted successfully");
-                                    navigate("/dashboard/landlord");
-                                  }}
-                                >
-                                  Delete
-                                </Button>
-                              </Col>
-                              <Col lg={2} xs={4} offset={1}>
-                                <Button
-                                  key="edit"
-                                  type="primary"
-                                  style={{ width: "100%" }}
-                                  onClick={() => {
-                                    navigate("/listing/edit/"+listing?.id);
-                                  }}
-                                >
-                                  Edit
-                                </Button>
-                              </Col>
-                            </>
-                          )
-                        )}
-                      </Row>
-                    </Paragraph>
-                  </Flex>
+                  <ButtonsBottom listing={listing} role={role} userId={userId} />
 
                   {/* Map */}
                   {listing.longitude && listing.latitude && (
