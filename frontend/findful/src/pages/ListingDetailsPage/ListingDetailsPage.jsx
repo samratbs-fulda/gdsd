@@ -449,8 +449,8 @@ const ListingDetailsPage = () => {
                   </Flex>
 
                   {/* Map */}
-                  {listing?.longitude && listing?.latitude && (
-                    <Map longitude={listing?.longitude} latitude={listing?.latitude} />
+                  {listing.longitude && listing.latitude && (
+                    <Map longitude={listing.longitude} latitude={listing.latitude} distanceFromUni={listing.distanceFromUni} title={listing.title} />
                   )}
                 </div>
               </Typography>}</>)
