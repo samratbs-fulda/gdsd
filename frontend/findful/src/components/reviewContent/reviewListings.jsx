@@ -26,40 +26,51 @@ const ReviewListings = ({ status }) => {
     
     const listings = listingQuery.data || [];
     return (
-      <Row gutter={16}>
-      {listings.map((listing) => (
-        <Col
-        span={24}
-        sm={12}
-        md={8}
-        key={listing.id}
-        style={{ marginBottom: 16 }}
-        >
-        <Card
-          hoverable
-          cover={
-          <img
-            alt="listing"
-            src={listing.img}
-            className="listing-image"
-          />
-          }
-          actions={[
-          role === "LANDLORD" && (
-            <Button key="edit-listing" type="primary" icon={<EditOutlined />} href={"/listing/edit/" + listing.id} />
-          ),
-          <Button key="view-details" type="primary" icon={<EyeOutlined />} href={"/listing/" + listing.id} />,
-          ].filter(Boolean)}
-        >
-          <Meta title={listing.title} description={listing.type} />
-          <p>Rent: ${listing.warmRent}</p>
-          <p>Size: {listing.size} sq.m</p>
-          <p>Rooms Available: {listing.freeRooms}</p>
-          <p>Address: {listing.street} {listing.houseNumber}, {listing.postalCode}</p>
-        </Card>
-        </Col>
-      ))}
-      </Row>
+      <Row gutter={[16, 16]}>
+              {listings.map((listing) => (
+                <Col
+                  xs={24}
+                  sm={12}
+                  md={8}
+                  key={listing.id}
+                >
+                  <Card
+                    hoverable
+                    cover={
+                      <div style={{ height: 200, overflow: 'hidden' }}>
+                        <img
+                          alt="listing"
+                          src={listing.img}
+                          style={{ 
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      </div>
+                    }
+                    actions={[
+                      role === "LANDLORD" && (
+                        <Button key="edit-listing" type="primary" icon={<EditOutlined />} href={"/listing/edit/" + listing.id} />
+                      ),
+                      <Button key="view-details" type="primary" icon={<EyeOutlined />} href={"/listing/" + listing.id} />,
+                      ].filter(Boolean)}
+                  >
+                    <Meta title={listing.title} description={listing.type} />
+                    <div style={{ marginTop: 16 }}>
+                      <p>Rent: {listing.warmRent}€</p>
+                      <p>Size: {listing.size} sq.m</p>
+                      <p>Rooms Available: {listing.freeRooms}</p>
+                      <p>
+                        Address: {listing.street} {listing.houseNumber},{" "}
+                        {listing.postalCode}
+                      </p>
+                      <p>Distance from University: {listing.distanceFromUni} km</p>
+                    </div>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
     );
 };
 
