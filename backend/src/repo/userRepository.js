@@ -54,6 +54,14 @@ class UserRepository {
         });
         return result;
     }
+
+    static async updatePassword(id, hashedPassword) {
+        return await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: { password: hashedPassword },
+        });
+    }
+    
 }
 
 module.exports = UserRepository;

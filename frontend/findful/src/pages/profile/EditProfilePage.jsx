@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Form, Input, Button, message, Typography, Layout, Select, Spin, Col, Row, Flex } from "antd";
-import { getUserProfile, updateUserProfile } from "../../services/profile/profileService";
+import { getUserProfile, updateUserProfile, updateUserPassword } from "../../services/profile/profileService";
 import { useAuth } from "../../services/authContext";
 import countryList from "../../utils/countryList";
 import countryCodes from "../../utils/countryCodes";
@@ -27,6 +27,10 @@ const EditProfilePage = () => {
   const [selectedDOB, setSelectedDOB] = useState(null); 
   const [form] = Form.useForm();
   const [phoneError, setPhoneError] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [dob, setDOB] = useState(null);
 
   useEffect(() => {
     if (userId) fetchUserProfile(userId);
@@ -56,7 +60,7 @@ const EditProfilePage = () => {
   };
 
   const handleDOBChange = (e) => {
-    setSelectedDOB(e.target.value);
+    setDOB(e.target.value);
   };
 
   const calculateAge = (dob) => {
@@ -66,38 +70,58 @@ const EditProfilePage = () => {
     return today.diff(birthDate, "year");
   };
 
+  const handlePasswordChange = async () => {
+    if (password.length < 6) {
+        message.error("Password must be at least 6 characters long.");
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        message.error("Passwords do not match.");
+        return;
+    }
+
+    try {
+        await updateUserPassword(userId, password);
+        message.success("Password updated successfully.");
+        setIsChangingPassword(false);
+        setPassword("");
+        setConfirmPassword("");
+    } catch (error) {
+        message.error("Failed to update password.");
+    }
+};
+
+
   const handleFormSubmit = async (values) => {
     if (!values.phone || values.phone.length < 7) {
       setPhoneError("Phone number must have at least seven digits.");
       return;
     }
 
-    const dobValue = selectedDOB || form.getFieldValue("dob");
-    if (!dobValue) {
-      message.error("Please enter your Date of Birth");
-      return;
-    }
-    const ageCalculated = calculateAge(dobValue);
-    if (ageCalculated < 15 || ageCalculated > 120) {
-      message.error("Age must be between 15 and 120");
-      return;
+    if (!dob) {
+        message.error("Please enter your Date of Birth");
+        return;
     }
 
-    let updatedValues = { ...values, dob: dobValue, age: ageCalculated };
 
     setLoading(true);
     try {
       const formattedPhone = formatPhoneNumber(values.countryCode, values.phone);
-      updatedValues.phone = formattedPhone;
+      const updatedValues = { ...values, phone: formattedPhone, dob };
 
       await updateUserProfile(userId, updatedValues);
       message.success("Profile updated successfully!");
-      fetchUserProfile(userId);
+      setSelectedDOB(dob);
+      form.setFieldsValue({
+        ...values,
+        dob,
+        age: calculateAge(dob), 
+      });
     } catch (error) {
       message.error("Failed to update profile.");
     } finally {
       setLoading(false);
-      setIsEditingDOB(false);
     }
   };
 
@@ -128,21 +152,72 @@ const EditProfilePage = () => {
             <Input />
           </Form.Item>
 
-          <Form.Item label="Age" name="age">
-            {!isEditingDOB ? (
-              <>
-                <Input disabled style={disabledStyle} value={selectedDOB ? calculateAge(selectedDOB) : form.getFieldValue("age")} />
-                <Button type="link" onClick={toggleDOBEdit}>Edit Age</Button>
-              </>
+          <Typography.Title level={4}>Change Password</Typography.Title>
+            {!isChangingPassword ? (
+                <Button type="link" onClick={() => setIsChangingPassword(true)}>Change</Button>
             ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <Form.Item
+                        label="New Password"
+                        name="newPassword"
+                        rules={[{ required: true, message: "Please enter a new password." }, { min: 6, message: "Password must be at least 6 characters." }]}
+                    >
+                        <Input.Password value={password} onChange={(e) => setPassword(e.target.value)} />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Confirm Password"
+                        name="confirmPassword"
+                        dependencies={["newPassword"]}
+                        rules={[
+                            { required: true, message: "Please confirm your password." },
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue("newPassword") === value) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error("Passwords do not match."));
+                                },
+                            }),
+                        ]}
+                    >
+                        <Input.Password value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                    </Form.Item>
+
+                    <div style={{ display: "flex", justifyContent: "space-between" }}> 
+                        <Button type="primary" onClick={handlePasswordChange} disabled={!password || !confirmPassword}>
+                            Save Password
+                        </Button>
+                        <Button onClick={() => setIsChangingPassword(false)}>
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+          <Form.Item label="Age" name="age">
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <Input
+                disabled
+                style={disabledStyle}
+                value={selectedDOB ? calculateAge(selectedDOB) : form.getFieldValue("age")}
+              />
+              <Button type="link" onClick={toggleDOBEdit}>
+                {isEditingDOB ? "Cancel" : "Change"}
+              </Button>
+            </div>
+          </Form.Item>
+
+          {isEditingDOB && (
+            <Form.Item name="dob">
               <input
                 type="date"
                 onChange={handleDOBChange}
                 value={selectedDOB || form.getFieldValue("dob") || ""}
                 style={{ width: "100%", padding: "8px" }}
               />
-            )}
-          </Form.Item>
+            </Form.Item>
+          )}
 
           <Form.Item label="Gender" name="gender">
             <Select>{["Male", "Female", "Others"].map((g) => <Option key={g} value={g}>{g}</Option>)}</Select>
@@ -153,6 +228,7 @@ const EditProfilePage = () => {
               {countryList.map((country) => <Option key={country} value={country}>{country}</Option>)}
             </Select>
           </Form.Item>
+          
 
           <Typography.Title level={4}>Contact Information</Typography.Title>
           {renderDisabledField("Email", "email", disabledStyle)}

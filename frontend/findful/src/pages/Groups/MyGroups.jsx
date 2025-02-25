@@ -148,8 +148,8 @@ const MyGroups = () => {
 
             return (
               <List.Item style={{ justifyContent: "center" }}>
-                <Row style={{ width: "100%" }} justify="space-between">
-                  <Col>
+                <Row style={{ width: "100%" }} justify="space-between" align="middle">
+                  <Col span={18}>
                     <Text strong>
                       <TeamOutlined style={{ marginRight: 8 }} />
                       Group #{group.id}
@@ -159,18 +159,19 @@ const MyGroups = () => {
                     <br/>
                     <Text>Creator: {creatorUsername}</Text>
                   </Col>
-                  <Col>
+                  <Col span={6} style={{ textAlign: "right", display: "flex", flexDirection: "column", gap: "10px" }}>
                     <Button
                       type="primary"
-                      style={{ marginRight: 8 }}
+                      style={{ minWidth: "90px" }} 
                       onClick={() => handleAccept(group)}
                     >
                       Accept
                     </Button>
-                    <Button danger onClick={() => handleDecline(group)}>
+                    <Button danger style={{ minWidth: "90px" }} onClick={() => handleDecline(group)}>
                       Decline
                     </Button>
                   </Col>
+
                 </Row>
               </List.Item>
             );
