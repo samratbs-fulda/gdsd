@@ -1,5 +1,5 @@
 // Regex for allowed characters
-export const allowedCharactersRegex = /^[a-zäöüßA-ZÄÖÜ0-9\s-.$!,"@]*$/;
+export const allowedCharactersRegex = /^[a-zäöüßA-ZÄÖÜ0-9\s-.$!,"@ü]*$/;
 
 // Utility function to generate validation rule for text fields
 export const getSpecialCharacterValidationRule = (fieldName = "this field") => ({
