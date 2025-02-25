@@ -20,6 +20,7 @@ import {
 import { PlusOutlined } from "@ant-design/icons";
 import moment from 'moment';
 import { getSpecialCharacterValidationRule } from "../../utils/inputValidation";
+import JSZip from "jszip";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -87,18 +88,28 @@ const EditListingForm = ({
     setPreviewOpen(true);
   };
 
-  const transformImages = async () => {
-    const newImages = fileList.filter((file) => file.originFileObj);
-    return Promise.all(
-      newImages.map(async (file) => {
-        const base64 = await getBase64(file.originFileObj);
-        return {
-          imageBase64: base64.split(",")[1], // Remove the `data:image/ prefix
-          imageMimeType: file.type,
-        };
-      })
-    );
-  };
+  // const transformImages = async () => {
+  //   const newImages = fileList.filter((file) => file.originFileObj);
+  //   return Promise.all(
+  //     newImages.map(async (file) => {
+  //       const base64 = await getBase64(file.originFileObj);
+  //       return {
+  //         imageBase64: base64.split(",")[1], // Remove the `data:image/ prefix
+  //         imageMimeType: file.type,
+  //       };
+  //     })
+  //   );
+  // };
+
+    const transformImagesPacked = async () => {
+      const zip = new JSZip();
+      const newImages = fileList.filter((file) => file.originFileObj);
+      newImages.forEach((file, index) => {
+        zip.file(`image_${index}.jpg`, file.originFileObj);
+      });
+      const zipBase64 = await zip.generateAsync({ type: "base64" });
+      return zipBase64;
+    };
 
 const validateRooms = (getFieldValue) => ({
   validator(_, value) {
@@ -142,8 +153,8 @@ const validateRooms = (getFieldValue) => ({
   );
   const handleSubmit = async (values) => {
     // new images from local
-    const images = await transformImages();
-
+    // const images = await transformImages();
+    const images = await transformImagesPacked();
     onFinish({ ...values, images, removedImages });
   };
 
