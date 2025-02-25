@@ -13,6 +13,7 @@ const Homepage = () => {
   const [filters, setFilters] = useState({
     searchText: "",
     listingType: "All",
+    furnished: "All",
     minPrice: 0,
     maxPrice: 1500,
     size: [0, 200],
@@ -40,6 +41,7 @@ const Homepage = () => {
     const newFilters = {
       searchText: "",
       listingType: "All",
+      furnished: "All",
       minPrice: 0,
       maxPrice: 1500,
       size: [0, 200],
@@ -65,6 +67,7 @@ const Homepage = () => {
       ...filters,
       ...values,
       listingType: values.listingType || "All",
+      furnished: values.furnished || "All",
       minPrice: values.minPrice || 0,
       maxPrice: values.maxPrice || 1500,
       size: values.size || [0, 200],
@@ -97,6 +100,17 @@ const Homepage = () => {
             { value: "SINGLE", label: "Single-room apartment" },
             { value: "SHARED", label: "Shared apartment" },
             { value: "SUBLET", label: "Sublet" },
+          ]}
+        />
+      </Form.Item>
+
+      <Form.Item name="furnished" label="Furnished Status">
+        <Select
+          options={[
+            { value: "All", label: "All" },
+            { value: "FURNISHED", label: "Furnished" },
+            { value: "NONFURNISHED", label: "Unfurnished" },
+            { value: "PARTIALLY", label: "Partially furnished" },
           ]}
         />
       </Form.Item>
@@ -279,6 +293,7 @@ const Homepage = () => {
                         Address: {listing.street} {listing.houseNumber},{" "}
                         {listing.postalCode}
                       </p>
+                      <p>Distance from University: {listing.distanceFromUni} km</p>
                     </div>
                   </Card>
                 </Col>

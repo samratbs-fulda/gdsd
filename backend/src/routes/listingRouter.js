@@ -89,6 +89,7 @@ router.get("/search", async (req, res) => {
   const {
     postal_code,
     type,
+    furnished,
     min_price,
     max_price,
     size,
@@ -112,7 +113,6 @@ router.get("/search", async (req, res) => {
   ];
 
   const filters = {};
-  4;
 
   if (amenities) {
     filters.amenities = {};
@@ -129,6 +129,7 @@ router.get("/search", async (req, res) => {
   }
 
   if (type && type != "All") filters.type = type;
+  if (furnished && furnished != "All") filters.furnished = furnished;
   if (min_price) filters.warmRent = { gte: parseFloat(min_price) };
   if (max_price)
     filters.warmRent = { ...filters.warmRent, lte: parseFloat(max_price) };
@@ -211,7 +212,7 @@ router.patch("/status", async (req, res) => {
 router.get("/imgs/:listingId", async (req, res) => {
   const listingId = parseInt(req.params.listingId);
   try {
-    const imgs = await listingService.getListingImgs(listingId);
+    const imgs = await listingService.getListingImgs(listingId, true);
     res.status(200).json({images: imgs})
   }catch (error){
     res.status(500).json({
@@ -226,6 +227,34 @@ router.patch("/update/:listingId", async (req, res) => {
   try {
     const updatedListing = listingService.updateListing(req.body, listingId);
     res.status(201).json({ updatedListing });
+  }catch (error){
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
+router.post("/route", async (req, res) => {
+  try {
+    const { start, end } = req.body;
+
+    const route = await listingService.getRouteForMap(start, end);
+    res.status(200).json({route});
+  }catch (error){
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
+router.post("/isochrones", async (req, res) => {
+  try {
+    const { locations, range } = req.body;
+
+    const isochrones = await listingService.getIsochronesForMap(locations, range);
+    res.status(200).json({isochrones});
   }catch (error){
     res.status(500).json({
       status: "error",

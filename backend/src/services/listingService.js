@@ -5,6 +5,8 @@ const Calculations = require("../utils/calculationUtils");
 const S3Service = require("../services/s3Service");
 const { compressImageToThumbnail } = require('../utils/imageCompressor');
 const axios = require('axios');
+const JSZip = require('jszip');
+const mime = require('mime-types');
 const ListingPositionService = require("./listingPositionService");
 
 class ListingService {
@@ -22,16 +24,13 @@ class ListingService {
     }
   }
 
-  async getListingImgs(listingId){
-    const folderKey = `${process.env.NODE_ENV}/listings/${listingId}/`;  
+  async getListingImgs(listingId, multiple) {
+    const folderKey = `${process.env.NODE_ENV}/listings/${listingId}/`;
     try {
-      const images = await S3Service.fetchAllImages(folderKey, { multiple: true });
-      if (listingId < 21) {
-        images.shift(); // Remove doubled images
+      const images = await S3Service.fetchAllImages(folderKey, { multiple: multiple });
+      if (multiple && listingId < 21) {
+        images.shift(); // Remove first image from seed S3 images
       }
-      
-      images.shift(); // Remove doubled images
-      images.filter(s => !s.includes("/thumbnails/")); // remove thumbnail from response
       return images;
     } catch (error) {
       console.error(`Error fetching images for listing ${listingId}:`, error);
@@ -53,20 +52,12 @@ class ListingService {
       ]);
       listing.amenities = amenities;
       listing.documents = documents;
-      
-      const folderKey = `${process.env.NODE_ENV}/listings/${id}/`;
-      
+
+      // Fetch images for the listing
       try {
-        listing.images = await S3Service.fetchAllImages(folderKey, { multiple: true });
-        if (listing.id < 21) {
-          listing.images.shift(); // Remove doubled images
-        }
-        
-        listing.images.shift(); // Remove doubled images
-        listing.images.filter(s => !s.includes("/thumbnails/")); // remove thumbnail from response
+        listing.images = await this.getListingImgs(id, true);
       } catch (error) {
-        console.error(`Error fetching images for listing ${listing.id}:`, error);
-        listing.images = await S3Service.fetchImage("image.webp");
+        console.error(`Error fetching images for listing ${id}:`, error);
       }
       return listing;
     } catch (error) {
@@ -116,15 +107,15 @@ class ListingService {
           amenities: true, // Include the amenities data in the result
         },
       });
+
       const listingsWithImages = await Promise.all(
         listings.map(async (listing) => {
-          const folderKey = `${process.env.NODE_ENV}/listings/${listing.id}/thumbnails`;
+          // Fetch thumbnails for the listings
           let image;
           try {
-            image = await S3Service.fetchAllImages(folderKey, { multiple: false });
+            image = await this.getListingImgs(listing.id, false);
           } catch (error) {
-            console.error(`Error fetching image for listing ${listing.id}:`, error);
-            image = await S3Service.fetchImage("image.webp");
+            console.error(`Error fetching images for listing ${listing.id}:`, error);
           }
           return { ...listing, img: image };
         })
@@ -207,7 +198,7 @@ class ListingService {
     }
   }
 
-  async updateListing(listingData, listingId){
+  async updateListing(listingData, listingId) {
     try {
       const { images, removedImages, ...newData } = listingData;
       const warmRent = Calculations.calculateWarmRent(newData);
@@ -218,8 +209,8 @@ class ListingService {
       let s3Warning = false;
 
       // Remove Images
-      if (removedImages.length > 0){
-        const imagesToRemove = removedImages.map((img)=>{
+      if (removedImages.length > 0) {
+        const imagesToRemove = removedImages.map((img) => {
           return img.split(".amazonaws.com/")[1].split("?")[0];
         });
         console.log("Removing: ", imagesToRemove)
@@ -245,14 +236,14 @@ class ListingService {
         }
       }
       return updatedListing;
-    }catch (error){
+    } catch (error) {
       throw error;
     }
   }
 
   async addListing(listingData) {
     try {
-      const { images } = listingData;
+      const { imagesPacked } = listingData;
       const warmRent = Calculations.calculateWarmRent(listingData);
 
       // Fetch latitude, longitude and distanceFromUni of listing
@@ -269,22 +260,8 @@ class ListingService {
       const folderKey = `${process.env.NODE_ENV}/listings/${listingId}`;
       const thumbnailFolderKey = `${folderKey}/thumbnails`;
       let s3Warning = false;
-      if (images && images.length > 0) {
-        const firstImage = images[0];
-        const { imageBase64 } = firstImage;
-        if (firstImage) {
-          const compressedBase64 = await compressImageToThumbnail(imageBase64, 1024, 768);
-          await S3Service.uploadImage(compressedBase64, 'image/jpeg', thumbnailFolderKey);
-        }
-        for (const image of images) {
-          try {
-            const { imageBase64, imageMimeType } = image;
-            await S3Service.uploadImage(imageBase64, imageMimeType, folderKey);
-          } catch (error) {
-            console.error(`Error uploading image to S3 for listing ${listingId}:`, error);
-            s3Warning = true;
-          }
-        }
+      if (imagesPacked) {
+        s3Warning = await this.compressAndAddListingImages(imagesPacked, thumbnailFolderKey, folderKey, listingId, s3Warning);
       }
       return {
         data: newListing,
@@ -294,6 +271,32 @@ class ListingService {
       console.error("Error creating listing:", error);
       throw error;
     }
+  }
+
+  async compressAndAddListingImages(imagesPacked, thumbnailFolderKey, folderKey, listingId, s3Warning) {
+    const zipBuffer = Buffer.from(imagesPacked, 'base64');
+    const zip = await JSZip.loadAsync(zipBuffer);
+    const fileKeys = Object.keys(zip.files); //name of files
+    const imageFiles = fileKeys.filter((key) => /\.(jpg|jpeg|png)$/i.test(key));
+    if (imageFiles.length > 0) {
+      const firstImage = zip.files[imageFiles[0]];
+      const firstImageBuffer = await firstImage.async('nodebuffer');
+      if (firstImage) {
+        const compressedBase64 = await compressImageToThumbnail(firstImageBuffer, 1024, 768);
+        await S3Service.uploadImage(compressedBase64, 'image/jpeg', thumbnailFolderKey);
+      }
+      for (const image of imageFiles) {
+        try {
+          const imageContent = zip.files[image];
+          const imageBuffer = await imageContent.async('nodebuffer');
+          await S3Service.uploadImage(imageBuffer.toString('base64'), mime.lookup(image), folderKey);
+        } catch (error) {
+          console.error(`Error uploading image to S3 for listing ${listingId}:`, error);
+          s3Warning = true;
+        }
+      }
+    }
+    return s3Warning;
   }
 
   async getAmenitiesByListingId(listingId) {
@@ -320,6 +323,34 @@ class ListingService {
       });
 
       return documents;
+    } catch (error) {
+      console.log(error.message);
+      throw Error(error.message);
+    }
+  }
+
+  async getRouteForMap(start, end) {
+    try {
+      const route = await axios.get(`https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${process.env.ORS_KEY}&start=${start[1]},${start[0]}&end=${end[1]},${end[0]}`);
+      return route.data;
+    } catch (error) {
+      console.log(error.message);
+      throw Error(error.message);
+    }
+  }
+
+  async getIsochronesForMap(locations, range) {
+    try {
+      const isochrones = await axios.post("https://api.openrouteservice.org/v2/isochrones/foot-walking",
+        {
+          locations: locations,
+          range: range,
+        },
+        {
+          headers: { Authorization: `Bearer ${process.env.ORS_KEY}` },
+        }
+      );
+      return isochrones.data;
     } catch (error) {
       console.log(error.message);
       throw Error(error.message);
