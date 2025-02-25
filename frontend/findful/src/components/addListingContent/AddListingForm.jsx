@@ -17,8 +17,9 @@ import {
   Upload,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import moment from 'moment';
+import moment from "moment";
 import { getSpecialCharacterValidationRule } from "../..//utils/inputValidation";
+import JSZip from "jszip";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -50,7 +51,6 @@ const AddListingForm = ({
   const [form] = Form.useForm();
   const { TextArea } = Input;
 
-  //for image upload and preview
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [availableFrom, setAvailableFrom] = useState(null);
@@ -58,7 +58,11 @@ const AddListingForm = ({
   const [addressValid, setAddressValid] = useState(true);
   const [validatingAddress, setValidatingAddress] = useState(false);
 
-  const previousValues = useRef({ street: "", houseNumber: "", postalCode: "" });
+  const previousValues = useRef({
+    street: "",
+    houseNumber: "",
+    postalCode: "",
+  });
 
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
@@ -68,16 +72,25 @@ const AddListingForm = ({
     setPreviewOpen(true);
   };
 
-  const transformImages = async () => {
-    return Promise.all(
-      fileList.map(async (file) => {
-        const base64 = await getBase64(file.originFileObj);
-        return {
-          imageBase64: base64.split(",")[1], // Remove the `data:image/ prefix
-          imageMimeType: file.type,
-        };
-      })
-    );
+  // const transformImages = async () => {
+  //   return Promise.all(
+  //     fileList.map(async (file) => {
+  //       const base64 = await getBase64(file.originFileObj);
+  //       return {
+  //         imageBase64: base64.split(",")[1], // Remove the `data:image/ prefix
+  //         imageMimeType: file.type,
+  //       };
+  //     })
+  //   );
+  // };
+
+  const transformImagesPacked = async () => {
+    const zip = new JSZip();
+    fileList.forEach((file, index) => {
+      zip.file(`image_${index}.jpg`, file.originFileObj);
+    });
+    const zipBase64 = await zip.generateAsync({ type: "base64" });
+    return zipBase64;
   };
 
   const validateRooms = (getFieldValue) => ({
@@ -86,10 +99,16 @@ const AddListingForm = ({
       const freeRooms = getFieldValue("freeRooms");
 
       // Validation logic
-      if (value !== undefined && totalRooms !== undefined && freeRooms !== undefined) {
+      if (
+        value !== undefined &&
+        totalRooms !== undefined &&
+        freeRooms !== undefined
+      ) {
         if (freeRooms > totalRooms) {
           return Promise.reject(
-            new Error("Number of available rooms cannot exceed the total number of rooms.")
+            new Error(
+              "Number of available rooms cannot exceed the total number of rooms."
+            )
           );
         }
       }
@@ -118,11 +137,11 @@ const AddListingForm = ({
     setValidatingAddress(true);
 
     const query = new URLSearchParams({
-      "country": "Germany",
-      "city": "Fulda",
-      "street": street + " " + houseNumber,
-      "postalcode": postalCode,
-      format: 'json'
+      country: "Germany",
+      city: "Fulda",
+      street: street + " " + houseNumber,
+      postalcode: postalCode,
+      format: "json",
     }).toString();
 
     const url = `https://nominatim.openstreetmap.org/search?${query}`;
@@ -146,7 +165,6 @@ const AddListingForm = ({
     }
     setValidatingAddress(false);
   };
-
 
   const handleAvailableFromChange = (date) => {
     setAvailableFrom(date);
@@ -172,8 +190,9 @@ const AddListingForm = ({
     </button>
   );
   const handleSubmit = async (values) => {
-    const images = await transformImages();
-    onFinish({ ...values, images });
+    //const images = await transformImages();
+    const imagesPacked = await transformImagesPacked();
+    onFinish({ ...values, imagesPacked });
   };
 
   return (
@@ -191,8 +210,9 @@ const AddListingForm = ({
           <Form.Item
             label="Title"
             name="title"
-            rules={[{ required: true, message: "Please enter a title." },
-            getSpecialCharacterValidationRule("title")
+            rules={[
+              { required: true, message: "Please enter a title." },
+              getSpecialCharacterValidationRule("title"),
             ]}
           >
             <Input />
@@ -202,8 +222,9 @@ const AddListingForm = ({
           <Form.Item
             label="Description"
             name="description"
-            rules={[{ required: true, message: "Please enter a description." },
-            getSpecialCharacterValidationRule("description")
+            rules={[
+              { required: true, message: "Please enter a description." },
+              getSpecialCharacterValidationRule("description"),
             ]}
           >
             <TextArea />
@@ -289,7 +310,7 @@ const AddListingForm = ({
             name="energyRating"
             rules={[
               { required: true, message: "Please enter an energy rating." },
-              getSpecialCharacterValidationRule("energy rating")
+              getSpecialCharacterValidationRule("energy rating"),
             ]}
           >
             <Input />
@@ -312,21 +333,20 @@ const AddListingForm = ({
           >
             <DatePicker
               placeholder="Select a date"
-              disabledDate={(current) => current && current.isBefore(moment(), 'day')}
+              disabledDate={(current) =>
+                current && current.isBefore(moment(), "day")
+              }
               onChange={handleAvailableFromChange}
             />
           </Form.Item>
         </Col>
         <Col>
-          <Form.Item
-            label="Available till"
-            name="availableTill"
-          >
+          <Form.Item label="Available till" name="availableTill">
             <DatePicker
               format="YYYY-MM-DD"
               placeholder="Select a date"
-              disabledDate={(current) =>
-                current && current.isBefore(availableFrom, 'day')  // Disable dates before 'Available from'
+              disabledDate={
+                (current) => current && current.isBefore(availableFrom, "day") // Disable dates before 'Available from'
               }
             />
           </Form.Item>
@@ -371,8 +391,9 @@ const AddListingForm = ({
           <Form.Item
             label="Street"
             name="street"
-            rules={[{ required: true, message: "Please enter a street." },
-            getSpecialCharacterValidationRule("street"),
+            rules={[
+              { required: true, message: "Please enter a street." },
+              getSpecialCharacterValidationRule("street"),
             ]}
           >
             <Input />
@@ -382,8 +403,10 @@ const AddListingForm = ({
           <Form.Item
             label="Housenumber"
             name="houseNumber"
-            rules={[{ required: true, message: "Please enter a housenumber." },
-            getSpecialCharacterValidationRule("house number")]}
+            rules={[
+              { required: true, message: "Please enter a housenumber." },
+              getSpecialCharacterValidationRule("house number"),
+            ]}
           >
             <Input />
           </Form.Item>
@@ -392,10 +415,11 @@ const AddListingForm = ({
           <Form.Item
             label="Postalcode"
             name="postalCode"
-            rules={[{ required: true, message: "Please enter a postalcode." },
-            getSpecialCharacterValidationRule("postal code"),
-            { min: 5, message: 'Postalcode must contain 5 numbers.' },
-            { max: 5, message: 'Postalcode must contain 5 numbers.' },
+            rules={[
+              { required: true, message: "Please enter a postalcode." },
+              getSpecialCharacterValidationRule("postal code"),
+              { min: 5, message: "Postalcode must contain 5 numbers." },
+              { max: 5, message: "Postalcode must contain 5 numbers." },
             ]}
           >
             <Input />
@@ -409,7 +433,12 @@ const AddListingForm = ({
             label="Furniture"
             name="furnished"
             initialValue="FURNISHED"
-            rules={[{ required: true, message: "Please choose if your room is furnished or not." }]}
+            rules={[
+              {
+                required: true,
+                message: "Please choose if your room is furnished or not.",
+              },
+            ]}
           >
             <Select>
               <Select.Option value="NONFURNISHED">Unfurnished</Select.Option>

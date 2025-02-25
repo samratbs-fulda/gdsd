@@ -19,6 +19,7 @@
     "antd": "^5.22.2",
     "axios": "^1.7.7",
     "jsonwebtoken": "^9.0.2",
+    "jszip": "^3.10.1",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "moment": "^2.30.1",

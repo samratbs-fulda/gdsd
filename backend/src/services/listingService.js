@@ -5,6 +5,8 @@ const Calculations = require("../utils/calculationUtils");
 const S3Service = require("../services/s3Service");
 const { compressImageToThumbnail } = require('../utils/imageCompressor');
 const axios = require('axios');
+const JSZip = require('jszip');
+const mime = require('mime-types');
 const ListingPositionService = require("./listingPositionService");
 
 class ListingService {
@@ -241,7 +243,7 @@ class ListingService {
 
   async addListing(listingData) {
     try {
-      const { images } = listingData;
+      const { imagesPacked } = listingData;
       const warmRent = Calculations.calculateWarmRent(listingData);
 
       // Fetch latitude, longitude and distanceFromUni of listing
@@ -258,22 +260,8 @@ class ListingService {
       const folderKey = `${process.env.NODE_ENV}/listings/${listingId}`;
       const thumbnailFolderKey = `${folderKey}/thumbnails`;
       let s3Warning = false;
-      if (images && images.length > 0) {
-        const firstImage = images[0];
-        const { imageBase64 } = firstImage;
-        if (firstImage) {
-          const compressedBase64 = await compressImageToThumbnail(imageBase64, 1024, 768);
-          await S3Service.uploadImage(compressedBase64, 'image/jpeg', thumbnailFolderKey);
-        }
-        for (const image of images) {
-          try {
-            const { imageBase64, imageMimeType } = image;
-            await S3Service.uploadImage(imageBase64, imageMimeType, folderKey);
-          } catch (error) {
-            console.error(`Error uploading image to S3 for listing ${listingId}:`, error);
-            s3Warning = true;
-          }
-        }
+      if (imagesPacked) {
+        s3Warning = await this.compressAndAddListingImages(imagesPacked, thumbnailFolderKey, folderKey, listingId, s3Warning);
       }
       return {
         data: newListing,
@@ -283,6 +271,32 @@ class ListingService {
       console.error("Error creating listing:", error);
       throw error;
     }
+  }
+
+  async compressAndAddListingImages(imagesPacked, thumbnailFolderKey, folderKey, listingId, s3Warning) {
+    const zipBuffer = Buffer.from(imagesPacked, 'base64');
+    const zip = await JSZip.loadAsync(zipBuffer);
+    const fileKeys = Object.keys(zip.files); //name of files
+    const imageFiles = fileKeys.filter((key) => /\.(jpg|jpeg|png)$/i.test(key));
+    if (imageFiles.length > 0) {
+      const firstImage = zip.files[imageFiles[0]];
+      const firstImageBuffer = await firstImage.async('nodebuffer');
+      if (firstImage) {
+        const compressedBase64 = await compressImageToThumbnail(firstImageBuffer, 1024, 768);
+        await S3Service.uploadImage(compressedBase64, 'image/jpeg', thumbnailFolderKey);
+      }
+      for (const image of imageFiles) {
+        try {
+          const imageContent = zip.files[image];
+          const imageBuffer = await imageContent.async('nodebuffer');
+          await S3Service.uploadImage(imageBuffer.toString('base64'), mime.lookup(image), folderKey);
+        } catch (error) {
+          console.error(`Error uploading image to S3 for listing ${listingId}:`, error);
+          s3Warning = true;
+        }
+      }
+    }
+    return s3Warning;
   }
 
   async getAmenitiesByListingId(listingId) {

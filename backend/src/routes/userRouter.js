@@ -135,4 +135,20 @@ router.post("/profile-picture/:userId", async (req, res) => {
       res.status(500).json({ success: false, message: "Upload failed" });
   }
 });
+
+router.patch("/change-password/:id", async (req, res) => {
+  try {
+      const { newPassword } = req.body;
+      if (!newPassword || newPassword.length < 6) {
+          return res.status(400).json({ error: "Password must be at least 6 characters long." });
+      }
+
+      await userService.updatePassword(req.params.id, newPassword);
+      res.status(200).json({ message: "Password updated successfully." });
+  } catch (error) {
+      res.status(500).json({ error: "Failed to update password." });
+  }
+});
+
+
 module.exports = router;

@@ -171,51 +171,70 @@ class UserService {
       throw error;
     }
   }
-  
-  
 
   async updateUserProfile(id, data) {
     try {
-      console.log("Updating Profile for User ID:", id);
-      console.log("Received Data:", data);
-      
-      const formattedPhone = `${data.phone}`;
-      const updatedUser = await prisma.user.update({
-        where: { id: parseInt(id) },
-        data: {
-          username: data.username ?? undefined,
-          firstname: data.firstname ?? undefined,
-          lastname: data.lastname ?? undefined,
-          email: data.email ?? undefined,
-          profile: {
-            upsert: {
-              create: {
-                age: data.age ? Number(data.age) : null,
-                gender: data.gender ?? "",
-                nationality: data.nationality ?? "",
-                phone: formattedPhone,
-                bio: data.bio ?? "",
-              },
-              update: {
-                age: data.age ? Number(data.age) : undefined,
-                gender: data.gender ?? undefined,
-                nationality: data.nationality ?? undefined,
-                phone: formattedPhone,
-                bio: data.bio ?? undefined,
-              },
+        console.log("Updating Profile for User ID:", id);
+        
+        const formattedPhone = `${data.phone}`;
+
+        let age = null;
+        if (data.dob) {
+            const birthDate = new Date(data.dob);
+            const today = new Date();
+            age = today.getFullYear() - birthDate.getFullYear();
+            if (today < new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate())) {
+                age--; 
+            }
+        }
+
+        const updatedUser = await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: {
+                username: data.username ?? undefined,
+                firstname: data.firstname ?? undefined,
+                lastname: data.lastname ?? undefined,
+                email: data.email ?? undefined,
+                profile: {
+                    upsert: {
+                        create: {
+                            age: age,
+                            gender: data.gender ?? "",
+                            nationality: data.nationality ?? "",
+                            phone: formattedPhone,
+                            bio: data.bio ?? "",
+                        },
+                        update: {
+                            age: age,
+                            gender: data.gender ?? undefined,
+                            nationality: data.nationality ?? undefined,
+                            phone: formattedPhone,
+                            bio: data.bio ?? undefined,
+                        },
+                    },
+                },
             },
-          },
-        },
-        include: { profile: true },
-      });
-  
-      console.log("Profile Updated Successfully:", updatedUser);
-      return updatedUser;
+            include: { profile: true },
+        });
+
+        console.log("Profile Updated Successfully:", updatedUser);
+        return updatedUser;
     } catch (error) {
-      console.error("Error updating user profile:", error);
-      throw error;
+        console.error("Error updating user profile:", error);
+        throw error;
     }
-  }  
-}  
+  }
+
+
+  async updatePassword(id, newPassword) {
+    try {
+        const hashedPassword = await this.hashPassword(newPassword);
+        return await UserRepository.updatePassword(id, hashedPassword);
+    } catch (error) {
+        console.error("Error updating password:", error);
+        throw error;
+    }
+  }
+}
 
 module.exports = UserService;
