@@ -15,28 +15,35 @@ const ReviewUsers = ({ status }) => {
     
       const users = usersQuery.data || [];
     return (
-        <Row gutter={16}>
-        {users.map((user) => (
-                <Col
-                  span={24}
-                  sm={12}
-                  md={8}
-                  key={user.id}
-                  style={{ marginBottom: 16 }}
-                >
-                  <Card
-                    hoverable
-                    actions={[
-                        <Button key="view-details" type="primary" href={"profile/" + user.id}>
-                          View Profile
-                        </Button>,
-                    ]}
-                  >
-                    <Meta title={user.firstname} description={user.lastname} />
-                  </Card>
-                </Col>
-              ))}
-        </Row>
+      <Row gutter={[16, 16]}>
+      {users.map((user) => (
+        <Col
+          xs={24}
+          sm={12}
+          md={8}
+          key={user.id}
+        >
+          <Card
+            hoverable
+            actions={[
+              <Button
+                key="view-details"
+                type="primary"
+                href={`profile/${user.id}`}
+              >
+                View Profile
+              </Button>,
+            ]}
+          >
+            <Meta title={user.firstname} description={user.email} />
+            <div style={{ marginTop: 16 }}>
+              <p>Name: {user.firstname} + {user.lastname}</p>
+              <p>Role: {user.role}</p>
+            </div>
+          </Card>
+        </Col>
+      ))}
+    </Row>
     );
 };
 
