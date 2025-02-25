@@ -89,6 +89,7 @@ router.get("/search", async (req, res) => {
   const {
     postal_code,
     type,
+    furnished,
     min_price,
     max_price,
     size,
@@ -112,7 +113,6 @@ router.get("/search", async (req, res) => {
   ];
 
   const filters = {};
-  4;
 
   if (amenities) {
     filters.amenities = {};
@@ -129,6 +129,7 @@ router.get("/search", async (req, res) => {
   }
 
   if (type && type != "All") filters.type = type;
+  if (furnished && furnished != "All") filters.furnished = furnished;
   if (min_price) filters.warmRent = { gte: parseFloat(min_price) };
   if (max_price)
     filters.warmRent = { ...filters.warmRent, lte: parseFloat(max_price) };
